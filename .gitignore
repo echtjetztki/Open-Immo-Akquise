@@ -1,0 +1,77 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env
+.env.local
+.env.production
+.env.vercel
+.env.development
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Mobile / Android / iOS
+android/app/build/
+android/app/release/
+android/captures/
+android/.gradle/
+android/.idea/
+*.jks
+*.keystore
+ios/App/build/
+ios/App/Pods/
+
+# OS specific
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Vercel setup scripts (contain sensitive data)
+vercel-env-setup.sh
+vercel-env-setup.ps1
+temp_*.txt
+vercel_env.txt
+replace_script.js
+test_db.js
+
+# Build Artifacts & Tmp
+release_bundles/
+tmp/
+*.log
+*.txt
+*.bak

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Open-Akquise Mobile</title>
+    <style>
+        :root {
+            --primary: #fb923c;
+            --primary-dark: #f97316;
+            --bg: #0A0A0A;
+            --card-bg: #1A1A1A;
+            --text: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 0 20px rgba(251, 146, 60, 0.3));
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        input {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.2rem;
+            border-radius: 1rem;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.15);
+            background: #222;
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 1.2rem;
+            border-radius: 1rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px rgba(251, 146, 60, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:active {
+            transform: scale(0.98);
+            filter: brightness(0.9);
+        }
+
+        .status {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            min-height: 1.2rem;
+        }
+
+        .error { color: #ff4444; }
+        .success { color: var(--primary); }
+
+        .loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            z-index: 100;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(251, 146, 60, 0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 2rem;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.2);
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="bootScreen" class="container">
+        <img src="logo.png" alt="Logo" class="logo">
+        <h1>Dashboard verbinden</h1>
+        <p>Geben Sie die URL Ihres Open-Akquise Dashboards ein (Vercel oder VPS Link).</p>
+
+        <div class="input-group">
+            <input type="url" id="urlInput" placeholder="https://mein-dashboard.vercel.app" spellcheck="false" autocomplete="off">
+        </div>
+
+        <button id="connectBtn" onclick="handleConnect()">
+            Jetzt Verbinden
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <div id="loaderScreen" class="loader">
+        <div class="spinner"></div>
+        <p style="margin-top: 1.5rem; color: white;">Verbindung wird hergestellt...</p>
+    </div>
+
+    <div class="footer">
+        Powered by EchtJetztKI &bull; Open-Akquise v0.1.3
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'open_akquise_instance_url';
+        const urlInput = document.getElementById('urlInput');
+        const statusDiv = document.getElementById('status');
+        const bootScreen = document.getElementById('bootScreen');
+        const loaderScreen = document.getElementById('loaderScreen');
+
+        // Check for existing URL on startup
+        window.onload = () => {
+            const savedUrl = localStorage.getItem(STORAGE_KEY);
+            if (savedUrl) {
+                redirectTo(savedUrl);
+            }
+        };
+
+        function showLoader(show) {
+            bootScreen.style.display = show ? 'none' : 'block';
+            loaderScreen.style.display = show ? 'flex' : 'none';
+        }
+
+        async function handleConnect() {
+            let url = urlInput.value.trim();
+            if (!url) return showError('Bitte geben Sie eine URL ein.');
+            
+            // Add https if missing
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'https://' + url;
+            }
+
+            // Remove trailing slash
+            url = url.replace(/\/$/, "");
+
+            try {
+                showLoader(true);
+                
+                // Validate URL (Basic check if reachable and looks like our app)
+                // We'll just check if it's a valid URL for now to be fast
+                new URL(url); 
+
+                // Save and Redirect
+                localStorage.setItem(STORAGE_KEY, url);
+                redirectTo(url);
+            } catch (e) {
+                showLoader(false);
+                showError('Ungültige URL. Bitte prüfen.');
+            }
+        }
+
+        function showError(msg) {
+            statusDiv.textContent = msg;
+            statusDiv.className = 'status error';
+        }
+
+        function redirectTo(url) {
+            // Append mobile flag so dashboard can show "Reset" button
+            const target = url + (url.includes('?') ? '&' : '?') + 'mobile_app=true';
+            window.location.href = target;
+        }
+    </script>
+</body>
+</html>
