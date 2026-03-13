@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { ensurePropertySchema } from '@/lib/property-schema';
 
 // PATCH - Quick status update
 export async function PATCH(
@@ -7,6 +8,8 @@ export async function PATCH(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        await ensurePropertySchema();
+
         const { id } = await params;
         const body = await request.json();
 
@@ -18,7 +21,7 @@ export async function PATCH(
         }
 
         // Validate status value
-        const validStatuses = ['Von GP kontaktiert', 'Aufgenommen', 'Vermarktung', 'Abschluss/Verkauf', 'Follow-up', 'Storniert', 'Zu vergeben'];
+        const validStatuses = ['NEU', 'Von GP kontaktiert', 'Aufgenommen', 'Vermarktung', 'Abschluss/Verkauf', 'Follow-up', 'Storniert', 'Zu vergeben'];
         if (!validStatuses.includes(body.status)) {
             return NextResponse.json(
                 { error: 'Invalid status value' },
@@ -28,8 +31,8 @@ export async function PATCH(
 
         // If status is changed to 'Aufgenommen', also update 'uebergeben_am' to today
         const sql = body.status === 'Aufgenommen'
-            ? `UPDATE "property-Open-Akquise" SET status = $1, uebergeben_am = CURRENT_DATE WHERE id = $2 RETURNING *`
-            : `UPDATE "property-Open-Akquise" SET status = $1 WHERE id = $2 RETURNING *`;
+            ? `UPDATE "property-leads" SET status = $1, uebergeben_am = CURRENT_DATE WHERE id = $2 RETURNING *`
+            : `UPDATE "property-leads" SET status = $1 WHERE id = $2 RETURNING *`;
 
         const result = await query(sql, [body.status, id]);
 

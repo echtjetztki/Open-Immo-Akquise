@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { ensurePropertySchema, parseOptionalDecimal } from '@/lib/property-schema';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -10,9 +11,11 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        await ensurePropertySchema();
+
         const { id } = await params;
         const result = await query(
-            `SELECT * FROM "property-Open-Akquise" WHERE id = $1`,
+            `SELECT * FROM "property-leads" WHERE id = $1`,
             [id]
         );
 
@@ -32,12 +35,12 @@ export async function GET(
         }
 
         // Fetch ALL replies history for this property
-        if (property.property_id) {
+        if (property.external_id) {
             try {
-                const whCode = (property.property_id || '').trim();
+                const whCode = (property.external_id || '').trim();
                 const repliesResult = await query(
-                    `SELECT * FROM property_replies 
-                     WHERE property_code = $1 
+                    `SELECT * FROM external_source_replies
+                     WHERE external_source_code = $1 
                      ORDER BY created_at DESC`,
                     [whCode]
                 );
@@ -57,10 +60,10 @@ export async function GET(
 
             // NEW: Fetch property_reporting history
             try {
-                const whId = (property.property_id || '').trim();
+                const whId = (property.external_id || '').trim();
                 const reportsResult = await query(
                     `SELECT * FROM property_reporting 
-                     WHERE property_id = $1 
+                     WHERE external_id = $1 
                      ORDER BY created_at DESC`,
                     [whId]
                 );
@@ -93,6 +96,8 @@ export async function PUT(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        await ensurePropertySchema();
+
         const { id } = await params;
         const body = await request.json();
 
@@ -111,9 +116,9 @@ export async function PUT(
             values.push(body.title);
             paramIndex++;
         }
-        if (body.property_id !== undefined) {
-            updates.push(`property_id = $${paramIndex}`);
-            values.push(body.property_id);
+        if (body.external_id !== undefined) {
+            updates.push(`external_id = $${paramIndex}`);
+            values.push(body.external_id);
             paramIndex++;
         }
         if (body.uebergeben_am !== undefined) {
@@ -127,8 +132,15 @@ export async function PUT(
             paramIndex++;
         }
         if (body.kaufpreis !== undefined) {
+            const kaufpreis = parseOptionalDecimal(body.kaufpreis);
+            if (kaufpreis === null) {
+                return NextResponse.json(
+                    { error: 'Invalid kaufpreis value' },
+                    { status: 400 }
+                );
+            }
             updates.push(`kaufpreis = $${paramIndex}`);
-            values.push(parseFloat(body.kaufpreis));
+            values.push(kaufpreis);
             paramIndex++;
         }
         if (body.notizfeld !== undefined) {
@@ -168,12 +180,12 @@ export async function PUT(
         }
         if (body.provision_abgeber_custom !== undefined) {
             updates.push(`provision_abgeber_custom = $${paramIndex}`);
-            values.push(body.provision_abgeber_custom);
+            values.push(parseOptionalDecimal(body.provision_abgeber_custom));
             paramIndex++;
         }
         if (body.provision_kaeufer_custom !== undefined) {
             updates.push(`provision_kaeufer_custom = $${paramIndex}`);
-            values.push(body.provision_kaeufer_custom);
+            values.push(parseOptionalDecimal(body.provision_kaeufer_custom));
             paramIndex++;
         }
 
@@ -187,7 +199,7 @@ export async function PUT(
         values.push(id); // Add id as the last parameter
 
         const sql = `
-            UPDATE "property-Open-Akquise"
+            UPDATE "property-leads"
             SET ${updates.join(', ')}
             WHERE id = $${paramIndex}
             RETURNING *
@@ -224,9 +236,11 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        await ensurePropertySchema();
+
         const { id } = await params;
         await query(
-            `DELETE FROM "property-Open-Akquise" WHERE id = $1`,
+            `DELETE FROM "property-leads" WHERE id = $1`,
             [id]
         );
 

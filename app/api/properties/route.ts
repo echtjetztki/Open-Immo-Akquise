@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { query } from '@/lib/db';
+import { ensurePropertySchema, parseOptionalDecimal } from '@/lib/property-schema';
 import { sendTelegramNotification } from '@/lib/telegram';
 
 export const dynamic = 'force-dynamic';
@@ -22,6 +23,8 @@ type PropertyRow = Record<string, unknown> & {
 // GET - List all properties with optional filters
 export async function GET(request: Request) {
     try {
+        await ensurePropertySchema();
+
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status');
         const search = searchParams.get('search');
@@ -175,10 +178,13 @@ export async function GET(request: Request) {
 // POST - Create new property
 export async function POST(request: Request) {
     try {
+        await ensurePropertySchema();
+
         const body = await request.json();
+        const kaufpreis = parseOptionalDecimal(body.kaufpreis);
 
         // Validation
-        if (!body.link || !body.uebergeben_am || body.kaufpreis === undefined) {
+        if (!body.link || !body.uebergeben_am || kaufpreis === null) {
             return NextResponse.json(
                 { error: 'Missing required fields: link, uebergeben_am, kaufpreis' },
                 { status: 400 }
@@ -201,15 +207,15 @@ export async function POST(request: Request) {
             body.external_id || null,
             body.uebergeben_am,
             body.status || 'Zu vergeben',
-            parseFloat(body.kaufpreis),
+            kaufpreis,
             body.email || null,
             body.telefonnummer || null,
             body.objekttyp || 'Kauf',
             body.plz || null,
             body.ort || null,
             body.betreut_von || null,
-            body.provision_abgeber_custom || null,
-            body.provision_kaeufer_custom || null,
+            parseOptionalDecimal(body.provision_abgeber_custom),
+            parseOptionalDecimal(body.provision_kaeufer_custom),
             body.notizfeld || null,
             new Date().toISOString().split('T')[0]
         ];

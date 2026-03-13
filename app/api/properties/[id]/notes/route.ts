@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { ensurePropertySchema } from '@/lib/property-schema';
 
 // GET - Fetch all notes for a property
 export async function GET(
@@ -7,9 +8,12 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        await ensurePropertySchema();
+
         const { id } = await params;
         const result = await query(
-            `SELECT * FROM property_notes
+            `SELECT id, property_id, note_text, created_by, created_at
+             FROM property_notes
              WHERE property_id = $1
              ORDER BY created_at DESC`,
             [id]
@@ -31,6 +35,8 @@ export async function POST(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        await ensurePropertySchema();
+
         const { id } = await params;
         const body = await request.json();
 

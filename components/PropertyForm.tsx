@@ -69,7 +69,7 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || 'Fehler beim Speichern der Immobilie');
+                throw new Error(errorData.details ? `${errorData.error}: ${errorData.details}` : (errorData.error || 'Fehler beim Speichern der Immobilie'));
             }
 
             setSuccess(true);
@@ -234,9 +234,10 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
                         id="provision_abgeber_custom"
                         title="Abgeber Provision"
                         type="text"
+                        inputMode="decimal"
                         value={formData.provision_abgeber_custom}
                         onChange={(e) => setFormData({ ...formData, provision_abgeber_custom: e.target.value })}
-                        placeholder="z.B. 3%"
+                        placeholder="z.B. 3 oder 3.5"
                         className="input-field w-full py-2"
                     />
                 </div>
@@ -248,9 +249,10 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
                         id="provision_kaeufer_custom"
                         title="Käufer Provision"
                         type="text"
+                        inputMode="decimal"
                         value={formData.provision_kaeufer_custom}
                         onChange={(e) => setFormData({ ...formData, provision_kaeufer_custom: e.target.value })}
-                        placeholder="z.B. 3%"
+                        placeholder="z.B. 3 oder 3.5"
                         className="input-field w-full py-2"
                     />
                 </div>
