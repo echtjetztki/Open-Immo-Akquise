@@ -1,0 +1,105 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Shield, X } from 'lucide-react';
+
+export function CookieConsent() {
+    const [showBanner, setShowBanner] = useState(false);
+    const [showDetails, setShowDetails] = useState(false);
+
+    const GA_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-PYTZQ0NEPP';
+
+    useEffect(() => {
+        const consent = localStorage.getItem('cookie_consent');
+        if (!consent) {
+            // Small delay so it doesn't flash on load
+            const timer = setTimeout(() => setShowBanner(true), 800);
+            return () => clearTimeout(timer);
+        } else if (consent === 'accepted') {
+            loadGtag();
+        }
+    }, []);
+
+    const loadGtag = () => {
+        // Only load if not already loaded
+        if (document.getElementById('gtag-script')) return;
+
+        const script = document.createElement('script');
+        script.id = 'gtag-script';
+        script.async = true;
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+        document.head.appendChild(script);
+
+        const inlineScript = document.createElement('script');
+        inlineScript.innerHTML = `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}');
+        `;
+        document.head.appendChild(inlineScript);
+    };
+
+    const handleAccept = () => {
+        localStorage.setItem('cookie_consent', 'accepted');
+        localStorage.setItem('cookie_consent_date', new Date().toISOString());
+        setShowBanner(false);
+        loadGtag();
+    };
+
+    const handleDecline = () => {
+        localStorage.setItem('cookie_consent', 'declined');
+        localStorage.setItem('cookie_consent_date', new Date().toISOString());
+        setShowBanner(false);
+    };
+
+    if (!showBanner) return null;
+
+    return (
+        <div className="fixed bottom-0 left-0 right-0 z-[9999] p-4 md:p-6 animate-fade-in-up">
+            <div className="max-w-3xl mx-auto bg-background border border-primary/20 rounded-2xl shadow-2xl p-5 md:p-6">
+                <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Shield className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="font-bold text-foreground text-base">🍪 Cookie-Einstellungen</h3>
+                        <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
+                            Wir verwenden Cookies und Google Analytics, um die Nutzung unserer Webseite zu analysieren und unser Angebot zu verbessern. 
+                            Ihre Daten werden gemäß der DSGVO verarbeitet.
+                        </p>
+
+                        {showDetails && (
+                            <div className="mt-3 p-3 rounded-lg bg-primary/5 border border-primary/10 text-sm text-muted-foreground space-y-2">
+                                <p><strong className="text-foreground">Notwendige Cookies:</strong> Erforderlich für den Betrieb der Webseite (z.B. Login-Session). Diese können nicht deaktiviert werden.</p>
+                                <p><strong className="text-foreground">Analyse-Cookies:</strong> Google Analytics ({GA_ID}) erfasst anonymisierte Nutzungsdaten wie Seitenaufrufe und Verweildauer, um das Dashboard zu verbessern.</p>
+                                <p className="text-xs">Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Einwilligung). Sie können Ihre Einwilligung jederzeit widerrufen.</p>
+                            </div>
+                        )}
+
+                        <div className="flex flex-wrap items-center gap-3 mt-4">
+                            <button
+                                onClick={handleAccept}
+                                className="btn-primary px-5 py-2 text-sm font-semibold shadow-lg shadow-primary/20"
+                            >
+                                Alle akzeptieren
+                            </button>
+                            <button
+                                onClick={handleDecline}
+                                className="btn-secondary px-5 py-2 text-sm font-semibold"
+                            >
+                                Nur notwendige
+                            </button>
+                            <button
+                                onClick={() => setShowDetails(!showDetails)}
+                                className="text-sm text-muted-foreground hover:text-primary transition-colors underline underline-offset-2"
+                            >
+                                {showDetails ? 'Details ausblenden' : 'Details anzeigen'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
