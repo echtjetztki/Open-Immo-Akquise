@@ -59,6 +59,7 @@ Du möchtest das System nicht selbst hosten oder konfigurieren? Wir übernehmen 
 - ✅ **Domain-Anbindung:** Aufschaltung deiner Wunsch-Domain (z.B. `dashboard.makler-kunde.de`).
 - ✅ **Security:** Konfiguration von Sicherheits-Webhooks und SSL.
 - ✅ **Support:** Übergabe inklusive technischer Anleitung und Schulung.
+- ➕ **Optional zubuchbar:** Mobile App Paket (Android/iOS) als separates Add-on.
 
 👉 **[Hier Full-Service-Setup buchen](https://buy.stripe.com/9B63cv5nZ8n73UZ6GfeQM04)** | Mail an: [support@echtjetztki.at](mailto:support@echtjetztki.at)
 
@@ -72,7 +73,7 @@ Wir setzen auf modernste Technologien für maximale Geschwindigkeit und Sicherhe
 - **Styling:** Tailwind CSS 4 & Framer Motion (Animationen)
 - **Backend:** PostgreSQL & Supabase (Real-time DB)
 - **Sicherheit:** Security-Webhooks & JWT-basierte Rollen-Authentifizierung
-- **Mobile:** Mobile App Basis via Capacitor (Android/iOS bereit)
+- **Mobile (optional zubuchbar):** Android/iOS App-Setup auf Anfrage (separates Angebot)
 
 ---
 
