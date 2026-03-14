@@ -10,6 +10,12 @@ Open-Akquise ist ein hochperformantes Dashboard zur Steuerung von Immobilien-Lea
 
 ---
 
+## Wiki
+
+Die technische Dokumentation findest du hier:
+
+- [Wiki Startseite](docs/wiki/Home.md)
+
 <p align="center">
   <a href="https://open-immo-akquise.vercel.app/" target="_blank">
     <strong>✨ JETZT LIVE-DEMO TESTEN</strong>
