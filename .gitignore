@@ -45,7 +45,14 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Mobile / Android / iOS
+# Mobile / Android / iOS (keep local only, do not track in git)
+/android/
+/ios/
+/mobile-local-test/
+/capacitor.config.ts
+/capacitor.config.admin.ts
+/capacitor.config.agent.ts
+/capacitor.config.localtest.ts
 android/app/build/
 android/app/release/
 android/captures/
@@ -55,6 +62,9 @@ android/.idea/
 *.keystore
 ios/App/build/
 ios/App/Pods/
+
+# Temporary local workdirs
+/.tmp_wiki_publish/
 
 # OS specific
 Thumbs.db
