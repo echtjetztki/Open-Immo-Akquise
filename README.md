@@ -113,28 +113,28 @@ Folgende Variablen müssen in Ihrer Hosting-Umgebung oder der `.env.local` Datei
 | `ADMIN_PASSWORD` | Master-Passwort für den Admin-Bereich |
 | `USER_PASSWORD` | Master-Passwort für das Team / Agenten |
 | `CRON_SECRET` | Schutz-Token für automatisierte Cronjobs (Cleanup/Sync) |
-| `DEMO_READ_ONLY` | Optional: sperrt Schreibzugriffe serverseitig fuer eine oeffentliche Demo |
-| `NEXT_PUBLIC_DEMO_READ_ONLY` | Optional: blendet Schreibaktionen im Frontend fuer die Demo aus |
+| `DEMO_READ_ONLY` | Optional: sperrt Schreibzugriffe serverseitig für eine öffentliche Demo |
+| `NEXT_PUBLIC_DEMO_READ_ONLY` | Optional: blendet Schreibaktionen im Frontend für die Demo aus |
 | `DEMO_CREDENTIALS_ONLY` | Optional: erzwingt Demo-Logins (Admin/User) statt DB-Logins |
-| `DEMO_ADMIN_PASSWORD` | Optional: Demo-Admin-Passwort fuer Demo-Only Login |
-| `DEMO_USER_PASSWORD` | Optional: Demo-User/Agent-Passwort fuer Demo-Only Login |
-| `NEXT_PUBLIC_DEMO_SIGNUP_URL` | Optional: Link fuer "Basis-Lizenz freischalten" Popup auf der Login-Seite |
-| `NEXT_PUBLIC_LICENSE_SIGNUP_URL` | Optional: separater Link fuer "Freischalten" im Login-Popup |
-| `BASIC_LICENSE_HASH` | Optional: SHA-256 Hash fuer Basis-Code-Pruefung im Login-Popup |
+| `DEMO_ADMIN_PASSWORD` | Optional: Demo-Admin-Passwort für Demo-Only Login |
+| `DEMO_USER_PASSWORD` | Optional: Demo-User/Agent-Passwort für Demo-Only Login |
+| `NEXT_PUBLIC_DEMO_SIGNUP_URL` | Optional: Link für "Basis-Lizenz freischalten"-Popup auf der Login-Seite |
+| `NEXT_PUBLIC_LICENSE_SIGNUP_URL` | Optional: separater Link für "Freischalten" im Login-Popup |
+| `BASIC_LICENSE_HASH` | Optional: SHA-256 Hash für Basis-Code-Prüfung im Login-Popup |
 
-Der erste Login erfolgt ueber `ADMIN_PASSWORD` und `USER_PASSWORD`. Zusaetzliche Benutzer koennen danach im Admin-Bereich angelegt werden.
-Fuer eine oeffentliche Read-only-Demo setzen Sie `DEMO_READ_ONLY=true` und `NEXT_PUBLIC_DEMO_READ_ONLY=true`. Ohne diese Flags funktioniert Self-Hosting unveraendert mit vollem Schreibzugriff.
-Fuer oeffentliche Zugangssteuerung kann `NEXT_PUBLIC_DEMO_SIGNUP_URL` gesetzt werden, damit Interessenten sich zuerst eintragen und Demo-Admin/User-Daten per E-Mail erhalten.
-Optional kann `NEXT_PUBLIC_LICENSE_SIGNUP_URL` fuer den separaten Freischalten-Button gesetzt werden.
-Nach erfolgreicher Basis-Code-Pruefung im Popup wird der Freischaltungs-Button im jeweiligen Browser ausgeblendet.
+Der erste Login erfolgt über `ADMIN_PASSWORD` und `USER_PASSWORD`. Zusätzliche Benutzer können danach im Admin-Bereich angelegt werden.
+Für eine öffentliche Read-only-Demo setzen Sie `DEMO_READ_ONLY=true` und `NEXT_PUBLIC_DEMO_READ_ONLY=true`. Ohne diese Flags funktioniert Self-Hosting unverändert mit vollem Schreibzugriff.
+Für öffentliche Zugangssteuerung kann `NEXT_PUBLIC_DEMO_SIGNUP_URL` gesetzt werden, damit Interessenten sich zuerst eintragen und Demo-Admin/User-Daten per E-Mail erhalten.
+Optional kann `NEXT_PUBLIC_LICENSE_SIGNUP_URL` für den separaten Freischalten-Button gesetzt werden.
+Nach erfolgreicher Basis-Code-Prüfung im Popup wird der Freischaltungs-Button im jeweiligen Browser ausgeblendet.
 In Demo-Installationen akzeptiert der Login nur Demo-Credentials aus ENV (`DEMO_ADMIN_PASSWORD` / `DEMO_USER_PASSWORD`), sofern `DEMO_READ_ONLY=true` oder `DEMO_CREDENTIALS_ONLY=true` aktiv ist.
 
 ---
 
 ## 🔒 Sicherheit & Wartung
 
-- **Read-only Demo statt Cleanup-Cron:** Fuer eine öffentliche Demo koennen `DEMO_READ_ONLY=true` und `NEXT_PUBLIC_DEMO_READ_ONLY=true` gesetzt werden. Dann bleiben Demo-Daten unverändert und ein Reset-Cron ist nicht nötig.
-- **Automatischer Reset (optional):** `/api/cron/cleanup` bleibt fuer Deployments verfuegbar, die bewusst regelmässig auf definierte Demo-Daten zurücksetzen wollen.
+- **Read-only Demo statt Cleanup-Cron:** Für eine öffentliche Demo können `DEMO_READ_ONLY=true` und `NEXT_PUBLIC_DEMO_READ_ONLY=true` gesetzt werden. Dann bleiben Demo-Daten unverändert und ein Reset-Cron ist nicht nötig.
+- **Automatischer Reset (optional):** `/api/cron/cleanup` bleibt für Deployments verfügbar, die bewusst regelmäßig auf definierte Demo-Daten zurücksetzen wollen.
 - **Sicherheits-Logs:** Jeder Login-Versuch kann an einen Discord- oder Slack-Webhook gesendet werden.
 - **Backups:** Durch Supabase sind deine Daten redundant und sicher gespeichert.
 
@@ -144,8 +144,8 @@ In Demo-Installationen akzeptiert der Login nur Demo-Credentials aus ENV (`DEMO_
 
 Open-Akquise wird in einem Dual-Licensing-Modell angeboten:
 
-- **Community-Nutzung:** GNU AGPL v3 oder spaeter
-- **Kommerzielle Nutzung, White-Label und Kundenprojekte:** nur ueber separate Vereinbarung
+- **Community-Nutzung:** GNU AGPL v3 oder später
+- **Kommerzielle Nutzung, White-Label und Kundenprojekte:** nur über separate Vereinbarung
 
 Details findest du in diesen Dateien:
 
@@ -157,7 +157,7 @@ Details findest du in diesen Dateien:
 
 ## 📞 Kontakt & Impressum
 
-Wir unterstützen dich gerne bei der Umsetzung deines Immobilien-Digitialisierungs-Projekts.
+Wir unterstützen dich gerne bei der Umsetzung deines Immobilien-Digitalisierungs-Projekts.
 
 - **Setup-Service:** [Jetzt direkt buchen](https://buy.stripe.com/9B63cv5nZ8n73UZ6GfeQM04)
 - **Web:** [echtjetztki.at](https://echtjetztki.at/)
