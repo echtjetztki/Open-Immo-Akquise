@@ -36,24 +36,30 @@ export function DsgvoFooter() {
 
     return (
         <>
-            <footer className="w-full border-t border-primary/10 bg-background/80 backdrop-blur-sm mt-12 py-6 px-4">
-                <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-3">
+            <footer className="w-full border-t border-primary/10 bg-background/80 backdrop-blur-sm mt-12 py-6 px-4 lg:pl-60">
+                <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-4">
                         <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                             <img src="/logo.png" alt={`${projectName} Logo`} className="h-8 w-auto" />
                         </a>
-                                <span>© {new Date().getFullYear()} {projectName} | <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">GitHub Repository</a></span>
+                        <div className="flex flex-col">
+                            <span className="font-medium text-foreground">© {new Date().getFullYear()} {projectName}</span>
+                            <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">GitHub Repository</a>
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap items-center justify-center md:justify-end gap-6">
+                        <a
+                            href={itRechtUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:opacity-90 transition-all flex items-center gap-3 bg-white/50 backdrop-blur-sm p-2 rounded-xl border border-primary/5 shadow-sm hover:shadow-md h-12"
+                        >
+                            <img src="/partner-it-recht.png" alt="IT-Recht Kanzlei Partner" className="h-full w-auto object-contain" />
+                            <div className="flex flex-col leading-tight pr-2">
+                                <span className="text-[10px] uppercase tracking-wider opacity-60">Partner der</span>
+                                <span className="font-bold text-foreground">IT-Recht Kanzlei</span>
                             </div>
-                            <div className="flex flex-wrap items-center gap-4">
-                                <a
-                                    href={itRechtUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="hover:text-primary transition-colors underline underline-offset-2 flex items-center gap-1.5"
-                                >
-                                    <Shield className="w-4 h-4" />
-                                    Rechtssichere Texte via IT-Recht Kanzlei
-                                </a>
+                        </a>
                                 <button
                                     onClick={() => setShowDatenschutz(true)}
                                     className="hover:text-primary transition-colors underline underline-offset-2"
@@ -96,15 +102,16 @@ export function DsgvoFooter() {
                                 Bei {projectName} handelt es sich um ein Open-Source-Projekt. 
                                 Sämtliche Rechtstexte (Datenschutz, Impressum, AGB) müssen vom jeweiligen Betreiber individuell erstellt werden.
                             </p>
-                            <div className="p-6 bg-primary/5 rounded-2xl border border-primary/10">
-                                <p className="mb-4">Wir empfehlen für die Erstellung rechtssicherer Texte die:</p>
+                            <div className="p-6 bg-primary/5 rounded-2xl border border-primary/10 flex flex-col items-center gap-4">
+                                <p className="mb-2">Wir empfehlen für die Erstellung rechtssicherer Texte die:</p>
                                 <a 
                                     href={itRechtUrl}
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="text-xl font-bold text-primary hover:underline"
+                                    className="flex flex-col items-center gap-3 group"
                                 >
-                                    IT-Recht Kanzlei München
+                                    <img src="/partner-it-recht.png" alt="IT-Recht Kanzlei" className="h-16 w-auto object-contain transition-transform group-hover:scale-105" />
+                                    <span className="text-xl font-bold text-primary group-hover:underline">IT-Recht Kanzlei München</span>
                                 </a>
                             </div>
                             <p className="text-sm">
@@ -128,15 +135,16 @@ export function DsgvoFooter() {
                             <p className="text-lg font-medium text-foreground">
                                 Dieses Dashboard ist ein Open-Source-Projekt. Der Betreiber ist verpflichtet, ein eigenes Impressum gemäß den gesetzlichen Anforderungen zu erstellen.
                             </p>
-                            <div className="p-6 bg-primary/5 rounded-2xl border border-primary/10">
-                                <p className="mb-4">Für rechtssichere Texte und Abmahnrealschutz empfehlen wir:</p>
+                            <div className="p-6 bg-primary/5 rounded-2xl border border-primary/10 flex flex-col items-center gap-4">
+                                <p className="mb-2">Für rechtssichere Texte und Abmahnrealschutz empfehlen wir:</p>
                                 <a 
                                     href={itRechtUrl}
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="text-xl font-bold text-primary hover:underline"
+                                    className="flex flex-col items-center gap-3 group"
                                 >
-                                    IT-Recht Kanzlei München
+                                    <img src="/partner-it-recht.png" alt="IT-Recht Kanzlei" className="h-16 w-auto object-contain transition-transform group-hover:scale-105" />
+                                    <span className="text-xl font-bold text-primary group-hover:underline">IT-Recht Kanzlei München</span>
                                 </a>
                             </div>
                         </div>
@@ -157,15 +165,16 @@ export function DsgvoFooter() {
                             <p className="text-lg font-medium text-foreground">
                                 Als Open-Source-Software liefert {projectName} keine vordefinierten AGB aus. Jeder Nutzer ist für die Erstellung und Einbindung rechtlich korrekter AGB selbst verantwortlich.
                             </p>
-                            <div className="p-6 bg-primary/5 rounded-2xl border border-primary/10">
-                                <p className="mb-4">Wir empfehlen die Nutzung spezialisierter Dienste wie:</p>
+                            <div className="p-6 bg-primary/5 rounded-2xl border border-primary/10 flex flex-col items-center gap-4">
+                                <p className="mb-2">Wir empfehlen die Nutzung spezialisierter Dienste wie:</p>
                                 <a 
                                     href={itRechtUrl}
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="text-xl font-bold text-primary hover:underline"
+                                    className="flex flex-col items-center gap-3 group"
                                 >
-                                    IT-Recht Kanzlei München
+                                    <img src="/partner-it-recht.png" alt="IT-Recht Kanzlei" className="h-16 w-auto object-contain transition-transform group-hover:scale-105" />
+                                    <span className="text-xl font-bold text-primary group-hover:underline">IT-Recht Kanzlei München</span>
                                 </a>
                             </div>
                         </div>
