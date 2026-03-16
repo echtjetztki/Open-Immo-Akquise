@@ -2,6 +2,11 @@ import { Pool, PoolConfig } from 'pg';
 
 let pool: Pool | undefined;
 
+// FIX für self-signed certificate Fehler
+if (process.env.NODE_ENV !== 'production' || process.env.VERCEL === '1') {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
+
 const normalizeConnectionString = (value: string) => {
     const trimmed = value.trim().replace(/\r?\n/g, '');
     if (!trimmed) {
