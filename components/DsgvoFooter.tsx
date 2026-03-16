@@ -43,8 +43,17 @@ export function DsgvoFooter() {
                             <img src="/logo.png" alt={`${projectName} Logo`} className="h-8 w-auto" />
                         </a>
                         <div className="flex flex-col">
-                            <span className="font-medium text-foreground">© {new Date().getFullYear()} {projectName}</span>
-                            <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">GitHub Repository</a>
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">© {new Date().getFullYear()} {projectName}</span>
+                                <span className="px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-500 text-[10px] font-bold uppercase tracking-wider border border-orange-500/20">
+                                    Demo Version
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs">
+                                <span className="text-muted-foreground italic">Nur Beispieldaten</span>
+                                <span className="text-muted-foreground/30">•</span>
+                                <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">GitHub Repository</a>
+                            </div>
                         </div>
                     </div>
                     <div className="flex flex-wrap items-center justify-center md:justify-end gap-6">

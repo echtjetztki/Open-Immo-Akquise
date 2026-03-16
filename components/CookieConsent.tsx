@@ -7,7 +7,7 @@ export function CookieConsent() {
     const [showBanner, setShowBanner] = useState(false);
     const [showDetails, setShowDetails] = useState(false);
 
-    const GA_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-PYTZQ0NEPP';
+    const GA_ID = process.env.NEXT_PUBLIC_GA_ID || '';
 
     useEffect(() => {
         const consent = localStorage.getItem('cookie_consent');
@@ -21,8 +21,8 @@ export function CookieConsent() {
     }, []);
 
     const loadGtag = () => {
-        // Only load if not already loaded
-        if (document.getElementById('gtag-script')) return;
+        // Only load if GA_ID is set and not already loaded
+        if (!GA_ID || document.getElementById('gtag-script')) return;
 
         const script = document.createElement('script');
         script.id = 'gtag-script';
@@ -72,7 +72,9 @@ export function CookieConsent() {
                         {showDetails && (
                             <div className="mt-3 p-3 rounded-lg bg-primary/5 border border-primary/10 text-sm text-muted-foreground space-y-2">
                                 <p><strong className="text-foreground">Notwendige Cookies:</strong> Erforderlich für den Betrieb der Webseite (z.B. Login-Session). Diese können nicht deaktiviert werden.</p>
-                                <p><strong className="text-foreground">Analyse-Cookies:</strong> Google Analytics ({GA_ID}) erfasst anonymisierte Nutzungsdaten wie Seitenaufrufe und Verweildauer, um das Dashboard zu verbessern.</p>
+                                {GA_ID && (
+                                    <p><strong className="text-foreground">Analyse-Cookies:</strong> Google Analytics ({GA_ID}) erfasst anonymisierte Nutzungsdaten wie Seitenaufrufe und Verweildauer, um das Dashboard zu verbessern.</p>
+                                )}
                                 <p className="text-xs">Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Einwilligung). Sie können Ihre Einwilligung jederzeit widerrufen.</p>
                             </div>
                         )}
