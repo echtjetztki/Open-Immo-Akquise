@@ -2,25 +2,23 @@
 
 :root {
   /* Fröhliche, bunte Farben - KEIN SCHWARZ! */
-  --background: #fff9f0;
-  /* Warmes Creme */
-  --foreground: #4a5568;
-  /* Warmes Grau statt Schwarz */
+  --background: #f8fafc;
+  /* Kaltes, helles Blau-Grau */
+  --foreground: #1e293b;
+  /* Dark Slate */
 
-  --card: rgba(255, 255, 255, 0.85);
-  /* Helles Weiß mit Transparenz */
-  --card-border: rgba(147, 197, 253, 0.3);
-  /* Hellblauer Border */
+  --card: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(0, 74, 124, 0.1);
 
-  /* Primary: Fröhliches Orange */
-  --primary: #fb923c;
+  /* Primary: Logo Blau (#004a7c) */
+  --primary: #004a7c;
   --primary-foreground: #ffffff;
-  --primary-light: #fed7aa;
+  --primary-light: #e0f2fe;
 
-  /* Secondary: Lebendiges Türkis */
-  --secondary: #2dd4bf;
+  /* Secondary: Logo Orange (#f58220) */
+  --secondary: #f58220;
   --secondary-foreground: #ffffff;
-  --secondary-light: #99f6e4;
+  --secondary-light: #ffedd5;
 
   /* Akzent-Farben (fröhlich und bunt) */
   --accent-purple: #c084fc;
@@ -110,11 +108,10 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  /* Fröhlicher Gradient-Hintergrund mit bunten Farben */
   background-image:
-    radial-gradient(circle at 15% 50%, rgba(251, 146, 60, 0.15), transparent 40%),
-    radial-gradient(circle at 85% 30%, rgba(45, 212, 191, 0.15), transparent 40%),
-    radial-gradient(circle at 50% 85%, rgba(244, 114, 182, 0.12), transparent 35%);
+    radial-gradient(circle at 15% 50%, rgba(0, 74, 124, 0.12), transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(245, 130, 32, 0.08), transparent 40%),
+    radial-gradient(circle at 50% 85%, rgba(0, 115, 177, 0.08), transparent 35%);
   background-attachment: fixed;
 }
 
@@ -129,16 +126,16 @@ body {
 
 .glass-card {
   @apply rounded-xl transition-all duration-300;
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.8);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(147, 197, 253, 0.2);
-  box-shadow: 0 4px 20px -3px rgba(251, 146, 60, 0.1);
+  border: 1px solid rgba(0, 74, 124, 0.1);
+  box-shadow: 0 4px 25px -5px rgba(0, 74, 124, 0.05);
 }
 
 .glass-card:hover {
-  border-color: rgba(251, 146, 60, 0.4);
-  box-shadow: 0 8px 30px -5px rgba(251, 146, 60, 0.2);
+  border-color: rgba(0, 74, 124, 0.2);
+  box-shadow: 0 10px 40px -10px rgba(0, 74, 124, 0.1);
   transform: translateY(-2px);
 }
 
@@ -202,14 +199,14 @@ body {
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px -5px rgba(251, 146, 60, 0.4);
+  box-shadow: 0 8px 20px -5px rgba(0, 74, 124, 0.3);
 }
 
 .btn-secondary {
   @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
-  background: rgba(255, 255, 255, 0.8);
-  color: var(--foreground);
-  border: 2px solid rgba(251, 146, 60, 0.3);
+  background: rgba(255, 255, 255, 1);
+  color: var(--primary);
+  border: 2px solid rgba(0, 74, 124, 0.2);
 }
 
 .btn-secondary:hover {
@@ -232,7 +229,7 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.15);
+  box-shadow: 0 0 0 4px rgba(0, 74, 124, 0.1);
   background: #ffffff;
 }
 
