@@ -1,0 +1,354 @@
+@import "tailwindcss";
+
+:root {
+  /* Fröhliche, bunte Farben - KEIN SCHWARZ! */
+  --background: #fff9f0;
+  /* Warmes Creme */
+  --foreground: #4a5568;
+  /* Warmes Grau statt Schwarz */
+
+  --card: rgba(255, 255, 255, 0.85);
+  /* Helles Weiß mit Transparenz */
+  --card-border: rgba(147, 197, 253, 0.3);
+  /* Hellblauer Border */
+
+  /* Primary: Fröhliches Orange */
+  --primary: #fb923c;
+  --primary-foreground: #ffffff;
+  --primary-light: #fed7aa;
+
+  /* Secondary: Lebendiges Türkis */
+  --secondary: #2dd4bf;
+  --secondary-foreground: #ffffff;
+  --secondary-light: #99f6e4;
+
+  /* Akzent-Farben (fröhlich und bunt) */
+  --accent-purple: #c084fc;
+  /* Purple 400 */
+  --accent-pink: #f472b6;
+  /* Pink 400 */
+  --accent-yellow: #fbbf24;
+  /* Amber 400 */
+  --accent-green: #4ade80;
+  /* Green 400 */
+
+  /* Status-Farben (hell & fröhlich) */
+  --status-von-gp-kontaktiert: #a78bfa;
+  /* Violet 400 - Von GP kontaktiert */
+  --status-aufgenommen: #7dd3fc;
+  /* Sky 300 - Aufgenommen */
+  --status-vermarktung: #fb923c;
+  /* Orange 400 - Vermarktung */
+  --status-abschluss-verkauf: #4ade80;
+  /* Green 400 - Abschluss/Verkauf */
+  --status-follow-up: #3b82f6;
+  /* Blue 500 - Follow-up */
+  --status-storniert: #ef4444;
+  /* Red 500 - Storniert */
+  --status-zu-vergeben: #14b8a6;
+  /* Teal 500 - Zu vergeben */
+  --status-neu: #6366f1;
+  /* Indigo 500 - NEU (AI) */
+
+  /* Semantische Farben (hell & freundlich) */
+  --success: #4ade80;
+  /* Helles Grün */
+  --warning: #fbbf24;
+  /* Helles Gelb */
+  --info: #60a5fa;
+  /* Helles Blau */
+  --error: #f87171;
+  /* Sanftes Rot */
+
+  /* Neutrale Farben (warm, kein Schwarz!) */
+  --muted: #fef3c7;
+  /* Amber 100 */
+  --muted-foreground: #78716c;
+  /* Stone 500 */
+
+  --radius: 1rem;
+  /* Abgerundete Ecken */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-pink: var(--accent-pink);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-green: var(--accent-green);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-error: var(--error);
+
+  /* Status Colors */
+  --color-status-von-gp-kontaktiert: var(--status-von-gp-kontaktiert);
+  --color-status-aufgenommen: var(--status-aufgenommen);
+  --color-status-vermarktung: var(--status-vermarktung);
+  --color-status-abschluss-verkauf: var(--status-abschluss-verkauf);
+  --color-status-follow-up: var(--status-follow-up);
+  --color-status-storniert: var(--status-storniert);
+  --color-status-zu-vergeben: var(--status-zu-vergeben);
+  --color-status-neu: var(--status-neu);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+  min-height: 100dvh;
+  color-scheme: light;
+  /* Safe Area Padding for mobile apps (Notch, Statusbar, etc) */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  /* Fröhlicher Gradient-Hintergrund mit bunten Farben */
+  background-image:
+    radial-gradient(circle at 15% 50%, rgba(251, 146, 60, 0.15), transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(45, 212, 191, 0.15), transparent 40%),
+    radial-gradient(circle at 50% 85%, rgba(244, 114, 182, 0.12), transparent 35%);
+  background-attachment: fixed;
+}
+
+/* Glassmorphism Components - Fröhlicher Style */
+.glass {
+  background: rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(147, 197, 253, 0.2);
+  box-shadow: 0 4px 20px -3px rgba(251, 146, 60, 0.1);
+}
+
+.glass-card {
+  @apply rounded-xl transition-all duration-300;
+  background: rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(147, 197, 253, 0.2);
+  box-shadow: 0 4px 20px -3px rgba(251, 146, 60, 0.1);
+}
+
+.glass-card:hover {
+  border-color: rgba(251, 146, 60, 0.4);
+  box-shadow: 0 8px 30px -5px rgba(251, 146, 60, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Scrollbar - Bunter Style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(251, 146, 60, 0.05);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--primary), var(--secondary));
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #f97316, #14b8a6);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* Custom Scrollbar Helper */
+.custom-scrollbar {
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 20px;
+}
+
+/* Safe-area helpers (replacing inline styles in modals) */
+.safe-area-modal-overlay {
+  padding-top: calc(env(safe-area-inset-top) + 0.5rem);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
+}
+
+.safe-area-modal-footer {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+}
+
+/* Button Styles */
+.btn-primary {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -5px rgba(251, 146, 60, 0.4);
+}
+
+.btn-secondary {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--foreground);
+  border: 2px solid rgba(251, 146, 60, 0.3);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: var(--primary);
+}
+
+/* Input Styles */
+input,
+textarea,
+select {
+  @apply rounded-xl px-4 py-3 transition-all duration-200 text-base shadow-sm ring-offset-background;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(147, 197, 253, 0.3);
+  color: var(--foreground);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.15);
+  background: #ffffff;
+}
+
+/* Status Badge Styles */
+.status-badge {
+  @apply px-3 py-1 rounded-full text-sm font-medium inline-flex items-center gap-2;
+}
+
+.status-von-gp-kontaktiert {
+  background: rgba(167, 139, 250, 0.2);
+  color: #6d28d9;
+  /* Violet 700 */
+}
+
+.status-aufgenommen {
+  background: rgba(125, 211, 252, 0.2);
+  color: #0369a1;
+  /* Sky 700 */
+}
+
+.status-vermarktung {
+  background: rgba(251, 146, 60, 0.2);
+  color: #c2410c;
+  /* Orange 700 */
+}
+
+.status-abschluss-verkauf {
+  background: rgba(74, 222, 128, 0.2);
+  color: #15803d;
+  /* Green 700 */
+}
+
+.status-follow-up {
+  background: rgba(59, 130, 246, 0.2);
+  color: #1d4ed8;
+  /* Blue 700 */
+}
+
+.status-storniert {
+  background: rgba(239, 68, 68, 0.2);
+  color: #b91c1c;
+  /* Red 700 */
+}
+
+.status-zu-vergeben {
+  background: rgba(20, 184, 166, 0.2);
+  color: #0f766e;
+  /* Teal 700 */
+}
+
+.status-neu {
+  background: rgba(99, 102, 241, 0.2);
+  color: #4338ca;
+  /* Indigo 700 */
+}
+
+/* Animation Classes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Loading Spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Slide Up Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* Mobile/WebView performance guards (iOS Safari in-app browsers) */
+@media (max-width: 768px), (hover: none) and (pointer: coarse) {
+  body {
+    background-attachment: scroll;
+  }
+
+  .glass,
+  .glass-card {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .glass-card:hover {
+    transform: none;
+    box-shadow: 0 4px 20px -3px rgba(251, 146, 60, 0.12);
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Open-Immo-Akquise",
+  "short_name": "Open-Immo",
+  "description": "Open-Immo-Akquise Immobilien-Management Dashboard",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff7ed",
+  "theme_color": "#fb923c",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
