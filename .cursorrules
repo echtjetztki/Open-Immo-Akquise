@@ -1,0 +1,8 @@
+Du bearbeitest gerade das Projekt "Open-Immo-Akquise" (Pfad: C:\Users\offic\Dropbox\Aquise-app).
+Dies ist EIN ANDERES PROJEKT als "Open CRM" (Pfad: C:\Users\offic\Dropbox\open-crm).
+
+WICHTIGE REGELN FÜR DIESES PROJEKT:
+1. Keine Dateien, API-Routen oder Seiten (z.B. Artikel, Rechnungen, Kundenverwaltung) aus dem open-crm Projekt in dieses Projekt kopieren.
+2. Dieses Projekt fokussiert sich ausschließlich auf Immobilien-Akquise (LinkedIn-Integration, Leads, N8N, Unipile).
+3. Achte bei git-Operationen penibel darauf, dass nicht fälschlicherweise Code aus dem CRM-Projekt hier gepusht oder gemerged wird.
+4. "Open CRM" Logos oder Brandings haben in der "Open-Immo-Akquise" nichts zu suchen. Nutze hier das EchtJetztKI und Akquise Branding.
