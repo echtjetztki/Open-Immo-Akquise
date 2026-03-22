@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(plink -i \"/c/Users/offic/Dropbox/Server/Server 2.ppk\" -batch root@87.106.51.21 \"clpctl --version 2>/dev/null || echo ''CloudPanel CLI check''; ls /etc/nginx/sites-enabled/ 2>/dev/null; ls /etc/clp/ 2>/dev/null | head -10\")",
+      "Bash(plink -i \"/c/Users/offic/Dropbox/Server/Server 2.ppk\" -batch root@87.106.51.21 \"cat /etc/nginx/sites-enabled/portainer.dahoam-shoppen.eu.conf\")",
+      "Bash(plink -i \"/c/Users/offic/Dropbox/Server/Server 2.ppk\" -batch root@87.106.51.21 \"curl -s -o /dev/null -w ''%{http_code}'' http://127.0.0.1:9000 && echo '''' && ls -la /etc/nginx/ssl-certificates/portainer.dahoam-shoppen.eu* 2>/dev/null || echo ''SSL cert fehlt''\")",
+      "Bash(plink -i \"/c/Users/offic/Dropbox/Server/Server 2.ppk\" -batch root@87.106.51.21 \"nginx -t 2>&1 && systemctl is-active nginx\")",
+      "Bash(plink -i \"/c/Users/offic/Dropbox/Server/Server 2.ppk\" -batch root@87.106.51.21 \"openssl x509 -in /etc/nginx/ssl-certificates/portainer.dahoam-shoppen.eu.crt -noout -dates -subject 2>&1\")",
+      "Bash(plink -i \"/c/Users/offic/Dropbox/Server/Server 2.ppk\" -batch root@87.106.51.21 \"cat /etc/nginx/sites-enabled/cal.aurorapure.at.conf\")",
+      "Bash(plink -i \"/c/Users/offic/Dropbox/Server/Server 2.ppk\" -batch root@87.106.51.21 \"curl -sk -o /dev/null -w ''%{http_code}'' https://cal.aurorapure.at && echo '''' && curl -sk -o /dev/null -w ''%{http_code}'' http://127.0.0.1:30000\")",
+      "Bash(plink -i \"/c/Users/offic/Dropbox/Server/Server 2.ppk\" -batch root@87.106.51.21 \"docker inspect calcom --format ''{{range .NetworkSettings.Ports}}{{.}}{{end}}'' && docker ps --filter name=calcom --format ''{{.Ports}}''\")",
+      "Bash(plink -i \"/c/Users/offic/Dropbox/Server/Server 2.ppk\" -batch root@87.106.51.21 \"docker logs calcom --tail 20 2>&1\")",
+      "Bash(plink -i \"/c/Users/offic/Dropbox/Server/Server 2.ppk\" -batch root@87.106.51.21 \"docker inspect calcom --format ''{{.NetworkSettings.Networks}}'' && docker inspect calcom --format ''{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}''\")"
+    ]
+  }
+}
