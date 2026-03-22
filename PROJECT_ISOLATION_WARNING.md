@@ -23,3 +23,4 @@ Es handelt sich um zwei **völlig unterschiedliche** und **voneinander unabhäng
 * **IMMER** sicherstellen, dass im richtigen Ordner und mit dem richtigen GitHub-Remote-Branch gearbeitet wird. Ein "gesamt" Push oder Commit darf niemals Code aus dem `open-crm` Verzeichnis in das `Aquise-app` Verzeichnis bringen.
 
 *Zuletzt vermischt und behoben am: 22. März 2026. Bitte diese Erfahrung als Mahnung im Projekt belassen.*
+*Vercel-Trigger-Update gesendet.*
