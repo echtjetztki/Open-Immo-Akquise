@@ -45,7 +45,7 @@ export default function UserHeader() {
     const isAdmin = user?.role === 'admin';
     const referralsPath = isAgent
         ? '/agent/referrals'
-        : (isAdmin ? '/referrals' : '/referral-entry');
+        : (isAdmin ? '/referrals' : '/empfehlung');
 
     const handleLogout = async () => {
         await fetch('/api/login/logout', { method: 'POST' });
@@ -57,7 +57,11 @@ export default function UserHeader() {
         ? pathname.startsWith('/agent/') && pathname !== '/agent/settings' && !pathname.includes('/agent/referrals')
         : pathname === '/user';
     const isSettings = pathname === settingsPath;
-    const isReferrals = pathname === referralsPath || pathname.startsWith('/agent/referrals') || pathname === '/referral-entry';
+    const isReferrals =
+        pathname === referralsPath ||
+        pathname.startsWith('/agent/referrals') ||
+        pathname === '/referral-entry' ||
+        pathname === '/empfehlung';
 
     return (
         <header className="sticky top-0 left-0 right-0 z-50 border-b border-primary/10 bg-background/80 backdrop-blur-md shadow-md">
