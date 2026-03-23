@@ -39,7 +39,19 @@ export async function GET(request: Request) {
             // Table might not exist yet.
         }
 
-        await query('TRUNCATE TABLE users RESTART IDENTITY CASCADE');
+        try {
+            await query('UPDATE public.referrals SET agent_id = NULL WHERE agent_id IS NOT NULL');
+            console.log('Referrals unlinked from users before user reset.');
+        } catch (_error) {
+            // Referrals table might not exist yet.
+        }
+
+        await query('DELETE FROM users');
+        try {
+            await query(`SELECT setval(pg_get_serial_sequence('users', 'id'), 1, false)`);
+        } catch (_error) {
+            // Sequence reset is best effort.
+        }
 
         if (!demoAdminPassword && !demoUserPassword) {
             throw new Error(

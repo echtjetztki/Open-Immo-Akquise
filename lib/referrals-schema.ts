@@ -36,6 +36,27 @@ export async function ensureReferralsSchema(): Promise<void> {
         await query(`ALTER TABLE public.referrals ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW()`);
         await query(`ALTER TABLE public.referrals ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW()`);
         await query(`ALTER TABLE public.referrals ADD COLUMN IF NOT EXISTS agent_id INTEGER REFERENCES public.users(id) ON DELETE SET NULL`);
+        await query(`
+            DO $$
+            BEGIN
+                IF EXISTS (
+                    SELECT 1
+                    FROM pg_constraint
+                    WHERE conname = 'referrals_agent_id_fkey'
+                      AND conrelid = 'public.referrals'::regclass
+                ) THEN
+                    ALTER TABLE public.referrals DROP CONSTRAINT referrals_agent_id_fkey;
+                END IF;
+
+                ALTER TABLE public.referrals
+                    ADD CONSTRAINT referrals_agent_id_fkey
+                    FOREIGN KEY (agent_id)
+                    REFERENCES public.users(id)
+                    ON DELETE SET NULL;
+            EXCEPTION
+                WHEN duplicate_object THEN NULL;
+            END $$;
+        `);
 
         await query(`CREATE INDEX IF NOT EXISTS idx_referrals_created_at ON public.referrals (created_at DESC)`);
         await query(`CREATE INDEX IF NOT EXISTS idx_referrals_agent_id ON public.referrals (agent_id)`);
