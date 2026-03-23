@@ -27,6 +27,8 @@ const translations: Record<string, Record<Language, string>> = {
     'type.Grundstück': { de: 'Grundstück', en: 'Land', bg: 'Парцел' },
     'type.Garage': { de: 'Garage', en: 'Garage', bg: 'Гараж' },
     'type.Gewerblich': { de: 'Gewerblich', en: 'Commercial', bg: 'Търговски' },
+    'type.Grundstueck': { de: 'Grundstück', en: 'Land', bg: 'Парцел' },
+    'type.grundstueck': { de: 'Grundstück', en: 'Land', bg: 'Парцел' },
 
     // ============ NAVIGATION / SIDEBAR ============
     'nav.team_dashboard': { de: 'Team-Dashboard', en: 'Team Dashboard', bg: 'Табло на екипа' },
