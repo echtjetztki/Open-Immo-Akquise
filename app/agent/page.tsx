@@ -198,7 +198,7 @@ export default function AgentLoginPage() {
                         </a>
                         <span className="text-base font-semibold mt-6 text-white max-w-xs leading-snug">
                             Projekt 100% mit KI erstellt. <br />
-                            Mehr Infos bei <a href="https://echtjetztki.at/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">EchtJetztKI</a>
+                            Mehr Infos bei <a href="https://echtjetztki.at/" target="_blank" rel="noopener noreferrer" className="text-red-500 underline font-bold hover:text-red-400 transition-colors">EchtJetztKI</a>
                         </span>
                     </div>
 

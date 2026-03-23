@@ -8,7 +8,7 @@ import {
     PlusCircle, Box, FileText, Download, Send, Save, User,
     Search, Trash2, Mail, CreditCard, Banknote,
     AlertTriangle, CheckCircle2, Clock, XCircle, FileSpreadsheet,
-    Home, ExternalLink, Copy, RefreshCw
+    Home, ExternalLink, Copy, RefreshCw, Link2
 } from 'lucide-react';
 
 const STATUS_CONFIG: Record<string, { color: string; bg: string; border: string; icon: any }> = {
@@ -27,7 +27,35 @@ const DOC_TYPE_CONFIG: Record<string, { label: string; prefix: string; icon: any
 
 export default function CRMDashboard() {
     const isReadOnlyDemo = PUBLIC_DEMO_READ_ONLY;
-    const [activeTab, setActiveTab] = useState<'invoices' | 'articles' | 'settings'>('invoices');
+    const [activeTab, setActiveTab] = useState<'invoices' | 'articles' | 'paylink' | 'settings'>('invoices');
+
+    // PayLink Generator State
+    const [payLinkAmount, setPayLinkAmount] = useState('');
+    const [payLinkDesc, setPayLinkDesc] = useState('');
+    const [payLinkEmail, setPayLinkEmail] = useState('');
+    const [payLinkCreating, setPayLinkCreating] = useState(false);
+    const [payLinkHistory, setPayLinkHistory] = useState<Array<{url: string; amount: number; desc: string; created: string}>>([]);
+
+    const handleCreateQuickPayLink = async () => {
+        if (!payLinkAmount || parseFloat(payLinkAmount) <= 0) { alert('Bitte Betrag eingeben'); return; }
+        setPayLinkCreating(true);
+        try {
+            const res = await fetch('/api/crm/stripe/quick-paylink', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: payLinkAmount, description: payLinkDesc || 'Zahlung', customer_email: payLinkEmail || undefined })
+            });
+            const data = await res.json();
+            if (data.success && data.payment_url) {
+                await navigator.clipboard.writeText(data.payment_url);
+                setPayLinkHistory(prev => [{ url: data.payment_url, amount: data.amount, desc: payLinkDesc || 'Zahlung', created: new Date().toLocaleString('de-DE') }, ...prev]);
+                setPayLinkAmount(''); setPayLinkDesc(''); setPayLinkEmail('');
+                alert('PayLink erstellt und in die Zwischenablage kopiert!');
+            } else {
+                alert('Fehler: ' + (data.error || 'Unbekannt'));
+            }
+        } catch { alert('Netzwerkfehler'); } finally { setPayLinkCreating(false); }
+    };
     const [docTypeFilter, setDocTypeFilter] = useState<string>('all');
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [searchQuery, setSearchQuery] = useState('');
@@ -438,11 +466,83 @@ export default function CRMDashboard() {
                     className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors border-b-2 whitespace-nowrap ${activeTab === 'articles' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
                     <Box className="w-5 h-5" /> Artikel
                 </button>
+                <button onClick={() => setActiveTab('paylink')}
+                    className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors border-b-2 whitespace-nowrap ${activeTab === 'paylink' ? 'border-violet-600 text-violet-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+                    <Link2 className="w-5 h-5" /> PayLink
+                </button>
                 <button onClick={() => setActiveTab('settings')}
                     className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors border-b-2 whitespace-nowrap ${activeTab === 'settings' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
                     <User className="w-5 h-5" /> Stammdaten & Stripe
                 </button>
             </div>
+
+            {/* =========== PAYLINK GENERATOR =========== */}
+            {activeTab === 'paylink' && (
+                <div className="space-y-6">
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                        <CreditCard className="w-6 h-6 text-violet-600" /> Stripe PayLink Generator
+                    </h2>
+
+                    <div className="glass-card p-6 border-l-4 border-l-violet-500">
+                        <p className="text-sm text-muted-foreground mb-6">
+                            Erstelle einen einmaligen Stripe-Zahlungslink. Gib einfach den Betrag ein und teile den Link mit deinem Kunden.
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                            <div>
+                                <label htmlFor="plAmount" className="block text-xs font-medium mb-1">Betrag (EUR) <span className="text-red-500">*</span></label>
+                                <input id="plAmount" type="number" step="0.01" min="0.50" placeholder="z.B. 250.00" value={payLinkAmount} onChange={e => setPayLinkAmount(e.target.value)}
+                                    className="input-field py-3 text-lg font-bold w-full" />
+                            </div>
+                            <div>
+                                <label htmlFor="plDesc" className="block text-xs font-medium mb-1">Beschreibung</label>
+                                <input id="plDesc" type="text" placeholder="z.B. Beratungsgebuehr" value={payLinkDesc} onChange={e => setPayLinkDesc(e.target.value)}
+                                    className="input-field py-3 text-sm w-full" />
+                            </div>
+                            <div>
+                                <label htmlFor="plEmail" className="block text-xs font-medium mb-1">Kunden-E-Mail (optional)</label>
+                                <input id="plEmail" type="email" placeholder="kunde@email.com" value={payLinkEmail} onChange={e => setPayLinkEmail(e.target.value)}
+                                    className="input-field py-3 text-sm w-full" />
+                            </div>
+                            <div>
+                                <button onClick={handleCreateQuickPayLink} disabled={payLinkCreating || !payLinkAmount}
+                                    className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-500 to-violet-600 text-white font-bold text-sm hover:from-violet-600 hover:to-violet-700 shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-2">
+                                    <CreditCard className="w-4 h-4" />
+                                    {payLinkCreating ? 'Erstelle...' : '💳 PayLink erstellen'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* PayLink History */}
+                    {payLinkHistory.length > 0 && (
+                        <div className="space-y-3">
+                            <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Erstellte PayLinks (diese Sitzung)</h3>
+                            {payLinkHistory.map((pl, idx) => (
+                                <div key={idx} className="glass-card p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-lg font-bold text-violet-600">{pl.amount.toLocaleString('de-DE', { minimumFractionDigits: 2 })} EUR</span>
+                                            <span className="text-sm text-muted-foreground">{pl.desc}</span>
+                                        </div>
+                                        <div className="text-xs text-muted-foreground mt-1 font-mono truncate" title={pl.url}>{pl.url}</div>
+                                        <div className="text-[10px] text-muted-foreground mt-0.5">{pl.created}</div>
+                                    </div>
+                                    <div className="flex gap-2 flex-shrink-0">
+                                        <button onClick={() => { navigator.clipboard.writeText(pl.url); alert('Link kopiert!'); }}
+                                            className="flex items-center gap-1.5 px-4 py-2 text-xs rounded-lg bg-violet-100 text-violet-700 border border-violet-300 hover:bg-violet-200 font-bold" title="Link kopieren">
+                                            <Copy className="w-3.5 h-3.5" /> Kopieren
+                                        </button>
+                                        <a href={pl.url} target="_blank" rel="noopener noreferrer"
+                                            className="flex items-center gap-1.5 px-4 py-2 text-xs rounded-lg bg-violet-600 text-white hover:bg-violet-700 font-medium" title="Link oeffnen">
+                                            <ExternalLink className="w-3.5 h-3.5" /> Oeffnen
+                                        </a>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* =========== STAMMDATEN & STRIPE =========== */}
             {activeTab === 'settings' && (
@@ -870,12 +970,6 @@ export default function CRMDashboard() {
                                             </div>
                                         )}
 
-                                        {/* Stripe Payment Link anzeigen */}
-                                        {inv.stripe_payment_link && (
-                                            <button onClick={() => { navigator.clipboard.writeText(inv.stripe_payment_link); }} className="w-full flex items-center gap-2 text-xs text-violet-600 bg-violet-50 rounded-lg p-2 hover:bg-violet-100 transition-colors" title="Payment Link kopieren">
-                                                <Copy className="w-3.5 h-3.5" /> Payment Link kopieren
-                                            </button>
-                                        )}
                                     </div>
 
                                     {/* Aktionen */}
@@ -900,16 +994,35 @@ export default function CRMDashboard() {
                                         )}
 
                                         {/* Zahlungsaktionen */}
-                                        {!isReadOnlyDemo && inv.doc_type === 'Rechnung' && (inv.status === 'Entwurf' || inv.status === 'Offen') && !inv.stripe_payment_link && (
-                                            <div className="flex gap-1">
-                                                <button onClick={() => handleCreateStripeLink(inv.id)} disabled={creatingPaymentLink === inv.id}
-                                                    className="flex-1 flex items-center justify-center gap-1.5 text-[10px] py-1.5 rounded-md bg-violet-50 text-violet-600 border border-violet-200 hover:bg-violet-100 font-medium disabled:opacity-50">
-                                                    <CreditCard className="w-3 h-3" /> {creatingPaymentLink === inv.id ? 'Erstelle...' : 'Stripe Link'}
-                                                </button>
-                                                <button onClick={() => handleSetVorkasse(inv.id)}
-                                                    className="flex-1 flex items-center justify-center gap-1.5 text-[10px] py-1.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 font-medium">
-                                                    <Banknote className="w-3 h-3" /> Vorkasse
-                                                </button>
+                                        {!isReadOnlyDemo && inv.doc_type === 'Rechnung' && inv.status !== 'Bezahlt' && inv.status !== 'Storniert' && (
+                                            <div className="space-y-1.5">
+                                                {inv.stripe_payment_link ? (
+                                                    <div className="flex gap-1">
+                                                        <button onClick={() => { navigator.clipboard.writeText(inv.stripe_payment_link); alert('PayLink kopiert!'); }}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 text-[10px] py-2 rounded-md bg-violet-100 text-violet-700 border border-violet-300 hover:bg-violet-200 font-bold" title="Stripe PayLink kopieren">
+                                                            <Copy className="w-3 h-3" /> PayLink kopieren
+                                                        </button>
+                                                        <a href={inv.stripe_payment_link} target="_blank" rel="noopener noreferrer"
+                                                            className="flex items-center justify-center gap-1 px-2.5 py-2 text-[10px] rounded-md bg-violet-600 text-white hover:bg-violet-700 font-medium" title="PayLink oeffnen">
+                                                            <ExternalLink className="w-3 h-3" />
+                                                        </a>
+                                                        <button onClick={() => handleCreateStripeLink(inv.id)} disabled={creatingPaymentLink === inv.id}
+                                                            className="flex items-center justify-center gap-1 px-2.5 py-2 text-[10px] rounded-md bg-violet-50 text-violet-600 border border-violet-200 hover:bg-violet-100 font-medium disabled:opacity-50" title="Neuen PayLink erstellen">
+                                                            <RefreshCw className={`w-3 h-3 ${creatingPaymentLink === inv.id ? 'animate-spin' : ''}`} />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex gap-1">
+                                                        <button onClick={() => handleCreateStripeLink(inv.id)} disabled={creatingPaymentLink === inv.id}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 text-xs py-2 rounded-md bg-gradient-to-r from-violet-500 to-violet-600 text-white hover:from-violet-600 hover:to-violet-700 font-bold shadow-sm disabled:opacity-50 transition-all" title="Stripe PayLink erstellen">
+                                                            <CreditCard className="w-3.5 h-3.5" /> {creatingPaymentLink === inv.id ? 'Erstelle...' : '💳 Stripe PayLink erstellen'}
+                                                        </button>
+                                                        <button onClick={() => handleSetVorkasse(inv.id)}
+                                                            className="flex items-center justify-center gap-1.5 text-[10px] px-3 py-2 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 font-medium" title="Vorkasse setzen">
+                                                            <Banknote className="w-3 h-3" /> Vorkasse
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
 
