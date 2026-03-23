@@ -31,7 +31,7 @@ type Referral = {
 };
 
 type SessionUser = {
-    id: string;
+    userId?: number;
     displayName?: string;
     username?: string;
     role?: string;
@@ -42,28 +42,42 @@ export default function ReferralsPage() {
     const [referrals, setReferrals] = useState<Referral[]>([]);
     const [user, setUser] = useState<SessionUser | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [copying, setCopying] = useState(false);
 
     useEffect(() => {
         const fetchUser = async () => {
-            const res = await fetch('/api/user/me');
-            if (res.ok) setUser(await res.json());
+            try {
+                const res = await fetch('/api/user/me');
+                if (res.ok) {
+                    setUser(await res.json());
+                }
+            } catch (e) {
+                console.error(e);
+            }
         };
         fetchUser();
-        fetchReferrals();
+        void fetchReferrals();
     }, []);
 
     const fetchReferrals = async () => {
         setLoading(true);
+        setError('');
         try {
             const res = await fetch('/api/referrals');
             if (res.ok) {
                 const data = await res.json();
                 setReferrals(data);
+            } else {
+                const payload = await res.json().catch(() => ({}));
+                setError(payload?.error || 'Empfehlungen konnten nicht geladen werden.');
+                setReferrals([]);
             }
         } catch (e) {
             console.error(e);
+            setError('Empfehlungen konnten nicht geladen werden.');
+            setReferrals([]);
         } finally {
             setLoading(false);
         }
@@ -113,8 +127,8 @@ export default function ReferralsPage() {
 
     const copyReferralLink = () => {
         let link = `${window.location.origin}/empfehlung`;
-        if (user && user.role === 'agent') {
-            link += `?agent=${user.id}`;
+        if (user && user.role === 'agent' && user.userId) {
+            link += `?agent=${user.userId}`;
         }
         navigator.clipboard.writeText(link);
         setCopying(true);
@@ -188,13 +202,24 @@ export default function ReferralsPage() {
                 </button>
             </div>
 
+            {error && (
+                <div className="rounded-xl border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">
+                    {error}
+                </div>
+            )}
+
             {loading ? (
                 <div className="flex justify-center py-20">
                     <RefreshCw className="w-10 h-10 animate-spin text-primary opacity-20" />
                 </div>
             ) : (
+                filtered.length === 0 ? (
+                    <div className="glass-card p-10 text-center text-muted-foreground">
+                        Keine Empfehlungen vorhanden.
+                    </div>
+                ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {filtered.map(r => (
+                    {filtered.map((r) => (
                         <div key={r.id} className="glass-card flex flex-col hover:shadow-xl transition-all duration-300 border-t-4 border-t-primary/20">
                             <div className="p-5 flex-1 space-y-4">
                                 <div className="flex justify-between items-start">
@@ -289,6 +314,7 @@ export default function ReferralsPage() {
                         </div>
                     ))}
                 </div>
+                )
             )}
         </div>
     );

@@ -21,6 +21,7 @@ function PublicReferralForm() {
 
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [submitError, setSubmitError] = useState('');
     const [formData, setFormData] = useState({
         client_name: '',
         client_address: '',
@@ -35,6 +36,7 @@ function PublicReferralForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        setSubmitError('');
         try {
             const res = await fetch('/api/referrals/public', {
                 method: 'POST',
@@ -43,9 +45,13 @@ function PublicReferralForm() {
             });
             if (res.ok) {
                 setSubmitted(true);
+            } else {
+                const payload = await res.json().catch(() => ({}));
+                setSubmitError(payload?.error || 'Empfehlung konnte nicht gespeichert werden.');
             }
         } catch (error) {
             console.error(error);
+            setSubmitError('Empfehlung konnte nicht gespeichert werden.');
         } finally {
             setLoading(false);
         }
@@ -196,6 +202,11 @@ function PublicReferralForm() {
                             {loading ? <RefreshCw className="w-6 h-6 animate-spin" /> : <Send className="w-6 h-6" />}
                             {t('ref.send')}
                         </button>
+                        {submitError && (
+                            <div className="rounded-xl border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">
+                                {submitError}
+                            </div>
+                        )}
                     </form>
                 </motion.div>
 

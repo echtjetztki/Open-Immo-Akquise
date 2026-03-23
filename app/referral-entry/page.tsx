@@ -28,6 +28,7 @@ function ReferralForm() {
     
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [submitError, setSubmitError] = useState('');
     const [formData, setFormData] = useState({
         client_name: '',
         client_address: '',
@@ -52,7 +53,7 @@ function ReferralForm() {
                             ...prev,
                             recommender_name: user.displayName || user.username || 'Agent',
                             recommender_email: user.email || '',
-                            agent_id: user.id
+                            agent_id: user.userId ?? null
                         }));
                     }
                 }
@@ -66,6 +67,7 @@ function ReferralForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        setSubmitError('');
         try {
             const res = await fetch('/api/referrals', {
                 method: 'POST',
@@ -78,9 +80,13 @@ function ReferralForm() {
                 } else {
                     setSubmitted(true);
                 }
+            } else {
+                const payload = await res.json().catch(() => ({}));
+                setSubmitError(payload?.error || 'Empfehlung konnte nicht gespeichert werden.');
             }
         } catch (error) {
             console.error(error);
+            setSubmitError('Empfehlung konnte nicht gespeichert werden.');
         } finally {
             setLoading(false);
         }
@@ -256,6 +262,11 @@ function ReferralForm() {
                             {loading ? <RefreshCw className="w-6 h-6 animate-spin" /> : <Send className="w-6 h-6" />}
                             {t('ref.send')}
                         </button>
+                        {submitError && (
+                            <div className="rounded-xl border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">
+                                {submitError}
+                            </div>
+                        )}
                     </form>
                 </motion.div>
                 
