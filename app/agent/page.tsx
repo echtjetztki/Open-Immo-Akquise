@@ -7,6 +7,7 @@ import { Lock, Server, CheckCircle, XCircle, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { DEFAULT_AGENT_OPTIONS } from '@/lib/agent-options';
 import { _r, _s } from '@/lib/rc';
+import { useLanguage } from '@/lib/language-context';
 
 type AgentListResponse = {
     success?: boolean;
@@ -38,6 +39,7 @@ export default function AgentLoginPage() {
     const [portalType, setPortalType] = useState('Betreuer Login');
     const [mounted, setMounted] = useState(false);
     const router = useRouter();
+    const { t } = useLanguage();
 
     useEffect(() => {
         setMounted(true);
@@ -92,7 +94,7 @@ export default function AgentLoginPage() {
     if (!mounted) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-900">
-                <span className="text-sm text-white/70">Lade Login...</span>
+                <span className="text-sm text-white/70">{t('login.loading')}</span>
             </div>
         );
     }
@@ -116,7 +118,7 @@ export default function AgentLoginPage() {
                 router.refresh();
             } else {
                 const data = await response.json();
-                setError(data.error || 'Falsche Zugangsdaten');
+                setError(data.error || t('login.wrong_credentials'));
                 if (response.status === 403) {
                     setIsBasicLicenseActive(false);
                     setShowBasicLicenseModal(true);
@@ -124,7 +126,7 @@ export default function AgentLoginPage() {
                 }
             }
         } catch {
-            setError('Ein Fehler ist aufgetreten');
+            setError(t('login.error_occurred'));
         } finally {
             setLoading(false);
         }
@@ -138,8 +140,8 @@ export default function AgentLoginPage() {
             const data = await res.json();
             setHealthResult(data);
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Unbekannter Fehler';
-            setHealthResult({ status: 'error', message: 'Netzwerkfehler: ' + message });
+            const message = err instanceof Error ? err.message : t('login.error_occurred');
+            setHealthResult({ status: 'error', message: t('login.network_error') + ': ' + message });
         } finally {
             setChecking(false);
         }
@@ -158,7 +160,7 @@ export default function AgentLoginPage() {
 
             const data = await response.json();
             if (!response.ok || !data?.success) {
-                setBasicLicenseError(data?.error || 'Ungueltiger Basis-Code.');
+                setBasicLicenseError(data?.error || t('login.invalid_code'));
                 return;
             }
 
@@ -166,7 +168,7 @@ export default function AgentLoginPage() {
             setShowBasicLicenseModal(false);
             setBasicLicenseKey('');
         } catch {
-            setBasicLicenseError('Netzwerkfehler bei der Code-Pruefung.');
+            setBasicLicenseError(t('login.network_error'));
         } finally {
             setVerifyingBasicLicense(false);
         }
@@ -207,7 +209,7 @@ export default function AgentLoginPage() {
                             {portalType}
                         </h2>
                         <p className="text-sm text-white/70 mt-2 font-medium">
-                            Betreuer auswählen und Passwort eingeben
+                            {t('agent.select_and_password')}
                         </p>
 
                     </div>
@@ -223,7 +225,7 @@ export default function AgentLoginPage() {
                             }}
                             className="w-full mb-5 py-3 px-4 rounded-2xl border-2 border-primary text-primary font-extrabold uppercase tracking-wide bg-primary/5 hover:bg-primary/10 transition-colors animate-pulse shadow-lg shadow-primary/20"
                         >
-                            Kostenlos starten
+                            {t('login.free_start')}
                         </button>
                     )}
 
@@ -237,9 +239,9 @@ export default function AgentLoginPage() {
                                     value={agent}
                                     onChange={(e) => setAgent(e.target.value)}
                                     className="w-full px-4 py-4 text-gray-900 bg-transparent focus:outline-none font-medium text-base"
-                                    title="Betreuer auswählen"
+                                    title={t('agent.select_supervisor')}
                                 >
-                                    <option value="">Betreuer auswählen...</option>
+                                    <option value="">{t('agent.select_supervisor_prompt')}</option>
                                     {agentOptions.map((name) => (
                                         <option key={name} value={name}>{name}</option>
                                     ))}
@@ -255,7 +257,7 @@ export default function AgentLoginPage() {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     className="w-full px-4 py-4 text-gray-900 bg-transparent placeholder-gray-400 focus:outline-none font-medium text-base"
-                                    placeholder="Passwort"
+                                    placeholder={t('login.password')}
                                     required
                                     autoFocus
                                 />
@@ -282,7 +284,7 @@ export default function AgentLoginPage() {
                             {loading ? (
                                 <span className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
-                                'JETZT ANMELDEN'
+                                t('login.submit')
                             )}
                         </button>
 
@@ -293,7 +295,7 @@ export default function AgentLoginPage() {
                         className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-primary transition-colors"
                     >
                         <ShieldCheck className="w-4 h-4" />
-                        Teamleiter / Admin Login
+                        {t('agent.admin_login')}
                     </Link>
                 </div>
 
@@ -305,7 +307,7 @@ export default function AgentLoginPage() {
                         suppressHydrationWarning
                     >
                         <Server className={`w-4 h-4 transition-colors ${checking ? 'animate-pulse text-white' : ''}`} />
-                        {checking ? 'Pruefe Verbindung...' : 'System-Status'}
+                        {checking ? t('login.checking') : t('login.system_status')}
                     </button>
 
                     {healthResult && (
@@ -325,7 +327,7 @@ export default function AgentLoginPage() {
                                 )}
                                 <div>
                                     <div className="font-bold text-sm">
-                                        {healthResult.status === 'ok' ? 'Datenbank Online' : 'Verbindungsfehler'}
+                                        {healthResult.status === 'ok' ? t('login.db_online') : t('login.db_error')}
                                     </div>
                                     <div className="text-xs opacity-70 mt-1 break-words leading-relaxed">{healthResult.message}</div>
                                 </div>
@@ -338,10 +340,9 @@ export default function AgentLoginPage() {
             {showBasicLicenseModal && (
                 <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/60 px-4">
                     <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-gray-200">
-                        <h3 className="text-xl font-bold text-gray-900">Kostenlos starten</h3>
+                        <h3 className="text-xl font-bold text-gray-900">{t('login.free_start')}</h3>
                         <p className="mt-3 text-sm text-gray-700 leading-relaxed">
-                            Waehle deinen Einstieg: Basis Lizenz oder Demo Daten anfordern.
-                            Beides ist kostenlos. Zugangsdaten und optionaler Freischalt-Code kommen per E-Mail.
+                            {t('login.choose_entry')}
                         </p>
                         <div className="mt-5 space-y-3">
                             <a
@@ -350,7 +351,7 @@ export default function AgentLoginPage() {
                                 rel="noopener noreferrer"
                                 className="w-full inline-flex items-center justify-center py-3 px-4 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white font-bold hover:shadow-lg hover:shadow-primary/30 transition-all"
                             >
-                                Basis Lizenz anfordern (kostenlos)
+                                {t('login.request_license')}
                             </a>
                             <a
                                 href={demoSignupUrl}
@@ -358,7 +359,7 @@ export default function AgentLoginPage() {
                                 rel="noopener noreferrer"
                                 className="w-full inline-flex items-center justify-center py-3 px-4 rounded-2xl border border-primary/30 text-primary font-semibold hover:bg-primary/5 transition-colors"
                             >
-                                Demo Daten anfordern (kostenlos)
+                                {t('login.request_demo')}
                             </a>
                             {!showCodeInput && (
                                 <button
@@ -366,20 +367,20 @@ export default function AgentLoginPage() {
                                     onClick={() => setShowCodeInput(true)}
                                     className="w-full py-3 px-4 rounded-2xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
                                 >
-                                    Bereits Code erhalten? Hier eingeben
+                                    {t('login.enter_code')}
                                 </button>
                             )}
                         </div>
                         {showCodeInput && (
                             <div className="mt-4 space-y-3">
                                 <label className="block text-xs font-bold uppercase tracking-wide text-gray-500">
-                                    Basis-Code eingeben
+                                    {t('login.enter_code')}
                                 </label>
                                 <input
                                     type="password"
                                     value={basicLicenseKey}
                                     onChange={(e) => setBasicLicenseKey(e.target.value)}
-                                    placeholder="Basis-Code"
+                                    placeholder={t('login.code_placeholder')}
                                     className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                                 {basicLicenseError && (
@@ -391,7 +392,7 @@ export default function AgentLoginPage() {
                                     disabled={verifyingBasicLicense || !basicLicenseKey.trim()}
                                     className="w-full py-3 px-4 rounded-2xl border border-primary/30 text-primary font-semibold hover:bg-primary/5 transition-colors disabled:opacity-60"
                                 >
-                                    {verifyingBasicLicense ? 'Pruefe Code...' : 'Code aktivieren'}
+                                    {verifyingBasicLicense ? t('login.checking_code') : t('login.activate_code')}
                                 </button>
                             </div>
                         )}
@@ -401,7 +402,7 @@ export default function AgentLoginPage() {
                                 onClick={() => setShowBasicLicenseModal(false)}
                                 className="w-full py-3 px-4 rounded-2xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
                             >
-                                Schliessen
+                                {t('action.close')}
                             </button>
                         </div>
                     </div>

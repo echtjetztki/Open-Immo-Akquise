@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { Shield, X } from 'lucide-react';
+import { useLanguage } from '@/lib/language-context';
 
 export function CookieConsent() {
+    const { t } = useLanguage();
     const [showBanner, setShowBanner] = useState(false);
     const [showDetails, setShowDetails] = useState(false);
 
@@ -63,19 +65,18 @@ export function CookieConsent() {
                         <Shield className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1">
-                        <h3 className="font-bold text-foreground text-base">🍪 Cookie-Einstellungen</h3>
+                        <h3 className="font-bold text-foreground text-base">🍪 {t('cookie.title')}</h3>
                         <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
-                            Wir verwenden Cookies und Google Analytics, um die Nutzung unserer Webseite zu analysieren und unser Angebot zu verbessern. 
-                            Ihre Daten werden gemäß der DSGVO verarbeitet.
+                            {t('cookie.description')}
                         </p>
 
                         {showDetails && (
                             <div className="mt-3 p-3 rounded-lg bg-primary/5 border border-primary/10 text-sm text-muted-foreground space-y-2">
-                                <p><strong className="text-foreground">Notwendige Cookies:</strong> Erforderlich für den Betrieb der Webseite (z.B. Login-Session). Diese können nicht deaktiviert werden.</p>
+                                <p><strong className="text-foreground">{t('cookie.necessary')}:</strong> {t('cookie.necessary_desc')}</p>
                                 {GA_ID && (
-                                    <p><strong className="text-foreground">Analyse-Cookies:</strong> Google Analytics ({GA_ID}) erfasst anonymisierte Nutzungsdaten wie Seitenaufrufe und Verweildauer, um das Dashboard zu verbessern.</p>
+                                    <p><strong className="text-foreground">{t('cookie.analytics')}:</strong> Google Analytics ({GA_ID}) {t('cookie.analytics_desc')}</p>
                                 )}
-                                <p className="text-xs">Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Einwilligung). Sie können Ihre Einwilligung jederzeit widerrufen.</p>
+                                <p className="text-xs">{t('cookie.legal_basis')}</p>
                             </div>
                         )}
 
@@ -84,19 +85,19 @@ export function CookieConsent() {
                                 onClick={handleAccept}
                                 className="btn-primary px-5 py-2 text-sm font-semibold shadow-lg shadow-primary/20"
                             >
-                                Alle akzeptieren
+                                {t('cookie.accept_all')}
                             </button>
                             <button
                                 onClick={handleDecline}
                                 className="btn-secondary px-5 py-2 text-sm font-semibold"
                             >
-                                Nur notwendige
+                                {t('cookie.necessary_only')}
                             </button>
                             <button
                                 onClick={() => setShowDetails(!showDetails)}
                                 className="text-sm text-muted-foreground hover:text-primary transition-colors underline underline-offset-2"
                             >
-                                {showDetails ? 'Details ausblenden' : 'Details anzeigen'}
+                                {showDetails ? t('cookie.hide_details') : t('cookie.show_details')}
                             </button>
                         </div>
                     </div>

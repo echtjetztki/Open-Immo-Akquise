@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Send, Bot, User, Clock, Loader2, MessageSquare, Sparkles, Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PUBLIC_DEMO_READ_ONLY, PUBLIC_DEMO_READ_ONLY_MESSAGE } from '@/lib/public-demo-mode';
+import { useLanguage } from '@/lib/language-context';
 
 interface Chat {
     id: number;
@@ -51,6 +52,7 @@ const buildChatList = (items: Chat[], isReadOnlyDemo: boolean): Chat[] => {
 };
 
 export default function ChatPage() {
+    const { t } = useLanguage();
     const isReadOnlyDemo = PUBLIC_DEMO_READ_ONLY;
     const [question, setQuestion] = useState('');
     const [loading, setLoading] = useState(false);
@@ -109,13 +111,13 @@ export default function ChatPage() {
 
             if (!res.ok) {
                 const data = await res.json();
-                throw new Error(data.details || data.error || 'Fehler bei der Anfrage');
+                throw new Error(data.details || data.error || t('chat.request_error'));
             }
 
             const newChat = await res.json();
             setChats(prev => [newChat, ...prev.filter((chat) => chat.id > 0)]);
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Fehler bei der Anfrage';
+            const message = error instanceof Error ? error.message : t('chat.request_error');
             setError(message);
             setQuestion(currentQuestion); // Restore if failed
         } finally {
@@ -142,10 +144,10 @@ export default function ChatPage() {
                     </div>
                     <div>
                         <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                            KI Assistent
+                            {t('chat.title')}
                         </h1>
                         <p className="text-sm text-muted-foreground mt-1">
-                            Stelle Fragen, um optimale Antworten für Kunden zu generieren.
+                            {t('chat.description')}
                         </p>
                     </div>
                 </div>
@@ -176,7 +178,7 @@ export default function ChatPage() {
 
             {isReadOnlyDemo && (
                 <div className="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm font-medium text-muted-foreground">
-                    {PUBLIC_DEMO_READ_ONLY_MESSAGE} KI-Anfragen sind in der oeffentlichen Demo deaktiviert.
+                    {PUBLIC_DEMO_READ_ONLY_MESSAGE} {t('chat.disabled')}
                 </div>
             )}
 
@@ -188,7 +190,7 @@ export default function ChatPage() {
                         <textarea
                             value={question}
                             onChange={(e) => setQuestion(e.target.value)}
-                            placeholder="Frage stellen..."
+                            placeholder={t('chat.placeholder')}
                             className="input-field min-h-[120px] resize-y p-4 text-base"
                             disabled={loading || isReadOnlyDemo}
                         />
@@ -205,12 +207,12 @@ export default function ChatPage() {
                                 {loading ? (
                                     <>
                                         <Loader2 className="w-5 h-5 animate-spin" />
-                                        <span>Die KI denkt nach...</span>
+                                        <span>{t('chat.thinking')}</span>
                                     </>
                                 ) : (
                                     <>
                                         <Send className="w-5 h-5 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
-                                        <span>Frage stellen</span>
+                                        <span>{t('chat.submit')}</span>
                                     </>
                                 )}
                             </button>
@@ -223,7 +225,7 @@ export default function ChatPage() {
             <div className="space-y-4">
                 <h3 className="text-lg font-medium flex items-center gap-2 px-2 text-foreground/80 mt-8">
                     <Clock className="w-5 h-5" />
-                    Archiv der Fragen
+                    {t('chat.archive')}
                 </h3>
 
                 <AnimatePresence>
@@ -259,7 +261,7 @@ export default function ChatPage() {
                                 <button
                                     onClick={() => handleCopy(chat.answer, chat.id)}
                                     className="absolute top-4 right-4 p-2 rounded-lg bg-white shadow-sm border border-primary/10 text-primary opacity-0 group-hover/item:opacity-100 transition-opacity hover:bg-primary/5"
-                                    title="Antwort kopieren"
+                                    title={t('chat.copy_answer')}
                                 >
                                     {copiedId === chat.id ? (
                                         <Check className="w-4 h-4 text-green-600" />
@@ -274,7 +276,7 @@ export default function ChatPage() {
 
                 {chats.length === 0 && !loading && (
                     <div className="text-center py-12 text-muted-foreground border border-dashed border-primary/20 rounded-2xl">
-                        Noch keine Fragen im Archiv.
+                        {t('chat.no_archive')}
                     </div>
                 )}
             </div>

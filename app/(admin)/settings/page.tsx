@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Database, CheckCircle, XCircle, RefreshCw, Clock, Info, Key, Zap, Webhook, Bot, ArrowRightLeft } from 'lucide-react';
 import { PUBLIC_DEMO_READ_ONLY, PUBLIC_DEMO_READ_ONLY_MESSAGE } from '@/lib/public-demo-mode';
+import { useLanguage } from '@/lib/language-context';
 
 interface LogEntry {
     step: string;
@@ -77,6 +78,7 @@ interface SyncResult {
 }
 
 export default function SettingsPage() {
+    const { t } = useLanguage();
     const isReadOnlyDemo = PUBLIC_DEMO_READ_ONLY;
     const [testing, setTesting] = useState(false);
     const [testResult, setTestResult] = useState<DBTestResult | null>(null);
@@ -105,12 +107,12 @@ export default function SettingsPage() {
                 const active = response.ok && data?.active === true;
                 setIsN8nActivated(active);
                 setActivationError(false);
-                setActivationMessage(active ? 'n8n API Integration ist aktiviert.' : 'n8n Aktivierungscode erforderlich.');
+                setActivationMessage(active ? t('settings.n8n_activated') : t('settings.n8n_code_required'));
             } catch {
                 if (cancelled) return;
                 setIsN8nActivated(false);
                 setActivationError(true);
-                setActivationMessage('n8n Aktivierungsstatus konnte nicht geladen werden.');
+                setActivationMessage(t('settings.n8n_status_error'));
             } finally {
                 if (!cancelled) {
                     setCheckingN8nActivation(false);
@@ -123,6 +125,7 @@ export default function SettingsPage() {
         return () => {
             cancelled = true;
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleActivateN8n = async () => {
@@ -134,7 +137,7 @@ export default function SettingsPage() {
 
         if (!n8nKey.trim()) {
             setActivationError(true);
-            setActivationMessage('Bitte Aktivierungscode eingeben.');
+            setActivationMessage(t('settings.enter_code_please'));
             return;
         }
 
@@ -150,15 +153,15 @@ export default function SettingsPage() {
             if (res.ok && data?.success === true) {
                 setIsN8nActivated(true);
                 setActivationError(false);
-                setActivationMessage('n8n API Integration wurde erfolgreich aktiviert.');
+                setActivationMessage(t('settings.n8n_activated_success'));
                 setN8nKey('');
             } else {
                 setActivationError(true);
-                setActivationMessage(data?.error || 'Ungueltiger Aktivierungscode.');
+                setActivationMessage(data?.error || t('settings.invalid_code'));
             }
         } catch {
             setActivationError(true);
-            setActivationMessage('Netzwerkfehler bei der Aktivierung.');
+            setActivationMessage(t('settings.network_error_activation'));
         }
     };
 
@@ -176,7 +179,7 @@ export default function SettingsPage() {
             const data = await response.json();
             setSyncResult(data);
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Unbekannter Fehler';
+            const message = error instanceof Error ? error.message : t('settings.unknown_error');
             setSyncResult({ success: false, message });
         } finally {
             setSyncing(false);
@@ -202,17 +205,17 @@ export default function SettingsPage() {
             const data = await response.json();
             setSupabaseResult(data);
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Unbekannter Fehler';
+            const message = error instanceof Error ? error.message : t('settings.unknown_error');
             setSupabaseResult({ success: false, message, logs: [], total_duration_ms: 0 });
         } finally {
             setSupabaseTesting(false);
         }
     };
 
-    const publicSecurityWebhookTestUrl = process.env.NEXT_PUBLIC_SECURITY_WEBHOOK_TEST_URL || 'serverseitig in SECURITY_WEBHOOK_TEST_URL konfiguriert';
-    const publicSecurityWebhookLiveUrl = process.env.NEXT_PUBLIC_SECURITY_WEBHOOK_URL || 'serverseitig in SECURITY_WEBHOOK_URL konfiguriert';
-    const isWebhookTestConfigured = !publicSecurityWebhookTestUrl.startsWith('serverseitig in ');
-    const isWebhookLiveConfigured = !publicSecurityWebhookLiveUrl.startsWith('serverseitig in ');
+    const publicSecurityWebhookTestUrl = process.env.NEXT_PUBLIC_SECURITY_WEBHOOK_TEST_URL || '';
+    const publicSecurityWebhookLiveUrl = process.env.NEXT_PUBLIC_SECURITY_WEBHOOK_URL || '';
+    const isWebhookTestConfigured = !!publicSecurityWebhookTestUrl;
+    const isWebhookLiveConfigured = !!publicSecurityWebhookLiveUrl;
 
     const truncateLogValue = (value?: string, maxLength = 320) => {
         if (!value) return '';
@@ -235,7 +238,7 @@ export default function SettingsPage() {
             setWebhookResult({
                 success: false,
                 target,
-                error: 'Webhook-Test URL ist nicht gesetzt (SECURITY_WEBHOOK_TEST_URL).'
+                error: t('settings.webhook_test_url_missing')
             });
             return;
         }
@@ -244,7 +247,7 @@ export default function SettingsPage() {
             setWebhookResult({
                 success: false,
                 target,
-                error: 'Live Webhook URL ist nicht gesetzt (SECURITY_WEBHOOK_URL).'
+                error: t('settings.webhook_live_url_missing')
             });
             return;
         }
@@ -264,7 +267,7 @@ export default function SettingsPage() {
                     window.location.href = '/login';
                     return;
                 }
-                throw new Error('Ungueltige Server-Antwort (kein JSON)');
+                throw new Error(t('settings.invalid_response'));
             }
 
             const data = await response.json();
@@ -279,8 +282,8 @@ export default function SettingsPage() {
 
             setWebhookResult(data);
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Unbekannter Fehler';
-            setWebhookResult({ success: false, error: 'Netzwerkfehler: ' + message });
+            const message = error instanceof Error ? error.message : t('settings.unknown_error');
+            setWebhookResult({ success: false, error: t('settings.network_error_prefix') + message });
         } finally {
             setWebhookTesting(false);
         }
@@ -309,17 +312,17 @@ export default function SettingsPage() {
                     window.location.href = '/login';
                     return;
                 }
-                throw new Error('Ungueltige Server-Antwort (kein JSON)');
+                throw new Error(t('settings.invalid_response'));
             }
 
             const data = await response.json();
             setTestResult(data);
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Unbekannter Fehler';
+            const message = error instanceof Error ? error.message : t('settings.unknown_error');
             setTestResult({
                 success: false,
-                message: `Verbindungsfehler: ${message}`,
-                logs: [{ step: 'Netzwerk', status: 'error', message, timestamp: new Date().toISOString() }],
+                message: t('settings.connection_error_prefix') + message,
+                logs: [{ step: t('settings.network_step'), status: 'error', message, timestamp: new Date().toISOString() }],
                 total_duration_ms: 0,
             });
         } finally {
@@ -347,16 +350,16 @@ export default function SettingsPage() {
         <div className="space-y-8 animate-fade-in">
             <div>
                 <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                    Einstellungen
+                    {t('settings.title')}
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                    System-Verwaltung und Datenbank-Diagnose
+                    {t('settings.description')}
                 </p>
             </div>
 
             {isReadOnlyDemo && (
                 <div className="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm font-medium text-muted-foreground">
-                    {PUBLIC_DEMO_READ_ONLY_MESSAGE} Admin-Aktionen und Diagnosen sind in der oeffentlichen Demo deaktiviert.
+                    {PUBLIC_DEMO_READ_ONLY_MESSAGE} {t('settings.demo_disabled')}
                 </div>
             )}
 
@@ -367,9 +370,9 @@ export default function SettingsPage() {
                         <Database className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold">Datenbank-Verbindung</h2>
+                        <h2 className="text-xl font-bold">{t('settings.db_connection')}</h2>
                         <p className="text-sm text-muted-foreground">
-                            Teste die Verbindung und zeige detaillierte Diagnose-Informationen
+                            {t('settings.db_test_desc')}
                         </p>
                     </div>
                 </div>
@@ -383,12 +386,12 @@ export default function SettingsPage() {
                     {testing ? (
                         <>
                             <RefreshCw className="w-5 h-5 animate-spin" />
-                            Teste Verbindung...
+                            {t('settings.testing')}
                         </>
                     ) : (
                         <>
                             <Database className="w-5 h-5" />
-                            DB-Verbindung pruefen
+                            {t('settings.test_db')}
                         </>
                     )}
                 </button>
@@ -404,7 +407,7 @@ export default function SettingsPage() {
                                 )}
                                 <div className="flex-1">
                                     <h3 className="font-bold">
-                                        {testResult.success ? 'Verbindung erfolgreich!' : 'Verbindung fehlgeschlagen'}
+                                        {testResult.success ? t('settings.connected') : t('settings.failed')}
                                     </h3>
                                     <p className="text-sm text-muted-foreground">
                                         {testResult.message}
@@ -422,7 +425,7 @@ export default function SettingsPage() {
                         <div className="glass-card p-4 space-y-2 !transform-none">
                             <div className="flex items-center gap-2 mb-3">
                                 <Zap className="w-5 h-5 text-accent-yellow" />
-                                <h3 className="font-bold text-sm uppercase tracking-wide">Diagnose-Log</h3>
+                                <h3 className="font-bold text-sm uppercase tracking-wide">{t('settings.diagnostic_log')}</h3>
                             </div>
                             <div className="space-y-1.5">
                                 {testResult.logs.map((log, i) => (
@@ -446,16 +449,15 @@ export default function SettingsPage() {
                         </div>
                     </div>
                 )}
-                
+
                 <div className="mt-6 p-4 rounded-xl bg-primary/5 border border-primary/10">
                     <div className="flex items-start gap-3">
                         <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                         <div className="text-sm">
-                            <p className="font-bold mb-1 uppercase tracking-tight text-xs text-primary">Supabase Setup-Guide:</p>
-                            <p className="text-muted-foreground leading-relaxed">
-                                Stellen Sie sicher, dass im <strong className="text-foreground">Vercel Dashboard</strong> unter <em className="italic">Project Settings &gt; Environment Variables</em> die Variable <code className="bg-primary/10 text-primary px-1 rounded mx-1">SUPABASE_DATABASE_URL</code> mit dem Connection-Pooling-Port (6543) von Supabase hinterlegt ist. 
-                                Für die Frontend-Aktionen werden zudem <code className="bg-primary/10 text-primary px-1 rounded mx-1">NEXT_PUBLIC_SUPABASE_URL</code> und <code className="bg-primary/10 text-primary px-1 rounded mx-1">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> benötigt.
-                            </p>
+                            <p className="font-bold mb-1 uppercase tracking-tight text-xs text-primary">{t('settings.supabase_guide')}</p>
+                            <p className="text-muted-foreground leading-relaxed"
+                               dangerouslySetInnerHTML={{ __html: t('settings.supabase_guide_text_de') }}
+                            />
                         </div>
                     </div>
                 </div>
@@ -468,20 +470,20 @@ export default function SettingsPage() {
                                 <Key className="w-8 h-8 text-accent-yellow" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold">n8n Premium Aktivierung</h3>
+                                <h3 className="text-xl font-bold">{t('settings.n8n_activation')}</h3>
                                 <p className="text-sm text-muted-foreground mt-2">
-                                    Geben Sie Ihren Lizenzschluessel ein, um die erweiterten Automatisierungs-Funktionen freizuschalten.
+                                    {t('settings.n8n_activation_desc')}
                                 </p>
                             </div>
                             <div className="text-left p-3 rounded-xl bg-primary/5 border border-primary/10 space-y-2">
-                                <p className="text-xs font-bold uppercase tracking-wider text-primary">Funktion & Lösung</p>
+                                <p className="text-xs font-bold uppercase tracking-wider text-primary">{t('settings.n8n_features_title')}</p>
                                 <ul className="list-disc pl-4 text-xs text-muted-foreground space-y-1">
-                                    <li>Automatischer Import neuer Objekte aus n8n-Workflows (Webhook/API).</li>
-                                    <li>Sicherer Datenaustausch mit geschütztem Endpunkt und App-Key.</li>
-                                    <li>Sync-Tools für schnelleren Abgleich mit weniger manuellen Schritten.</li>
+                                    <li>{t('settings.n8n_feature_1')}</li>
+                                    <li>{t('settings.n8n_feature_2')}</li>
+                                    <li>{t('settings.n8n_feature_3')}</li>
                                 </ul>
                                 <p className="text-xs text-muted-foreground">
-                                    Nutzen: kürzere Reaktionszeiten, weniger Fehler und ein reproduzierbarer Team-Prozess.
+                                    {t('settings.n8n_benefit')}
                                 </p>
                                 <a
                                     href="https://n8n.io/"
@@ -489,11 +491,11 @@ export default function SettingsPage() {
                                     rel="noopener noreferrer"
                                     className="inline-flex text-xs font-semibold text-primary hover:underline"
                                 >
-                                    Mehr zu n8n ansehen
+                                    {t('settings.n8n_learn_more')}
                                 </a>
                             </div>
                             <div className="space-y-3 text-left">
-                                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">Lizenzschluessel</label>
+                                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">{t('settings.license_key')}</label>
                                 <input
                                     type="password"
                                     value={n8nKey}
@@ -515,11 +517,11 @@ export default function SettingsPage() {
                                 className="btn-primary w-full py-3 shadow-lg shadow-primary/20 font-bold"
                                 suppressHydrationWarning
                             >
-                                {checkingN8nActivation ? 'Pruefe...' : 'Jetzt freischalten'}
+                                {checkingN8nActivation ? t('settings.checking') : t('settings.unlock_now')}
                             </button>
 
                             <div className="pt-4 border-t border-border/50 flex flex-col gap-3">
-                                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Noch keinen Lizenzschluessel?</p>
+                                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t('settings.no_license')}</p>
                                 <a
                                     href="https://buy.stripe.com/eVq8wPaIjeLvcrv0hReQM05"
                                     target="_blank"
@@ -528,10 +530,10 @@ export default function SettingsPage() {
                                     suppressHydrationWarning
                                 >
                                     <Zap className="w-4 h-4 text-white" />
-                                    <span className="text-white font-bold text-sm">Premium direkt buchen</span>
+                                    <span className="text-white font-bold text-sm">{t('settings.buy_premium')}</span>
                                 </a>
                                 <a href="mailto:support@echtjetztki.at" className="text-xs text-primary hover:underline font-bold">
-                                    Support kontaktieren
+                                    {t('settings.contact_support')}
                                 </a>
                             </div>
                         </div>
@@ -543,22 +545,22 @@ export default function SettingsPage() {
                         <Bot className="w-6 h-6 text-accent-yellow" />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold">n8n API Integration</h2>
+                        <h2 className="text-xl font-bold">{t('settings.n8n_integration')}</h2>
                         <p className="text-sm text-muted-foreground">
-                            Aktiviert Webhook-Automatisierung, sicheren Datenaustausch und schnelleren Objekt-Abgleich.
+                            {t('settings.n8n_integration_desc')}
                         </p>
                     </div>
                 </div>
 
                 <div className="space-y-4">
                     <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 space-y-3">
-                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">n8n Aktivierungscode (einmalig)</label>
+                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t('settings.n8n_code_label')}</label>
                         <div className="flex flex-col sm:flex-row gap-3">
                             <input
                                 type="password"
                                 value={n8nKey}
                                 onChange={(e) => setN8nKey(e.target.value)}
-                                placeholder="Aktivierungscode eingeben"
+                                placeholder={t('settings.n8n_code_placeholder')}
                                 className="flex-1 rounded-lg border border-border px-3 py-2 bg-background text-sm"
                                 disabled={isReadOnlyDemo || checkingN8nActivation || isN8nActivated}
                             />
@@ -569,7 +571,7 @@ export default function SettingsPage() {
                                 suppressHydrationWarning
                             >
                                 <Key className="w-4 h-4" />
-                                {checkingN8nActivation ? 'Pruefe...' : 'Aktivieren'}
+                                {checkingN8nActivation ? t('settings.checking') : t('settings.activate')}
                             </button>
                         </div>
                         {activationMessage && (
@@ -581,14 +583,14 @@ export default function SettingsPage() {
 
                     <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 space-y-2">
                         <div className="flex items-center justify-between">
-                            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">API Endpunkt (POST / GET)</label>
-                            <button 
+                            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t('settings.api_endpoint')}</label>
+                            <button
                                 onClick={() => {
                                     const url = window.location.origin + '/api/n8n/properties';
                                     navigator.clipboard.writeText(url);
                                 }}
                                 className="p-1.5 hover:bg-primary/10 rounded-lg text-primary transition-colors"
-                                title="Endpunkt kopieren"
+                                title={t('settings.copy_endpoint')}
                             >
                                 <ArrowRightLeft className="w-4 h-4" />
                             </button>
@@ -599,27 +601,27 @@ export default function SettingsPage() {
                     </div>
 
                     <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">App-Passwort (Header: x-api-key)</label>
+                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t('settings.app_password')}</label>
                         <div className="bg-background border border-border px-4 py-3 rounded-lg font-mono text-sm text-muted-foreground italic flex items-center gap-2">
                             <Key className="w-4 h-4" />
-                            Aus Sicherheitsgruenden nicht im Frontend sichtbar (ENV: N8N_API_KEY)
+                            {t('settings.app_password_hidden')}
                         </div>
                     </div>
 
                     <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 space-y-4">
                         <div className="flex items-center gap-2">
                             <Webhook className="w-4 h-4 text-primary" />
-                            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Security Webhook Test</h3>
+                            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">{t('settings.security_webhook_test')}</h3>
                         </div>
-                        
+
                         <div className="space-y-2 text-xs text-muted-foreground font-mono">
-                            <p>TEST: {publicSecurityWebhookTestUrl || 'Nicht konfiguriert'}</p>
-                            <p>LIVE: {publicSecurityWebhookLiveUrl || 'Nicht konfiguriert'}</p>
+                            <p>TEST: {publicSecurityWebhookTestUrl || t('settings.not_configured')}</p>
+                            <p>LIVE: {publicSecurityWebhookLiveUrl || t('settings.not_configured')}</p>
                         </div>
 
                         {!isWebhookTestConfigured && !isWebhookLiveConfigured && (
                             <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/20 text-xs text-orange-600">
-                                Mindestens eine Webhook-URL ist nicht gesetzt. Buttons bleiben deaktiviert, bis die ENV-Variablen vorhanden sind.
+                                {t('settings.webhook_env_missing')}
                             </div>
                         )}
 
@@ -631,7 +633,7 @@ export default function SettingsPage() {
                                 suppressHydrationWarning
                             >
                                 <Zap className="w-3 h-3" />
-                                Test-Webhook senden
+                                {t('settings.send_test_webhook')}
                             </button>
                             <button
                                 onClick={() => handleTestSecurityWebhook('live')}
@@ -640,7 +642,7 @@ export default function SettingsPage() {
                                 suppressHydrationWarning
                             >
                                 <Zap className="w-3 h-3" />
-                                Live einmal testen
+                                {t('settings.test_live_once')}
                             </button>
                         </div>
                     </div>
@@ -653,7 +655,7 @@ export default function SettingsPage() {
                                 suppressHydrationWarning
                             >
                                 {syncing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ArrowRightLeft className="w-4 h-4" />}
-                                Anzeigen-Abgleich (Sync)
+                                {t('settings.sync_listings')}
                             </button>
 
                             <button
@@ -663,14 +665,14 @@ export default function SettingsPage() {
                                 suppressHydrationWarning
                             >
                                 {supabaseTesting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
-                                Externe DB testen
+                                {t('settings.test_external_db')}
                             </button>
                     </div>
 
                     {isN8nActivated && (
                         <div className="flex items-center gap-2 text-primary font-bold px-4 py-2 bg-primary/10 rounded-xl w-fit">
                             <CheckCircle className="w-4 h-4" />
-                            Premium-Funktionen sind aktiv
+                            {t('settings.premium_active')}
                         </div>
                     )}
                 </div>
@@ -690,7 +692,7 @@ export default function SettingsPage() {
                         </div>
                     )}
                 </div>
-            
+
 
             {/* System Info Section */}
             <div className="glass-card p-6 space-y-4">
@@ -698,16 +700,16 @@ export default function SettingsPage() {
                     <div className="p-3 rounded-xl bg-secondary/10">
                         <Info className="w-6 h-6 text-secondary" />
                     </div>
-                    <h2 className="text-xl font-bold">System-Information</h2>
+                    <h2 className="text-xl font-bold">{t('settings.system_info')}</h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="p-4 rounded-lg bg-primary/5 border border-primary/10">
-                        <div className="text-xs text-muted-foreground mb-1">Version</div>
+                        <div className="text-xs text-muted-foreground mb-1">{t('settings.version')}</div>
                         <div className="font-bold">Open-Akquise v2.1.0</div>
                     </div>
                     <div className="p-4 rounded-lg bg-primary/5 border border-primary/10">
-                        <div className="text-xs text-muted-foreground mb-1">Framework</div>
+                        <div className="text-xs text-muted-foreground mb-1">{t('settings.framework')}</div>
                         <div className="font-bold">Next.js 16 + React 19</div>
                     </div>
                 </div>

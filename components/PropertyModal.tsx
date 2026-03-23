@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Property, PropertyStatus, PropertyType } from '@/lib/types';
 import { X, Save, Loader2, MessageCircle, ExternalLink, Trash2, History, Clock } from 'lucide-react';
+import { useLanguage } from '@/lib/language-context';
 
 interface PropertyModalProps {
     property: Property;
@@ -15,6 +16,7 @@ interface PropertyModalProps {
 }
 
 export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = false, isReadOnly = false }: PropertyModalProps) {
+    const { t } = useLanguage();
     const [formData, setFormData] = useState({
         ...property,
         title: property.title || '',
@@ -62,7 +64,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
         if (isReadOnly) {
             return;
         }
-        if (!confirm('Möchtest du diese Immobilie wirklich dauerhaft löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+        if (!confirm(t('property.delete_confirm'))) {
             return;
         }
 
@@ -76,13 +78,13 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
 
             if (!response.ok) {
                 const data = await response.json();
-                throw new Error(data.error || 'Fehler beim Löschen der Immobilie');
+                throw new Error(data.error || t('property.delete_error'));
             }
 
             onSave(); // Refresh list via complete callback
             onClose(); // Close modal
         } catch (err: any) {
-            setError(err.message || 'Ein Fehler ist aufgetreten');
+            setError(err.message || t('login.error_occurred'));
         } finally {
             setIsDeleting(false);
         }
@@ -158,7 +160,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
 
             if (!response.ok) {
                 const data = await response.json();
-                throw new Error(data.error || 'Fehler beim Speichern');
+                throw new Error(data.error || t('property.save_error'));
             }
 
             // Success
@@ -199,18 +201,18 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                 <div className="flex items-center justify-between p-4 md:p-5 border-b border-primary/10 flex-shrink-0 bg-background/95 backdrop-blur-md sticky top-0 z-20">
                     <div className="flex-1 min-w-0 mr-4">
                         <h2 className="text-xl md:text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary truncate">
-                            Immobilie bearbeiten
+                            {t('property.edit_title')}
                         </h2>
                         <div className="flex items-center gap-2 mt-0.5">
                             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-muted/50 px-1.5 py-0.5 rounded">ID: {property.id}</span>
                             <span className="text-[10px] text-muted-foreground/60">•</span>
-                            <span className="text-[10px] font-medium text-muted-foreground">Erstellt: {new Date(property.created_at).toLocaleDateString('de-AT')}</span>
+                            <span className="text-[10px] font-medium text-muted-foreground">{t('property.created_at')}: {new Date(property.created_at).toLocaleDateString('de-AT')}</span>
                         </div>
                     </div>
                     <button
                         onClick={onClose}
                         className="p-2.5 rounded-xl hover:bg-red-50 hover:text-red-500 transition-all bg-secondary/5 text-foreground/70 active:scale-95 shrink-0"
-                        title="Schließen"
+                        title={t('property.close')}
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -230,12 +232,12 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div className="md:col-span-3">
                                 <label htmlFor="property_link" className="block text-xs font-medium mb-1.5 ml-1">
-                                    Link zur Immobilie *
+                                    {t('property.link_label')} *
                                 </label>
                                 <div className="flex gap-2">
                                     <input
                                         id="property_link"
-                                        title="Link zur Immobilie"
+                                        title={t('property.link_label')}
                                         type="url"
                                         value={formData.link}
                                         onChange={(e) => {
@@ -253,7 +255,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="px-3 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors flex items-center justify-center shadow-sm"
-                                            title="Anzeige öffnen"
+                                            title={t('property.open_listing')}
                                         >
                                             <ExternalLink className="w-4 h-4" />
                                         </a>
@@ -261,7 +263,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                 </div>
                             </div>
                             <div className="md:col-span-1">
-                                <label htmlFor="uebergeben_am" className="block text-xs font-medium mb-1.5 ml-1">Veröffentlicht am:</label>
+                                <label htmlFor="uebergeben_am" className="block text-xs font-medium mb-1.5 ml-1">{t('property.published_at')}</label>
                                 <input
                                     id="uebergeben_am"
                                     type="date"
@@ -277,16 +279,16 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                         {/* Title Row (Full Width) */}
                         <div>
                             <label htmlFor="title" className="block text-xs font-medium mb-1.5 ml-1">
-                                Titel der Anzeige
+                                {t('property.listing_title')}
                             </label>
                             <input
                                 id="title"
-                                title="Titel der Anzeige"
+                                title={t('property.listing_title')}
                                 type="text"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                 className={`input-field w-full py-2.5 text-base font-semibold ${!isAdmin ? 'bg-muted/30 opacity-70 cursor-not-allowed' : ''}`}
-                                placeholder="z.B. Schöne 3-Zimmer Wohnung"
+                                placeholder={t('property.listing_title_placeholder')}
                                 disabled={!isAdmin}
                             />
                         </div>
@@ -295,11 +297,11 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div className="md:col-span-2">
                                 <label htmlFor="external_id" className="block text-xs font-medium mb-1.5 ml-1">
-                                    external_source ID
+                                    {t('property.external_id')}
                                 </label>
                                 <input
                                     id="external_id"
-                                    title="external_source ID"
+                                    title={t('property.external_id')}
                                     type="text"
                                     value={formData.external_id}
                                     onChange={(e) => setFormData({ ...formData, external_id: e.target.value })}
@@ -310,11 +312,11 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                             </div>
                             <div className="md:col-span-1">
                                 <label htmlFor="provision_abgeber_custom" className="block text-xs font-medium mb-1.5 ml-1">
-                                    Abgeber Prov. (%)
+                                    {t('property.seller_commission')}
                                 </label>
                                 <input
                                     id="provision_abgeber_custom"
-                                    title="Abgeber Provision"
+                                    title={t('property.seller_commission_title')}
                                     type="text"
                                     value={formData.provision_abgeber_custom}
                                     onChange={(e) => setFormData({ ...formData, provision_abgeber_custom: e.target.value })}
@@ -325,11 +327,11 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                             </div>
                             <div className="md:col-span-1">
                                 <label htmlFor="provision_kaeufer_custom" className="block text-xs font-medium mb-1.5 ml-1">
-                                    Käufer Prov. (%)
+                                    {t('property.buyer_commission')}
                                 </label>
                                 <input
                                     id="provision_kaeufer_custom"
-                                    title="Käufer Provision"
+                                    title={t('property.buyer_commission_title')}
                                     type="text"
                                     value={formData.provision_kaeufer_custom}
                                     onChange={(e) => setFormData({ ...formData, provision_kaeufer_custom: e.target.value })}
@@ -343,10 +345,10 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                         {/* Location & Type Row */}
                         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                             <div className="sm:col-span-1">
-                                <label htmlFor="plz" className="block text-xs font-medium mb-1.5 ml-1">PLZ</label>
+                                <label htmlFor="plz" className="block text-xs font-medium mb-1.5 ml-1">{t('property.postal_code')}</label>
                                 <input
                                     id="plz"
-                                    title="Postleitzahl"
+                                    title={t('property.postal_code_title')}
                                     type="text"
                                     value={formData.plz}
                                     onChange={(e) => setFormData({ ...formData, plz: e.target.value })}
@@ -356,10 +358,10 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                 />
                             </div>
                             <div className="sm:col-span-2">
-                                <label htmlFor="ort" className="block text-xs font-medium mb-1.5 ml-1">Ort</label>
+                                <label htmlFor="ort" className="block text-xs font-medium mb-1.5 ml-1">{t('property.city')}</label>
                                 <input
                                     id="ort"
-                                    title="Ort"
+                                    title={t('property.city')}
                                     type="text"
                                     value={formData.ort}
                                     onChange={(e) => setFormData({ ...formData, ort: e.target.value })}
@@ -369,19 +371,19 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                 />
                             </div>
                             <div className="sm:col-span-1">
-                                <label htmlFor="objekttyp" className="block text-xs font-medium mb-1.5 ml-1">Objekttyp</label>
+                                <label htmlFor="objekttyp" className="block text-xs font-medium mb-1.5 ml-1">{t('property.property_type')}</label>
                                 <select
                                     id="objekttyp"
-                                    title="Objekttyp auswählen"
+                                    title={t('property.property_type_select')}
                                     value={formData.objekttyp}
                                     onChange={(e) => setFormData({ ...formData, objekttyp: e.target.value as PropertyType })}
                                     className={`input-field w-full py-2 text-sm bg-background ${!isAdmin ? 'bg-muted/30 opacity-70 cursor-not-allowed' : ''}`}
                                     disabled={!isAdmin}
                                 >
-                                    <option value="Kauf">Kauf</option>
-                                    <option value="Miete">Miete</option>
-                                    <option value="Grundstück">Grundstück</option>
-                                    <option value="Gewerblich">Gewerblich</option>
+                                    <option value="Kauf">{t('property.type_purchase')}</option>
+                                    <option value="Miete">{t('property.type_rent')}</option>
+                                    <option value="Grundstück">{t('property.type_land')}</option>
+                                    <option value="Gewerblich">{t('property.type_commercial')}</option>
                                 </select>
                             </div>
                         </div>
@@ -389,10 +391,10 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                         {/* Status & Price Row */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-xl bg-primary/5 border border-primary/10">
                             <div>
-                                <label htmlFor="kaufpreis" className="block text-xs font-medium mb-1.5 ml-1">Kaufpreis (€) *</label>
+                                <label htmlFor="kaufpreis" className="block text-xs font-medium mb-1.5 ml-1">{t('property.purchase_price_label')} *</label>
                                 <input
                                     id="kaufpreis"
-                                    title="Kaufpreis in Euro"
+                                    title={t('property.purchase_price_title')}
                                     placeholder="z.B. 250000"
                                     type="number"
                                     step="0.01"
@@ -405,10 +407,10 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                 />
                             </div>
                             <div>
-                                <label htmlFor="status" className="block text-xs font-medium mb-1.5 ml-1">Status *</label>
+                                <label htmlFor="status" className="block text-xs font-medium mb-1.5 ml-1">{t('property.status_label')} *</label>
                                 <select
                                     id="status"
-                                    title="Status ändern"
+                                    title={t('property.status_change')}
                                     value={formData.status}
                                     onChange={(e) => {
                                         const newStatus = e.target.value as PropertyStatus;
@@ -432,10 +434,10 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                 </select>
                             </div>
                             <div>
-                                <label htmlFor="betreut_von" className="block text-xs font-medium mb-1.5 ml-1">Betreut von:</label>
+                                <label htmlFor="betreut_von" className="block text-xs font-medium mb-1.5 ml-1">{t('property.managed_by')}</label>
                                 <select
                                     id="betreut_von"
-                                    title="Betreuer auswählen"
+                                    title={t('property.select_agent')}
                                     value={formData.betreut_von}
                                     onChange={(e) => setFormData({ ...formData, betreut_von: e.target.value })}
                                     className="input-field py-2 text-sm bg-background"
@@ -454,10 +456,10 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                         {/* Contact Row */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="email" className="block text-xs font-medium mb-1.5 ml-1">E-Mail</label>
+                                <label htmlFor="email" className="block text-xs font-medium mb-1.5 ml-1">{t('property.email')}</label>
                                 <input
                                     id="email"
-                                    title="E-Mail"
+                                    title={t('property.email')}
                                     type="email"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -466,11 +468,11 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                 />
                             </div>
                             <div>
-                                <label htmlFor="telefonnummer" className="block text-xs font-medium mb-1.5 ml-1">Telefon</label>
+                                <label htmlFor="telefonnummer" className="block text-xs font-medium mb-1.5 ml-1">{t('property.phone')}</label>
                                 <div className="flex gap-2">
                                     <input
                                         id="telefonnummer"
-                                        title="Telefonnummer"
+                                        title={t('property.phone_title')}
                                         type="tel"
                                         value={formData.telefonnummer}
                                         onChange={(e) => setFormData({ ...formData, telefonnummer: e.target.value })}
@@ -483,8 +485,8 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="px-3 py-2 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-lg transition-colors flex items-center justify-center shadow-sm"
-                                            title="WhatsApp Nachricht senden"
-                                            aria-label="WhatsApp Nachricht senden"
+                                            title={t('property.whatsapp_send')}
+                                            aria-label={t('property.whatsapp_send')}
                                         >
                                             <MessageCircle className="w-4 h-4" />
                                         </a>
@@ -498,25 +500,25 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                             <div className="p-3 rounded-lg bg-secondary/5 border border-secondary/20">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
                                     <div>
-                                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Gesamt (6%)</div>
+                                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('property.total_6')}</div>
                                         <div className="text-sm font-bold text-foreground">
                                             {gesamtprovision.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                         </div>
                                     </div>
                                     <div>
-                                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Abgeber (3%)</div>
+                                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('property.seller_3')}</div>
                                         <div className="text-sm font-semibold text-muted-foreground">
                                             {provision_abgeber.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                         </div>
                                     </div>
                                     <div>
-                                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Käufer (3%)</div>
+                                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('property.buyer_3')}</div>
                                         <div className="text-sm font-semibold text-muted-foreground">
                                             {provision_kaeufer.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                         </div>
                                     </div>
                                     <div>
-                                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider text-secondary">Verdienst (10%)</div>
+                                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider text-secondary">{t('property.earnings_10')}</div>
                                         <div className="text-sm font-bold text-secondary">
                                             {berechnung.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                         </div>
@@ -527,10 +529,10 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
 
                         {/* Notes */}
                         <div>
-                            <label htmlFor="notizfeld" className="block text-xs font-medium mb-1.5 ml-1">Notizen</label>
+                            <label htmlFor="notizfeld" className="block text-xs font-medium mb-1.5 ml-1">{t('property.notes')}</label>
                             <textarea
                                 id="notizfeld"
-                                title="Notizen"
+                                title={t('property.notes')}
                                 value={formData.notizfeld}
                                 onChange={(e) => setFormData({ ...formData, notizfeld: e.target.value })}
                                 className="input-field w-full min-h-[80px] py-2 text-sm resize-y mb-2"
@@ -542,10 +544,10 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                         <div className="space-y-3 pt-4 border-t border-primary/10">
                             <label className="block text-xs font-bold mb-2 ml-1 text-primary uppercase tracking-widest flex items-center gap-2">
                                 <History className="w-4 h-4" />
-                                <span>Aktivitäten & Berichte (Status-Updates):</span>
+                                <span>{t('property.activities_reports')}</span>
                                 {(fetchProperty.reports && fetchProperty.reports.length > 0) && (
                                     <span className="text-[10px] bg-secondary/10 text-secondary px-2 py-0.5 rounded-full font-black ml-auto">
-                                        {fetchProperty.reports.length} Einträge
+                                        {fetchProperty.reports.length} {t('property.entries_count')}
                                     </span>
                                 )}
                             </label>
@@ -576,7 +578,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                             <div className="flex items-center gap-2 pt-2 border-t border-gray-50">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-success/40" />
                                                 <span className="text-[8px] text-muted-foreground/60 font-mono tracking-tighter uppercase">
-                                                    Protokolliert von IP: {report.ip_address}
+                                                    {t('property.logged_by_ip')} {report.ip_address}
                                                 </span>
                                             </div>
                                         </div>
@@ -584,7 +586,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                 ) : (
                                     <div className="p-8 rounded-2xl border-2 border-dashed border-gray-100 text-center">
                                         <p className="text-xs text-muted-foreground/60 font-bold uppercase tracking-widest italic">
-                                            Noch keine Berichte eingegangen
+                                            {t('property.no_reports')}
                                         </p>
                                     </div>
                                 )}
@@ -596,7 +598,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                             <label className="block text-xs font-bold mb-1.5 ml-1 text-primary/60 uppercase tracking-widest flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <MessageCircle className="w-4 h-4 opacity-50" />
-                                    <span>KUNDEN-Interaktionen:</span>
+                                    <span>{t('property.customer_interactions')}</span>
                                 </div>
                                 {property.replies && property.replies.length > 0 && (
                                     <span className="text-[10px] bg-primary/10 text-primary/70 px-1.5 py-0.5 rounded-full font-bold">
@@ -613,7 +615,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                     fetchProperty.replies.map((reply, idx) => (
                                         <div key={reply.id || idx} className="p-3 rounded-xl bg-primary/5 border border-primary/10 text-sm italic text-foreground/70">
                                             <div className="flex justify-between items-center mb-1 text-[9px] text-muted-foreground/50 uppercase font-black tracking-tighter">
-                                                <span>Nachricht #{fetchProperty.replies!.length - idx}</span>
+                                                <span>{t('property.message_num')} #{fetchProperty.replies!.length - idx}</span>
                                                 <span>{new Date(reply.created_at).toLocaleString('de-AT')}</span>
                                             </div>
                                             <p className="whitespace-pre-wrap">{reply.reply_message}</p>
@@ -626,7 +628,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                 ) : (
                                     <div className="p-4 rounded-xl bg-gray-50/50 border border-dashed border-gray-200 text-center">
                                         <p className="text-[10px] text-muted-foreground/40 font-bold uppercase tracking-widest">
-                                            Keine Interaktionen
+                                            {t('property.no_interactions')}
                                         </p>
                                     </div>
                                 )}
@@ -639,7 +641,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                 <div className="p-4 md:p-6 border-t border-primary/10 bg-background/95 backdrop-blur-md flex flex-col sm:flex-row gap-3 flex-shrink-0 sticky bottom-0 z-20 safe-area-modal-footer">
                     {isReadOnly && (
                         <div className="w-full rounded-xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm font-medium text-muted-foreground">
-                            Demo-Modus: Bearbeiten und Loeschen sind deaktiviert.
+                            {t('property.demo_mode_hint')}
                         </div>
                     )}
                     <div className="flex gap-3 w-full">
@@ -649,7 +651,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                 onClick={handleDelete}
                                 className="p-3 rounded-xl flex items-center justify-center text-red-500 border border-red-100 hover:bg-red-50 hover:border-red-200 transition-all active:scale-95"
                                 disabled={isReadOnly || saving || isDeleting}
-                                title="Immobilie löschen"
+                                title={t('property.delete_property')}
                             >
                                 {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
                             </button>
@@ -660,7 +662,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                             className="btn-secondary flex-1 py-3 text-sm font-bold shadow-sm"
                             disabled={saving || isDeleting}
                         >
-                            Abbrechen
+                            {t('action.cancel')}
                         </button>
                         <button
                             onClick={handleSubmit}
@@ -670,12 +672,12 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                             {saving ? (
                                 <>
                                     <Loader2 className="w-4 h-4 animate-spin" />
-                                    Speichert...
+                                    {t('property.saving')}
                                 </>
                             ) : (
                                 <>
                                     <Save className="w-4 h-4" />
-                                    Änderungen speichern
+                                    {t('property.save_changes')}
                                 </>
                             )}
                         </button>

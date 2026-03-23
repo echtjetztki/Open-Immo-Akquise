@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 import { PropertyFormData, PropertyStatus, PropertyType } from '@/lib/types';
 import { StatusBadge } from './StatusBadge';
 import { ExternalLink } from 'lucide-react';
+import { useLanguage } from '@/lib/language-context';
 
 interface PropertyFormProps {
     onSuccess?: () => void;
@@ -12,6 +13,7 @@ interface PropertyFormProps {
 }
 
 export function PropertyForm({ onSuccess, initialData, isEdit = false }: PropertyFormProps) {
+    const { t } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
@@ -69,7 +71,7 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.details ? `${errorData.error}: ${errorData.details}` : (errorData.error || 'Fehler beim Speichern der Immobilie'));
+                throw new Error(errorData.details ? `${errorData.error}: ${errorData.details}` : (errorData.error || t('property.save_error_full')));
             }
 
             setSuccess(true);
@@ -142,19 +144,19 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
             {/* Success Message */}
             {success && (
                 <div className="p-4 rounded-lg bg-success/10 border border-success/20 text-success animate-fade-in">
-                    Immobilie erfolgreich gespeichert!
+                    {t('property.success_saved')}
                 </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="md:col-span-3">
                     <label htmlFor="property_link" className="block text-sm font-medium mb-2">
-                        Link <span className="text-error">*</span>
+                        {t('property.link_label')} <span className="text-error">*</span>
                     </label>
                     <div className="flex gap-2">
                         <input
                             id="property_link"
-                            title="Link zur Immobilie"
+                            title={t('property.link_label')}
                             type="url"
                             required
                             value={formData.link}
@@ -171,7 +173,7 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="px-3 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors flex items-center justify-center shadow-sm"
-                                title="Anzeige öffnen"
+                                title={t('property.open_listing')}
                             >
                                 <ExternalLink className="w-4 h-4" />
                             </a>
@@ -180,11 +182,11 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
                 </div>
                 <div className="md:col-span-1">
                     <label htmlFor="uebergeben_am" className="block text-sm font-medium mb-2">
-                        Veröffentlicht am: <span className="text-error">*</span>
+                        {t('property.published_at')} <span className="text-error">*</span>
                     </label>
                     <input
                         id="uebergeben_am"
-                        title="Veröffentlichungsdatum"
+                        title={t('property.published_date_title')}
                         type="date"
                         required
                         value={formData.uebergeben_am}
@@ -197,15 +199,15 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
             {/* Title Row (Full Width) */}
             <div>
                 <label htmlFor="title" className="block text-sm font-medium mb-2">
-                    Titel der Anzeige
+                    {t('property.listing_title')}
                 </label>
                 <input
                     id="title"
-                    title="Titel der Anzeige"
+                    title={t('property.listing_title')}
                     type="text"
                     value={formData.title || ''}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="z.B. Schöne 3-Zimmer Wohnung in Wien"
+                    placeholder={t('property.listing_title_placeholder_full')}
                     className="input-field w-full py-2.5 text-lg font-semibold"
                 />
             </div>
@@ -214,25 +216,25 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="md:col-span-2">
                     <label htmlFor="external_id" className="block text-sm font-medium mb-2">
-                        external_source ID
+                        {t('property.external_id')}
                     </label>
                     <input
                         id="external_id"
-                        title="external_source ID"
+                        title={t('property.external_id')}
                         type="text"
                         value={formData.external_id}
                         onChange={(e) => setFormData({ ...formData, external_id: e.target.value })}
-                        placeholder="Wird automatisch aus Link extrahiert"
+                        placeholder={t('property.auto_extracted')}
                         className="input-field w-full py-2"
                     />
                 </div>
                 <div className="md:col-span-1">
                     <label htmlFor="provision_abgeber_custom" className="block text-sm font-medium mb-2">
-                        Abgeber Prov. (%)
+                        {t('property.seller_commission')}
                     </label>
                     <input
                         id="provision_abgeber_custom"
-                        title="Abgeber Provision"
+                        title={t('property.seller_commission_title')}
                         type="text"
                         inputMode="decimal"
                         value={formData.provision_abgeber_custom}
@@ -243,11 +245,11 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
                 </div>
                 <div className="md:col-span-1">
                     <label htmlFor="provision_kaeufer_custom" className="block text-sm font-medium mb-2">
-                        Käufer Prov. (%)
+                        {t('property.buyer_commission')}
                     </label>
                     <input
                         id="provision_kaeufer_custom"
-                        title="Käufer Provision"
+                        title={t('property.buyer_commission_title')}
                         type="text"
                         inputMode="decimal"
                         value={formData.provision_kaeufer_custom}
@@ -263,20 +265,20 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
                 {/* Objekttyp */}
                 <div>
                     <label htmlFor="objekttyp" className="block text-sm font-medium mb-2">
-                        Objekttyp
+                        {t('property.property_type')}
                     </label>
                     <select
                         id="objekttyp"
-                        title="Objekttyp auswählen"
+                        title={t('property.property_type_select')}
                         value={formData.objekttyp}
                         onChange={(e) => setFormData({ ...formData, objekttyp: e.target.value as PropertyType })}
                         className="w-full input-field"
                     >
-                        <option value="Kauf">Kauf</option>
-                        <option value="Miete">Miete</option>
-                        <option value="Grundstück">Grundstück</option>
-                        <option value="Garage">Garage</option>
-                        <option value="Gewerblich">Gewerblich</option>
+                        <option value="Kauf">{t('property.type_purchase')}</option>
+                        <option value="Miete">{t('property.type_rent')}</option>
+                        <option value="Grundstück">{t('property.type_land')}</option>
+                        <option value="Garage">{t('property.type_garage')}</option>
+                        <option value="Gewerblich">{t('property.type_commercial')}</option>
                     </select>
                 </div>
 
@@ -284,11 +286,11 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
                 <div className="flex gap-2">
                     <div className="w-1/3">
                         <label htmlFor="plz" className="block text-sm font-medium mb-2">
-                            PLZ
+                            {t('property.postal_code')}
                         </label>
                         <input
                             id="plz"
-                            title="Postleitzahl"
+                            title={t('property.postal_code_title')}
                             type="text"
                             value={formData.plz || ''}
                             onChange={(e) => setFormData({ ...formData, plz: e.target.value })}
@@ -298,11 +300,11 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
                     </div>
                     <div className="w-2/3">
                         <label htmlFor="ort" className="block text-sm font-medium mb-2">
-                            Ort
+                            {t('property.city')}
                         </label>
                         <input
                             id="ort"
-                            title="Ort"
+                            title={t('property.city')}
                             type="text"
                             value={formData.ort || ''}
                             onChange={(e) => setFormData({ ...formData, ort: e.target.value })}
@@ -317,11 +319,11 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
                 {/* Kaufpreis */}
                 <div>
                     <label htmlFor="kaufpreis" className="block text-sm font-medium mb-2">
-                        Kaufpreis (€) <span className="text-error">*</span>
+                        {t('property.purchase_price_label')} <span className="text-error">*</span>
                     </label>
                     <input
                         id="kaufpreis"
-                        title="Kaufpreis in Euro"
+                        title={t('property.purchase_price_title')}
                         type="number"
                         required
                         min="0"
@@ -336,11 +338,11 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
                 {/* Status */}
                 <div>
                     <label htmlFor="status" className="block text-sm font-medium mb-2">
-                        Status <span className="text-error">*</span>
+                        {t('property.status_label')} <span className="text-error">*</span>
                     </label>
                     <select
                         id="status"
-                        title="Status ändern"
+                        title={t('property.status_change')}
                         value={formData.status}
                         onChange={(e) => {
                             const newStatus = e.target.value as PropertyStatus;
@@ -368,11 +370,11 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
                 {/* Betreut von */}
                 <div>
                     <label htmlFor="betreut_von" className="block text-sm font-medium mb-2">
-                        Betreut von:
+                        {t('property.managed_by')}
                     </label>
                     <select
                         id="betreut_von"
-                        title="Betreuer auswählen"
+                        title={t('property.select_agent')}
                         value={formData.betreut_von}
                         onChange={(e) => setFormData({ ...formData, betreut_von: e.target.value })}
                         className="w-full input-field"
@@ -392,11 +394,11 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label htmlFor="email" className="block text-sm font-medium mb-2">
-                        E-Mail (optional)
+                        {t('property.email_optional')}
                     </label>
                     <input
                         id="email"
-                        title="E-Mail"
+                        title={t('property.email')}
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -406,11 +408,11 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
                 </div>
                 <div>
                     <label htmlFor="telefonnummer" className="block text-sm font-medium mb-2">
-                        Telefonnummer (optional)
+                        {t('property.phone_optional')}
                     </label>
                     <input
                         id="telefonnummer"
-                        title="Telefonnummer"
+                        title={t('property.phone_title')}
                         type="tel"
                         value={formData.telefonnummer}
                         onChange={(e) => setFormData({ ...formData, telefonnummer: e.target.value })}
@@ -422,58 +424,58 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
 
             {/* Automatische Berechnungen (Grid) */}
             <div className="glass-card p-4 md:p-6 bg-primary/5 border-primary/20">
-                <h3 className="text-sm md:text-base font-semibold text-primary mb-3 md:mb-4">📊 Automatische Berechnungen</h3>
+                <h3 className="text-sm md:text-base font-semibold text-primary mb-3 md:mb-4">{t('property.auto_calculations')}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Gesamtprovision (6%) */}
                     <div>
                         <label className="block text-sm font-medium mb-2">
-                            Gesamtprovision (6%)
+                            {t('property.total_provision_label')}
                         </label>
                         <div className="w-full px-4 py-2 rounded-lg bg-white border-2 border-primary/30 text-foreground font-bold text-lg">
                             {gesamtprovision.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
-                            6% des Kaufpreises
+                            {t('property.total_provision_desc')}
                         </p>
                     </div>
 
                     {/* Berechnung (10% der Gesamtprovision) */}
                     <div>
                         <label className="block text-sm font-medium mb-2">
-                            Unser Anteil (10%)
+                            {t('property.our_share_label')}
                         </label>
                         <div className="w-full px-4 py-2 rounded-lg bg-white border-2 border-secondary/30 text-secondary font-bold text-lg">
                             {berechnung.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
-                            10% der Gesamtprovision
+                            {t('property.our_share_desc')}
                         </p>
                     </div>
 
                     {/* Provision Abgeber (3%) */}
                     <div>
                         <label className="block text-sm font-medium mb-2">
-                            Provision Abgeber (3%)
+                            {t('property.provision_seller_label')}
                         </label>
                         <div className="w-full px-4 py-2 rounded-lg bg-white border-2 border-accent-yellow/30 text-foreground font-semibold">
                             {provision_abgeber.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
-                            3% des Kaufpreises
+                            {t('property.provision_seller_desc')}
                         </p>
                     </div>
 
                     {/* Provision Käufer (3%) */}
                     <div>
                         <label className="block text-sm font-medium mb-2">
-                            Provision Käufer (3%)
+                            {t('property.provision_buyer_label')}
                         </label>
                         <div className="w-full px-4 py-2 rounded-lg bg-white border-2 border-accent-pink/30 text-foreground font-semibold">
                             {provision_kaeufer.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
-                            3% des Kaufpreises
+                            {t('property.provision_buyer_desc')}
                         </p>
                     </div>
                 </div>
@@ -482,7 +484,7 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
             {/* Tagesdatum (Read-only) */}
             <div>
                 <label className="block text-sm font-medium mb-2">
-                    Tagesdatum
+                    {t('property.today_date')}
                 </label>
                 <div className="w-full px-4 py-2 rounded-lg bg-muted border-2 border-muted-foreground/20 text-muted-foreground">
                     {new Date().toLocaleDateString('de-AT', {
@@ -497,15 +499,15 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
             {/* Notizfeld */}
             <div>
                 <label htmlFor="notizfeld" className="block text-sm font-medium mb-2">
-                    Notizen
+                    {t('property.notes')}
                 </label>
                 <textarea
                     id="notizfeld"
-                    title="Notizen"
+                    title={t('property.notes')}
                     value={formData.notizfeld}
                     onChange={(e) => setFormData({ ...formData, notizfeld: e.target.value })}
                     rows={4}
-                    placeholder="Zusätzliche Informationen..."
+                    placeholder={t('property.additional_info')}
                     className="w-full resize-none"
                 />
             </div>
@@ -520,10 +522,10 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
                     {loading ? (
                         <span className="flex items-center justify-center gap-2">
                             <span className="spinner w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                            Speichern...
+                            {t('property.saving')}
                         </span>
                     ) : (
-                        isEdit ? 'Aktualisieren' : 'Immobilie Erstellen'
+                        isEdit ? t('property.update') : t('property.create')
                     )}
                 </button>
 
@@ -534,7 +536,7 @@ export function PropertyForm({ onSuccess, initialData, isEdit = false }: Propert
                         className="btn-secondary"
                         disabled={loading}
                     >
-                        Zurücksetzen
+                        {t('property.reset')}
                     </button>
                 )}
             </div>

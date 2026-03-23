@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Property, PropertyStatus, PropertyNote } from '@/lib/types';
 import { StatusBadge } from './StatusBadge';
 import { PropertyModal } from './PropertyModal';
+import { useLanguage } from '@/lib/language-context';
 import { ExternalLink, Edit2, Trash2, MessageSquarePlus, Phone, MessageCircle, Filter, X, ClipboardCopy, Search, Loader2, Send, Save } from 'lucide-react';
 
 interface PropertyTableProps {
@@ -36,6 +37,7 @@ export function PropertyTable({
     isAgentView = false,
     isReadOnly = false
 }: PropertyTableProps) {
+    const { t } = useLanguage();
     const [updatingStatus, setUpdatingStatus] = useState<number | null>(null);
     const [deletingId, setDeletingId] = useState<number | null>(null);
     const [editingProperty, setEditingProperty] = useState<Property | null>(null);
@@ -157,7 +159,7 @@ export function PropertyTable({
             onRefresh();
         } catch (error) {
             console.error('Failed to update status:', error);
-            alert('Fehler beim Aktualisieren des Status');
+            alert(t('table.status_error'));
         } finally {
             setUpdatingStatus(null);
         }
@@ -167,7 +169,7 @@ export function PropertyTable({
         if (!canDelete) {
             return;
         }
-        if (!confirm('Möchten Sie diese Immobilie wirklich löschen?')) {
+        if (!confirm(t('table.delete_confirm'))) {
             return;
         }
 
@@ -184,7 +186,7 @@ export function PropertyTable({
             onRefresh();
         } catch (error) {
             console.error('Failed to delete property:', error);
-            alert('Fehler beim Löschen');
+            alert(t('property.delete_error'));
         } finally {
             setDeletingId(null);
         }
@@ -211,7 +213,7 @@ export function PropertyTable({
             return;
         }
         if (!newNoteContent.trim()) {
-            alert('Bitte eine Notiz eingeben');
+            alert(t('table.note_empty'));
             return;
         }
 
@@ -234,7 +236,7 @@ export function PropertyTable({
             fetchNotes(propertyId);
         } catch (error) {
             console.error('Failed to add note:', error);
-            alert('Fehler beim Hinzufügen der Notiz');
+            alert(t('table.note_add_error'));
         }
     };
 
@@ -242,10 +244,10 @@ export function PropertyTable({
         return (
             <div className="text-center py-12">
                 <p className="text-muted-foreground text-lg">
-                    Keine Immobilien gefunden
+                    {t('table.no_properties')}
                 </p>
                 <p className="text-muted-foreground text-sm mt-2">
-                    Erstellen Sie Ihre erste Immobilie über die Eingabe-Seite
+                    {t('table.create_first')}
                 </p>
             </div>
         );
@@ -264,7 +266,7 @@ export function PropertyTable({
                             }`}
                     >
                         <Filter className="w-3.5 h-3.5" />
-                        Filter
+                        {t('action.filter')}
                         {activeFilterCount > 0 && (
                             <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold">
                                 {activeFilterCount}
@@ -277,7 +279,7 @@ export function PropertyTable({
                             className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-muted-foreground hover:text-error hover:bg-error/10 transition-colors"
                         >
                             <X className="w-3.5 h-3.5" />
-                            Alle Filter zurücksetzen
+                            {t('table.clear_filters')}
                         </button>
                     )}
 
@@ -288,7 +290,7 @@ export function PropertyTable({
                         </div>
                         <input
                             type="text"
-                            placeholder="Suchen..."
+                            placeholder={t('action.search')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="block w-full !pl-11 !pr-9 !py-2 !text-sm border border-primary/20 rounded-xl bg-primary/5 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all font-medium placeholder:text-muted-foreground/45"
@@ -297,8 +299,8 @@ export function PropertyTable({
                             <button
                                 onClick={() => setSearchQuery('')}
                                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
-                                title="Suche löschen"
-                                aria-label="Suche löschen"
+                                title={t('table.clear_search')}
+                                aria-label={t('table.clear_search')}
                             >
                                 <X className="h-3 w-3" />
                             </button>
@@ -306,7 +308,7 @@ export function PropertyTable({
                     </div>
 
                     <span className="ml-auto text-xs text-muted-foreground hidden sm:inline">
-                        {filteredProperties.length} von {properties.length} Einträgen
+                        {filteredProperties.length} {t('table.of')} {properties.length} {properties.length === 1 ? t('dashboard.entry') : t('dashboard.entries')}
                     </span>
                 </div>
 
@@ -314,14 +316,14 @@ export function PropertyTable({
                     <div className={`grid grid-cols-2 ${showBetreuerColumn ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-3 p-4 rounded-xl bg-primary/5 border border-primary/10 animate-fade-in`}>
                         {/* Status Filter */}
                         <div className="flex flex-col gap-1">
-                            <label className="text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</label>
+                            <label className="text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('property.status')}</label>
                             <select
                                 value={filterStatus}
                                 onChange={(e) => setFilterStatus(e.target.value)}
-                                title="Status filtern"
+                                title={t('table.filter_status')}
                                 className="text-xs px-2 py-1.5 rounded-lg border border-primary/20 bg-background hover:border-primary/40 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30"
                             >
-                                <option value="">Alle Status</option>
+                                <option value="">{t('table.all_statuses')}</option>
                                 {filterOptions.statuses.map(s => (
                                     <option key={s} value={s}>{s}</option>
                                 ))}
@@ -330,14 +332,14 @@ export function PropertyTable({
 
                         {/* Standort Filter */}
                         <div className="flex flex-col gap-1">
-                            <label className="text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Standort</label>
+                            <label className="text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('table.location')}</label>
                             <select
                                 value={filterStandort}
                                 onChange={(e) => setFilterStandort(e.target.value)}
-                                title="Standort filtern"
+                                title={t('table.filter_location')}
                                 className="text-xs px-2 py-1.5 rounded-lg border border-primary/20 bg-background hover:border-primary/40 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30"
                             >
-                                <option value="">Alle Standorte</option>
+                                <option value="">{t('table.all_locations')}</option>
                                 {filterOptions.standorte.map(s => (
                                     <option key={s} value={s}>{s}</option>
                                 ))}
@@ -346,14 +348,14 @@ export function PropertyTable({
 
                         {/* Veröffentlicht Filter */}
                         <div className="flex flex-col gap-1">
-                            <label className="text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Veröffentlicht</label>
+                            <label className="text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('table.published')}</label>
                             <select
                                 value={filterVeroeffentlicht}
                                 onChange={(e) => setFilterVeroeffentlicht(e.target.value)}
-                                title="Veröffentlichungszeitraum filtern"
+                                title={t('table.filter_period')}
                                 className="text-xs px-2 py-1.5 rounded-lg border border-primary/20 bg-background hover:border-primary/40 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30"
                             >
-                                <option value="">Alle Zeiträume</option>
+                                <option value="">{t('table.all_periods')}</option>
                                 {filterOptions.veroeffentlicht.map(v => (
                                     <option key={v} value={v}>{v}</option>
                                 ))}
@@ -362,14 +364,14 @@ export function PropertyTable({
 
                         {showBetreuerColumn && (
                             <div className="flex flex-col gap-1">
-                                <label className="text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Betreut von</label>
+                                <label className="text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('property.supervised_by')}</label>
                                 <select
                                     value={filterBetreuer}
                                     onChange={(e) => setFilterBetreuer(e.target.value)}
-                                    title="Betreuer filtern"
+                                    title={t('table.filter_agent')}
                                     className="text-xs px-2 py-1.5 rounded-lg border border-primary/20 bg-background hover:border-primary/40 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30"
                                 >
-                                    <option value="">Alle Betreuer</option>
+                                    <option value="">{t('table.all_agents')}</option>
                                     {filterOptions.betreuer.map(b => (
                                         <option key={b} value={b}>{getBetreuerIcon(b)} {b}</option>
                                     ))}
@@ -385,15 +387,15 @@ export function PropertyTable({
                 <table className="w-full table-fixed border-collapse">
                     <thead>
                         <tr className="border-b border-primary/10 bg-primary/5">
-                            <th className="text-left py-2 px-1 text-[10px] font-black text-muted-foreground uppercase tracking-tighter">Immobilie & Typ</th>
-                            <th className="text-left py-2 px-1 text-[10px] font-black text-muted-foreground w-[160px] uppercase tracking-tighter">Standort</th>
-                            <th className="text-left py-2 px-1 text-[10px] font-black text-muted-foreground w-[185px] uppercase tracking-tighter">Status & Update</th>
-                            <th className="text-left py-2 px-1 text-[10px] font-black text-muted-foreground w-[130px] uppercase tracking-tighter">Kontakt & Preis</th>
+                            <th className="text-left py-2 px-1 text-[10px] font-black text-muted-foreground uppercase tracking-tighter">{t('table.property_and_type')}</th>
+                            <th className="text-left py-2 px-1 text-[10px] font-black text-muted-foreground w-[160px] uppercase tracking-tighter">{t('table.location')}</th>
+                            <th className="text-left py-2 px-1 text-[10px] font-black text-muted-foreground w-[185px] uppercase tracking-tighter">{t('table.status_and_update')}</th>
+                            <th className="text-left py-2 px-1 text-[10px] font-black text-muted-foreground w-[130px] uppercase tracking-tighter">{t('table.contact_and_price')}</th>
                             {showBetreuerColumn && (
-                                <th className="text-center py-2 px-1 text-[10px] font-black text-muted-foreground w-[90px] uppercase tracking-tighter">Betreuer</th>
+                                <th className="text-center py-2 px-1 text-[10px] font-black text-muted-foreground w-[90px] uppercase tracking-tighter">{t('table.agent')}</th>
                             )}
-                            <th className="text-left py-2 px-1 text-[10px] font-black text-muted-foreground w-[80px] uppercase tracking-tighter">Datum</th>
-                            <th className="text-center py-2 px-1 text-[10px] font-black text-muted-foreground w-[90px] uppercase tracking-tighter">Aktion</th>
+                            <th className="text-left py-2 px-1 text-[10px] font-black text-muted-foreground w-[80px] uppercase tracking-tighter">{t('property.date')}</th>
+                            <th className="text-center py-2 px-1 text-[10px] font-black text-muted-foreground w-[90px] uppercase tracking-tighter">{t('table.action')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -433,7 +435,7 @@ export function PropertyTable({
                                                 rel="noopener noreferrer"
                                                 className="text-primary hover:text-secondary text-[10px] font-medium flex items-center gap-1 w-fit group"
                                             >
-                                                <span>external_source Link</span>
+                                                <span>{t('table.external_link')}</span>
                                                 <ExternalLink className="w-2.5 h-2.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                                             </a>
                                         )}
@@ -459,7 +461,7 @@ export function PropertyTable({
                                         {updatingStatus === property.id ? (
                                             <div className="flex items-center gap-1.5 bg-primary/5 p-1 rounded-lg">
                                                 <Loader2 className="w-3 h-3 animate-spin text-primary" />
-                                                <span className="text-[10px] text-primary font-bold">Lade...</span>
+                                                <span className="text-[10px] text-primary font-bold">{t('action.loading')}</span>
                                             </div>
                                         ) : (
                                             <select
@@ -467,7 +469,7 @@ export function PropertyTable({
                                                 onChange={(e) => handleStatusChange(property.id, e.target.value as PropertyStatus)}
                                                 disabled={!canChangeStatus}
                                                 className="text-[10px] font-black px-1.5 py-1 rounded-lg border border-primary/10 bg-white/50 hover:bg-white hover:border-primary/30 transition-all cursor-pointer w-[170px] focus:ring-2 focus:ring-primary/10 outline-none shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
-                                                title="Status ändern"
+                                                title={t('property.status_change')}
                                             >
                                                 <option value="NEU">🤖 NEU</option>
                                                 <option value="Zu vergeben">👍 Zu vergeben</option>
@@ -502,7 +504,7 @@ export function PropertyTable({
                                                 </a>
                                             </div>
                                         ) : (
-                                            <span className="text-[10px] opacity-20 italic">kein Tel.</span>
+                                            <span className="text-[10px] opacity-20 italic">{t('table.no_phone')}</span>
                                         )}
                                         <div className="font-black text-[10px] text-foreground bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10 w-fit">
                                             {Number(property.kaufpreis).toLocaleString('de-DE')} €
@@ -535,10 +537,10 @@ export function PropertyTable({
                                                 onClick={() => {
                                                     const url = `${window.location.origin}/report?id=${property.external_id}`;
                                                     navigator.clipboard.writeText(url);
-                                                    alert('Report-Link kopiert!');
+                                                    alert(t('property.report_link_copied'));
                                                 }}
                                                 className="p-2 rounded-xl bg-secondary/5 hover:bg-secondary text-secondary hover:text-white transition-all shadow-sm"
-                                                title="Report-Link kopieren"
+                                                title={t('property.copy_report_link')}
                                             >
                                                 <ClipboardCopy className="w-4 h-4" />
                                             </button>
@@ -548,7 +550,7 @@ export function PropertyTable({
                                                 type="button"
                                                 onClick={() => setEditingProperty(property)}
                                                 className="p-2 rounded-xl bg-primary/5 hover:bg-primary text-primary hover:text-white transition-all shadow-sm"
-                                                title="Bearbeiten"
+                                                title={t('action.edit')}
                                             >
                                                 <Edit2 className="w-4 h-4" />
                                             </button>
@@ -560,7 +562,7 @@ export function PropertyTable({
                                                 onClick={() => handleDelete(property.id)}
                                                 disabled={deletingId === property.id}
                                                 className="p-2 rounded-xl bg-error/5 hover:bg-error text-error hover:text-white transition-all shadow-sm disabled:opacity-50 disabled:hover:bg-error/5 disabled:hover:text-error"
-                                                title="Löschen"
+                                                title={t('action.delete')}
                                             >
                                                 {deletingId === property.id ? (
                                                     <span className="spinner w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
@@ -595,10 +597,10 @@ export function PropertyTable({
                                         onClick={() => {
                                             const url = `${window.location.origin}/report?id=${property.external_id}`;
                                             navigator.clipboard.writeText(url);
-                                            alert('Report-Link kopiert!');
+                                            alert(t('property.report_link_copied'));
                                         }}
                                         className="p-2.5 bg-secondary text-white rounded-xl shadow-md hover:scale-105 active:scale-95 transition-all"
-                                        title="Report-Link kopieren"
+                                        title={t('property.copy_report_link')}
                                     >
                                         <ClipboardCopy className="w-4 h-4" />
                                     </button>
@@ -607,7 +609,7 @@ export function PropertyTable({
                                     <button
                                         onClick={() => setEditingProperty(property)}
                                         className="p-2.5 bg-primary text-white rounded-xl shadow-md hover:scale-105 active:scale-95 transition-all"
-                                        title="Bearbeiten"
+                                        title={t('action.edit')}
                                     >
                                         <Edit2 className="w-4 h-4" />
                                     </button>
@@ -617,7 +619,7 @@ export function PropertyTable({
                                         onClick={() => handleDelete(property.id)}
                                         disabled={deletingId === property.id}
                                         className="p-2.5 bg-error/10 text-error rounded-xl hover:bg-error hover:text-white active:scale-95 transition-all disabled:opacity-50"
-                                        title="Löschen"
+                                        title={t('action.delete')}
                                     >
                                         {deletingId === property.id ? (
                                             <span className="spinner w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
@@ -633,32 +635,32 @@ export function PropertyTable({
                         <div className="grid grid-cols-2 gap-y-4 gap-x-4 bg-white/50 rounded-xl p-3 border border-primary/5">
                             {/* Kaufpreis (Highlight) */}
                             <div className="col-span-2 flex justify-between items-center bg-primary/5 p-3 rounded-lg border border-primary/10">
-                                <span className="text-xs font-semibold text-primary uppercase tracking-wider">Kaufpreis</span>
+                                <span className="text-xs font-semibold text-primary uppercase tracking-wider">{t('property.purchase_price')}</span>
                                 <span className="font-black text-lg text-foreground">
                                     {Number(property.kaufpreis).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                 </span>
                             </div>
 
                             <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">ID & Typ</span>
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{t('table.id_and_type')}</span>
                                 <div className="flex items-center gap-1.5 font-medium text-sm">
                                     <span className="font-mono text-xs bg-black/5 px-1 rounded">{property.external_id || 'N/A'}</span>
                                     {property.link && (
-                                        <a href={property.link} target="_blank" rel="noopener noreferrer" className="text-primary bg-primary/10 p-1 rounded-full" title="Link öffnen"><ExternalLink className="w-3.5 h-3.5" /></a>
+                                        <a href={property.link} target="_blank" rel="noopener noreferrer" className="text-primary bg-primary/10 p-1 rounded-full" title={t('table.open_link')}><ExternalLink className="w-3.5 h-3.5" /></a>
                                     )}
                                 </div>
                                 <span className="text-xs font-medium text-primary">{property.objekttyp || 'Kauf'}</span>
                             </div>
 
                             <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Standort</span>
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{t('table.location')}</span>
                                 <span className="font-semibold text-sm leading-tight">
                                     {property.plz && property.ort ? `${property.plz} ${property.ort}` : '-'}
                                 </span>
                             </div>
 
                             <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Telefon</span>
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{t('property.phone')}</span>
                                 {property.telefonnummer ? (
                                     <div className="flex flex-col items-start gap-2">
                                         <a href={`tel:${property.telefonnummer}`} className="font-bold text-primary text-sm flex items-center gap-1 bg-primary/10 px-2 py-1 rounded-lg">
@@ -677,7 +679,7 @@ export function PropertyTable({
 
                             <div className="flex flex-col gap-1">
                                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                                    {showBetreuerColumn ? 'Betreut von / Am' : 'Datum'}
+                                    {showBetreuerColumn ? t('table.agent_date') : t('property.date')}
                                 </span>
                                 {showBetreuerColumn && (
                                     <span className="font-medium text-sm text-secondary-foreground">
@@ -693,7 +695,7 @@ export function PropertyTable({
                             {updatingStatus === property.id ? (
                                 <div className="flex items-center justify-center gap-2 w-full p-3 bg-primary/10 rounded-xl">
                                     <span className="spinner w-5 h-5 border-2 border-primary border-t-transparent rounded-full" />
-                                    <span className="text-sm font-bold text-primary">Status wird aktualisiert...</span>
+                                    <span className="text-sm font-bold text-primary">{t('table.updating_status')}</span>
                                 </div>
                             ) : (
                                 <select
@@ -701,7 +703,7 @@ export function PropertyTable({
                                     onChange={(e) => handleStatusChange(property.id, e.target.value as PropertyStatus)}
                                     disabled={!canChangeStatus}
                                     className="w-full text-base font-bold p-3 rounded-xl border-2 border-primary/20 bg-white text-foreground hover:border-primary focus:border-primary focus:ring-4 focus:ring-primary/20 appearance-none shadow-sm transition-all text-center cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
-                                    title="Status ändern"
+                                    title={t('property.status_change')}
                                 >
                                     <option value="Zu vergeben">👍 Status: Zu vergeben</option>
                                     <option value="Von GP kontaktiert">📞 Status: Von GP kontaktiert</option>

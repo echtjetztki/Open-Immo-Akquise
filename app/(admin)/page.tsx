@@ -6,10 +6,12 @@ import { PropertyTable } from '@/components/PropertyTable';
 import { Building2, Euro, TrendingUp, CheckCircle, PlusCircle, RefreshCw, Users, Upload, Phone, Eye, BarChart3, CheckCircle2, Clock, XCircle, ThumbsUp } from 'lucide-react';
 import { Property, DashboardStats } from '@/lib/types';
 import { PUBLIC_DEMO_READ_ONLY } from '@/lib/public-demo-mode';
+import { useLanguage } from '@/lib/language-context';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function Dashboard() {
+    const { t } = useLanguage();
     const isReadOnlyDemo = PUBLIC_DEMO_READ_ONLY;
     const [stats, setStats] = useState<DashboardStats>({
         total_properties: 0,
@@ -90,7 +92,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-center space-y-4">
                     <div className="spinner w-16 h-16 border-4 border-primary border-t-transparent rounded-full mx-auto" />
-                    <p className="text-muted-foreground">Lade Dashboard...</p>
+                    <p className="text-muted-foreground">{t('dashboard.loading')}</p>
                 </div>
             </div>
         );
@@ -105,7 +107,7 @@ export default function Dashboard() {
                         Dashboard
                     </h1>
                     <p className="text-sm md:text-base text-muted-foreground mt-1">
-                        Willkommen im Open-Akquise Dashboard
+                        {t('dashboard.welcome')}
                     </p>
                 </div>
 
@@ -115,16 +117,16 @@ export default function Dashboard() {
                         onClick={handleRefresh}
                         disabled={refreshing}
                         className="btn-secondary flex items-center gap-2"
-                        title="Aktualisieren"
+                        title={t('action.refresh')}
                     >
                         <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                        <span className="hidden sm:inline">{refreshing ? 'Lädt...' : 'Aktualisieren'}</span>
+                        <span className="hidden sm:inline">{refreshing ? t('action.loading') : t('action.refresh')}</span>
                     </button>
 
                     {!isReadOnlyDemo && (
                         <Link href="/entry" className="btn-primary flex items-center gap-2">
                             <PlusCircle className="w-4 h-4" />
-                            <span className="hidden sm:inline">Neue Immobilie</span>
+                            <span className="hidden sm:inline">{t('dashboard.new_property')}</span>
                         </Link>
                     )}
                 </div>
@@ -132,20 +134,20 @@ export default function Dashboard() {
 
             {isReadOnlyDemo && (
                 <div className="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
-                    Die öffentliche Demo ist schreibgeschützt. Bearbeiten, Löschen und Anlegen sind deaktiviert.
+                    {t('demo.readonly')}
                 </div>
             )}
 
             {/* Stats Grid */}
             <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <MetricCard
-                    title="Gesamt Immobilien"
+                    title={t('dashboard.total_properties')}
                     value={stats.total_properties}
                     icon={<Building2 className="w-6 h-6" />}
                     colorClass="text-primary"
                 />
                 <MetricCard
-                    title="Gesamt Provision"
+                    title={t('dashboard.total_commission')}
                     value={`${stats.total_commission.toLocaleString('de-DE', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2
@@ -154,7 +156,7 @@ export default function Dashboard() {
                     colorClass="text-accent-yellow"
                 />
                 <MetricCard
-                    title="Gesamt Verdient (10%)"
+                    title={t('dashboard.total_earned')}
                     value={`${stats.total_earnings.toLocaleString('de-DE', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2
@@ -163,7 +165,7 @@ export default function Dashboard() {
                     colorClass="text-secondary"
                 />
                 <MetricCard
-                    title="Verkauft"
+                    title={t('dashboard.sold')}
                     value={stats.verkauft_count}
                     icon={<CheckCircle className="w-6 h-6" />}
                     colorClass="text-success"
@@ -173,7 +175,7 @@ export default function Dashboard() {
             {/* Status Overview */}
             {stats.by_status.length > 0 && (
                 <div className="glass-card p-6">
-                    <h2 className="text-xl font-bold mb-4">Status Übersicht</h2>
+                    <h2 className="text-xl font-bold mb-4">{t('dashboard.status_overview')}</h2>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         {stats.by_status.map((item) => (
                             <div key={item.status} className="text-center p-4 rounded-lg bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors">
@@ -192,13 +194,13 @@ export default function Dashboard() {
             <div className="glass-card p-1 md:p-3 overflow-hidden">
                 <div className="flex items-center justify-between mb-4">
                     <div>
-                        <h2 className="text-xl font-bold">Alle Immobilien</h2>
+                        <h2 className="text-xl font-bold">{t('dashboard.all_properties')}</h2>
                         <p className="text-sm text-muted-foreground mt-0.5">
-                            Sie können Status ändern und Notizen bearbeiten
+                            {t('dashboard.properties_desc')}
                         </p>
                     </div>
                     <span className="text-sm text-muted-foreground">
-                        {properties.length} {properties.length === 1 ? 'Eintrag' : 'Einträge'}
+                        {properties.length} {properties.length === 1 ? t('dashboard.entry') : t('dashboard.entries')}
                     </span>
                 </div>
 

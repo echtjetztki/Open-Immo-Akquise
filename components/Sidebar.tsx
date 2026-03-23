@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { LayoutGrid, PlusCircle, TrendingUp, UserCircle2, Menu, X, BarChart3, MessageCircle, LogOut, Users2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { PUBLIC_DEMO_READ_ONLY } from '@/lib/public-demo-mode';
+import { useLanguage } from '@/lib/language-context';
 
 type SessionUser = {
     displayName?: string;
@@ -19,6 +20,7 @@ export function Sidebar() {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [user, setUser] = useState<SessionUser | null>(null);
+    const { t } = useLanguage();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -51,22 +53,22 @@ export function Sidebar() {
     };
 
     const adminItems = [
-        { name: 'Team-Dashboard', href: '/', icon: LayoutGrid },
-        { name: 'CRM & Rechnungen', href: '/crm', icon: Users2 },
-        { name: 'Benutzer-Verwaltung', href: '/users', icon: UserCircle2 },
-        { name: 'Einstellungen', href: '/settings', icon: TrendingUp },
-        { name: 'KI Chat', href: '/chat', icon: MessageCircle },
-        { name: 'Statistik', href: '/statistik', icon: BarChart3 },
-        { name: 'Eingabe', href: '/entry', icon: PlusCircle },
+        { name: t('nav.team_dashboard'), href: '/', icon: LayoutGrid },
+        { name: t('nav.crm_invoices'), href: '/crm', icon: Users2 },
+        { name: t('nav.user_management'), href: '/users', icon: UserCircle2 },
+        { name: t('nav.settings'), href: '/settings', icon: TrendingUp },
+        { name: t('nav.ai_chat'), href: '/chat', icon: MessageCircle },
+        { name: t('nav.statistics'), href: '/statistik', icon: BarChart3 },
+        { name: t('nav.entry'), href: '/entry', icon: PlusCircle },
     ];
 
     const userItems = [
         {
-            name: 'Mein Dashboard',
+            name: t('nav.my_dashboard'),
             href: personalPath,
             icon: LayoutGrid
         },
-        { name: 'Profil & Passwort', href: settingsPath, icon: UserCircle2 },
+        { name: t('nav.profile_password'), href: settingsPath, icon: UserCircle2 },
     ];
 
     const navItems = isAdmin
@@ -83,7 +85,7 @@ export function Sidebar() {
                 onClick={() => setIsOpen(!isOpen)}
                 className="lg:hidden fixed z-[70] p-3 rounded-xl glass hover:bg-primary/10 transition-colors touch-manipulation pointer-events-auto"
                 style={{ top: mobileTopOffset, left: mobileLeftOffset }}
-                aria-label="MenÃ¼ umschalten"
+                aria-label={t('nav.toggle_menu')}
             >
                 {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -120,14 +122,14 @@ export function Sidebar() {
                         <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
                             Open-Akquise
                         </h1>
-                        <p className="text-xs text-muted-foreground">Immo Dashboard</p>
+                        <p className="text-xs text-muted-foreground">{t('nav.immo_dashboard')}</p>
                     </div>
                 </div>
 
                 {/* User Info */}
                 {user && (
                     <div className="mb-6 px-2 py-3 rounded-xl bg-primary/5 border border-primary/10">
-                        <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-bold">Angemeldet als</div>
+                        <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-bold">{t('nav.logged_in_as')}</div>
                         <div className="text-sm font-bold truncate">{user.displayName || user.username}</div>
                         <div className="text-[10px] text-primary font-bold uppercase">{user.role}</div>
                         {isReadOnlyDemo && (
@@ -180,7 +182,7 @@ export function Sidebar() {
                         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-error hover:bg-error/5 transition-all group"
                     >
                         <LogOut className="w-5 h-5 text-muted-foreground group-hover:text-error transition-colors" />
-                        <span className="font-medium text-sm">Abmelden</span>
+                        <span className="font-medium text-sm">{t('nav.logout')}</span>
                     </button>
 
                     <div className="flex items-center gap-3 px-2 mt-4 opacity-50">

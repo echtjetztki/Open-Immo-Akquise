@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { Share, X } from 'lucide-react';
+import { useLanguage } from '@/lib/language-context';
 
 export function IOSInstallPrompt() {
+    const { t } = useLanguage();
     const [isIOS, setIsIOS] = useState(false);
     const [isStandalone, setIsStandalone] = useState(false);
     const [showPrompt, setShowPrompt] = useState(false);
@@ -52,18 +54,18 @@ export function IOSInstallPrompt() {
                     AI
                 </div>
                 <div className="flex-1">
-                    <h3 className="font-bold text-foreground">App installieren</h3>
+                    <h3 className="font-bold text-foreground">{t('ios.install_app')}</h3>
                     <p className="text-sm text-muted-foreground mt-1 mb-3">
-                        Installieren Sie dieses Dashboard als App für den schnellen Zugriff und ein besseres Erlebnis.
+                        {t('ios.install_desc')}
                     </p>
                     <div className="bg-primary/5 rounded-lg p-3 text-sm text-foreground flex flex-col gap-2">
                         <div className="flex items-center gap-2">
                            <span className="bg-background w-6 h-6 rounded flex items-center justify-center font-bold shadow-sm border border-primary/10">1</span>
-                           <span>Tippe unten in der Leiste auf das <Share className="inline-block w-4 h-4 mx-1 text-blue-500" /> Teilen-Symbol</span>
+                           <span>{t('ios.step1')} <Share className="inline-block w-4 h-4 mx-1 text-blue-500" /> {t('ios.share_icon')} {t('ios.step1_suffix')}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="bg-background w-6 h-6 rounded flex items-center justify-center font-bold shadow-sm border border-primary/10">2</span>
-                            <span>Wähle "Zum Home-Bildschirm" aus der Liste</span>
+                            <span>{t('ios.step2')}</span>
                         </div>
                     </div>
                 </div>

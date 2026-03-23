@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { UserPlus, Trash2, Shield, ShieldCheck, RefreshCw, UserCircle, Save, XCircle, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PUBLIC_DEMO_READ_ONLY } from '@/lib/public-demo-mode';
+import { useLanguage } from '@/lib/language-context';
 
 type UserRole = 'admin' | 'user' | 'agent';
 
@@ -21,6 +22,7 @@ type ApiErrorResponse = {
 };
 
 export default function UserManagementPage() {
+    const { t } = useLanguage();
     const isReadOnlyDemo = PUBLIC_DEMO_READ_ONLY;
     const [users, setUsers] = useState<ManagedUser[]>([]);
     const [loading, setLoading] = useState(true);
@@ -47,7 +49,7 @@ export default function UserManagementPage() {
                 const err = data as ApiErrorResponse;
                 const details = err.details ? ` (${err.details})` : '';
                 setUsers([]);
-                setLoadError((err.error || 'Fehler beim Laden der Benutzerliste') + details);
+                setLoadError((err.error || t('users.load_error')) + details);
                 return;
             }
 
@@ -57,10 +59,10 @@ export default function UserManagementPage() {
             }
 
             setUsers([]);
-            setLoadError('Unerwartete Antwort von /api/admin/users');
+            setLoadError(t('users.unexpected_response'));
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Unbekannter Netzwerkfehler';
-            setLoadError('Netzwerkfehler beim Laden der Benutzerliste: ' + message);
+            const message = error instanceof Error ? error.message : t('users.unknown_network_error');
+            setLoadError(t('users.network_error_loading') + ': ' + message);
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -91,7 +93,7 @@ export default function UserManagementPage() {
             const data = await res.json() as ApiErrorResponse;
 
             if (res.ok) {
-                setFormSuccess('Benutzer erfolgreich angelegt');
+                setFormSuccess(t('users.create_success'));
                 setNewUsername('');
                 setNewPassword('');
                 setNewDisplayName('');
@@ -103,16 +105,16 @@ export default function UserManagementPage() {
                 }, 1200);
             } else {
                 const details = data.details ? ` (${data.details})` : '';
-                setFormError((data.error || 'Fehler beim Anlegen') + details);
+                setFormError((data.error || t('users.create_error')) + details);
             }
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Unbekannter Netzwerkfehler';
-            setFormError('Ein Netzwerkfehler ist aufgetreten: ' + message);
+            const message = error instanceof Error ? error.message : t('users.unknown_network_error');
+            setFormError(t('users.network_error') + ': ' + message);
         }
     };
 
     const handleDeleteUser = async (userId: number, username: string) => {
-        if (!confirm(`Moechten Sie den Benutzer "${username}" wirklich loeschen?`)) return;
+        if (!confirm(t('users.delete_confirm').replace('{name}', username))) return;
 
         setFormError('');
         try {
@@ -125,10 +127,10 @@ export default function UserManagementPage() {
 
             const data = await res.json() as ApiErrorResponse;
             const details = data.details ? ` (${data.details})` : '';
-            setFormError((data.error || 'Fehler beim Loeschen') + details);
+            setFormError((data.error || t('users.delete_error')) + details);
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Unbekannter Netzwerkfehler';
-            setFormError('Netzwerkfehler beim Loeschen: ' + message);
+            const message = error instanceof Error ? error.message : t('users.unknown_network_error');
+            setFormError(t('users.network_error_deleting') + ': ' + message);
         }
     };
 
@@ -164,7 +166,7 @@ export default function UserManagementPage() {
             <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="text-center space-y-4">
                     <div className="spinner w-12 h-12 border-4 border-primary border-t-transparent rounded-full mx-auto" />
-                    <p className="text-muted-foreground">Lade Benutzerliste...</p>
+                    <p className="text-muted-foreground">{t('users.loading')}</p>
                 </div>
             </div>
         );
@@ -175,10 +177,10 @@ export default function UserManagementPage() {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                        Benutzer-Verwaltung
+                        {t('users.title')}
                     </h1>
                     <p className="text-muted-foreground mt-1">
-                        Betreuer, Teamleiter und Admins verwalten
+                        {t('users.description')}
                     </p>
                 </div>
 
@@ -189,7 +191,7 @@ export default function UserManagementPage() {
                         className="btn-secondary flex items-center gap-2"
                     >
                         <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                        Aktualisieren
+                        {t('action.refresh')}
                     </button>
                     {!isReadOnlyDemo && (
                         <button
@@ -201,7 +203,7 @@ export default function UserManagementPage() {
                             className="btn-primary flex items-center gap-2"
                         >
                             <UserPlus className="w-4 h-4" />
-                            Neuer Benutzer
+                            {t('users.new_user')}
                         </button>
                     )}
                 </div>
@@ -209,13 +211,13 @@ export default function UserManagementPage() {
 
             {isReadOnlyDemo && (
                 <div className="p-4 rounded-xl bg-primary/5 border border-primary/15 text-sm text-muted-foreground">
-                    Demo-Modus: Benutzer koennen angesehen, aber nicht angelegt oder geloescht werden.
+                    {t('demo.users_readonly')}
                 </div>
             )}
 
             {loadError && (
                 <div className="p-4 rounded-xl bg-error/10 border border-error/20 text-error text-sm">
-                    <div className="font-semibold">Benutzerverwaltung konnte nicht geladen werden</div>
+                    <div className="font-semibold">{t('users.load_error')}</div>
                     <div className="opacity-90 mt-1">{loadError}</div>
                 </div>
             )}
@@ -231,11 +233,11 @@ export default function UserManagementPage() {
                     <table className="w-full text-left">
                         <thead>
                             <tr className="border-b border-primary/10 bg-primary/5">
-                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Benutzer</th>
-                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Anzeigename</th>
-                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Rolle</th>
-                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Erstellt am</th>
-                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground text-right">Aktionen</th>
+                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">{t('users.user')}</th>
+                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">{t('users.display_name')}</th>
+                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">{t('users.role')}</th>
+                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">{t('users.created_at')}</th>
+                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground text-right">{t('users.actions')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
@@ -259,7 +261,7 @@ export default function UserManagementPage() {
                                             onClick={() => handleDeleteUser(u.id, u.username)}
                                             disabled={isReadOnlyDemo || u.username === 'admin'}
                                             className="p-2 text-muted-foreground hover:text-error hover:bg-error/10 rounded-lg transition-all disabled:opacity-30"
-                                            title="Loeschen"
+                                            title={t('action.delete')}
                                         >
                                             <Trash2 className="w-5 h-5" />
                                         </button>
@@ -270,7 +272,7 @@ export default function UserManagementPage() {
                             {users.length === 0 && (
                                 <tr>
                                     <td colSpan={5} className="px-6 py-10 text-center text-sm text-muted-foreground">
-                                        Keine Benutzer gefunden.
+                                        {t('users.no_users')}
                                     </td>
                                 </tr>
                             )}
@@ -298,52 +300,52 @@ export default function UserManagementPage() {
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-2xl font-bold flex items-center gap-3">
                                     <UserPlus className="text-primary" />
-                                    Neuer Benutzer
+                                    {t('users.new_user')}
                                 </h3>
-                                <button onClick={() => setShowAddModal(false)} className="text-muted-foreground hover:text-white" title="Schliessen" aria-label="Schliessen">
+                                <button onClick={() => setShowAddModal(false)} className="text-muted-foreground hover:text-white" title={t('action.close')} aria-label={t('action.close')}>
                                     <XCircle className="w-7 h-7" />
                                 </button>
                             </div>
 
                             <form onSubmit={handleAddUser} className="space-y-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-bold text-muted-foreground ml-1">Benutzername (Login)</label>
+                                    <label className="text-sm font-bold text-muted-foreground ml-1">{t('users.username_login')}</label>
                                     <input
                                         type="text"
                                         value={newUsername}
                                         onChange={(e) => setNewUsername(e.target.value)}
                                         className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary outline-none"
-                                        placeholder="z.B. max.mustermann"
+                                        placeholder={t('users.username_placeholder')}
                                         required
                                     />
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-bold text-muted-foreground ml-1">Passwort</label>
+                                    <label className="text-sm font-bold text-muted-foreground ml-1">{t('users.password')}</label>
                                     <input
                                         type="text"
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
                                         className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary outline-none"
-                                        placeholder="Initial-Passwort setzen"
+                                        placeholder={t('users.password_placeholder')}
                                         required
                                     />
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-bold text-muted-foreground ml-1">Anzeigename</label>
+                                    <label className="text-sm font-bold text-muted-foreground ml-1">{t('users.display_name')}</label>
                                     <input
                                         type="text"
                                         value={newDisplayName}
                                         onChange={(e) => setNewDisplayName(e.target.value)}
                                         className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary outline-none"
-                                        placeholder="z.B. Max Mustermann"
+                                        placeholder={t('users.display_name_placeholder')}
                                         required
                                     />
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-bold text-muted-foreground ml-1">Rolle</label>
+                                    <label className="text-sm font-bold text-muted-foreground ml-1">{t('users.role')}</label>
                                     <div className="grid grid-cols-3 gap-3">
                                         <button
                                             type="button"
@@ -386,7 +388,7 @@ export default function UserManagementPage() {
                                     className="btn-primary w-full py-4 mt-2 flex items-center justify-center gap-2"
                                 >
                                     <Save className="w-5 h-5" />
-                                    <span>Benutzer jetzt anlegen</span>
+                                    <span>{t('users.create_now')}</span>
                                 </button>
                             </form>
                         </motion.div>

@@ -3,6 +3,7 @@
 import { Property, PropertyStatus } from '@/lib/types';
 import { useState } from 'react';
 import { ExternalLink, Calendar, Euro, FileText, Tag, Save, X, Edit3, Phone, User, ClipboardCopy, MessageCircle } from 'lucide-react';
+import { useLanguage } from '@/lib/language-context';
 
 interface UserPropertyCardProps {
     property: Property;
@@ -24,6 +25,7 @@ const getBetreuerIcon = (name: string) => {
 };
 
 export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: UserPropertyCardProps) {
+    const { t } = useLanguage();
     const [isEditingStatus, setIsEditingStatus] = useState(false);
     const [isEditingNote, setIsEditingNote] = useState(false);
     const [tempStatus, setTempStatus] = useState<PropertyStatus>(property.status);
@@ -98,7 +100,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                             </div>
                         ) : (
                             <p className="text-sm text-muted-foreground italic">
-                                Keine Telefonnummer
+                                {t('property.no_phone')}
                             </p>
                         )}
 
@@ -110,10 +112,10 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                                 onClick={() => {
                                     const url = `${window.location.origin}/report?id=${property.external_id}`;
                                     navigator.clipboard.writeText(url);
-                                    alert('Report-Link kopiert!');
+                                    alert(t('property.report_link_copied'));
                                 }}
                                 className="btn-secondary text-sm flex items-center gap-2"
-                                title="Report-Link kopieren"
+                                title={t('property.copy_report_link')}
                             >
                                 <ClipboardCopy className="w-4 h-4" />
                                 <span className="hidden sm:inline">Report Link</span>
@@ -127,7 +129,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                                 className="btn-primary text-sm flex items-center gap-2"
                             >
                                 <ExternalLink className="w-4 h-4" />
-                                <span className="hidden sm:inline">Anzeige</span>
+                                <span className="hidden sm:inline">{t('property.listing')}</span>
                             </a>
                         )}
                     </div>
@@ -152,7 +154,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                             <Euro className="w-5 h-5 text-accent-yellow" />
                         </div>
                         <div>
-                            <div className="text-xs text-muted-foreground">Kaufpreis</div>
+                            <div className="text-xs text-muted-foreground">{t('property.purchase_price')}</div>
                             <div className="font-bold">{formatCurrency(property.kaufpreis)}</div>
                         </div>
                     </div>
@@ -162,7 +164,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                             <Euro className="w-5 h-5 text-secondary" />
                         </div>
                         <div>
-                            <div className="text-xs text-muted-foreground">Provision</div>
+                            <div className="text-xs text-muted-foreground">{t('property.commission')}</div>
                             <div className="font-bold">{formatCurrency(property.gesamtprovision)}</div>
                         </div>
                     </div>
@@ -172,7 +174,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                             <User className="w-5 h-5 text-secondary" />
                         </div>
                         <div>
-                            <div className="text-xs text-muted-foreground">Betreut von</div>
+                            <div className="text-xs text-muted-foreground">{t('property.supervised_by')}</div>
                             <div className="font-bold flex items-center gap-1 text-sm md:text-base">
                                 {getBetreuerIcon(property.betreut_von || '☹️')}
                                 {property.betreut_von || '☹️'}
@@ -185,7 +187,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                             <Calendar className="w-5 h-5 text-primary" />
                         </div>
                         <div>
-                            <div className="text-xs text-muted-foreground">Datum</div>
+                            <div className="text-xs text-muted-foreground">{t('property.date')}</div>
                             <div className="font-bold text-sm md:text-base">{formatDate(property.tagesdatum)}</div>
                         </div>
                     </div>
@@ -204,7 +206,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                                 className="text-sm text-primary hover:text-primary/80 flex items-center gap-1"
                             >
                                 <Edit3 className="w-3 h-3" />
-                                Bearbeiten
+                                {t('action.edit')}
                             </button>
                         )}
                     </div>
@@ -215,7 +217,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                                 value={tempStatus}
                                 onChange={(e) => setTempStatus(e.target.value as PropertyStatus)}
                                 className="input flex-1"
-                                aria-label="Status auswählen"
+                                aria-label={t('property.select_status')}
                             >
                                 {statuses.map(status => (
                                     <option key={status} value={status}>{status}</option>
@@ -224,14 +226,14 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                             <button
                                 onClick={handleSaveStatus}
                                 className="btn-primary flex items-center gap-1 px-3"
-                                title="Speichern"
+                                title={t('action.save')}
                             >
                                 <Save className="w-4 h-4" />
                             </button>
                             <button
                                 onClick={handleCancelStatus}
                                 className="btn-secondary flex items-center gap-1 px-3"
-                                title="Abbrechen"
+                                title={t('action.cancel')}
                             >
                                 <X className="w-4 h-4" />
                             </button>
@@ -248,7 +250,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                     <div className="flex items-center justify-between">
                         <label className="text-sm font-medium flex items-center gap-2">
                             <FileText className="w-4 h-4" />
-                            Notizen
+                            {t('property.notes')}
                         </label>
                         {!isEditingNote && (
                             <button
@@ -256,7 +258,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                                 className="text-sm text-primary hover:text-primary/80 flex items-center gap-1"
                             >
                                 <Edit3 className="w-3 h-3" />
-                                {property.notizfeld ? 'Bearbeiten' : 'Hinzufügen'}
+                                {property.notizfeld ? t('action.edit') : t('action.add')}
                             </button>
                         )}
                     </div>
@@ -267,7 +269,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                                 value={tempNote}
                                 onChange={(e) => setTempNote(e.target.value)}
                                 className="input min-h-[120px] resize-y"
-                                placeholder="Notizen zur Immobilie hinzufügen..."
+                                placeholder={t('property.notes_placeholder')}
                             />
                             <div className="flex gap-2">
                                 <button
@@ -275,14 +277,14 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                                     className="btn-primary flex items-center gap-2 flex-1"
                                 >
                                     <Save className="w-4 h-4" />
-                                    Speichern
+                                    {t('action.save')}
                                 </button>
                                 <button
                                     onClick={handleCancelNote}
                                     className="btn-secondary flex items-center gap-2"
                                 >
                                     <X className="w-4 h-4" />
-                                    Abbrechen
+                                    {t('action.cancel')}
                                 </button>
                             </div>
                         </div>
@@ -291,7 +293,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                             {property.notizfeld ? (
                                 <p className="text-sm whitespace-pre-wrap">{property.notizfeld}</p>
                             ) : (
-                                <p className="text-sm text-muted-foreground italic">Keine Notizen vorhanden</p>
+                                <p className="text-sm text-muted-foreground italic">{t('property.no_notes')}</p>
                             )}
                         </div>
                     )}
@@ -301,13 +303,13 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                 <div className="space-y-2 mt-4 pt-4 border-t border-border">
                     <label className="text-sm font-medium flex items-center gap-2 text-primary/70 uppercase tracking-wider">
                         <MessageCircle className="w-4 h-4" />
-                        Antwort vom Kunden:
+                        {t('property.customer_reply')}
                     </label>
                     <div className="p-4 rounded-lg bg-primary/5 border border-primary/10 min-h-[60px]">
                         {property.reply_message ? (
                             <p className="text-sm font-semibold text-foreground/90 whitespace-pre-wrap">{property.reply_message}</p>
                         ) : (
-                            <p className="text-sm text-muted-foreground italic">Keine Antwort vorhanden</p>
+                            <p className="text-sm text-muted-foreground italic">{t('property.no_reply')}</p>
                         )}
                     </div>
                 </div>

@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { Key, Save, AlertCircle, CheckCircle, RefreshCw, User, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PUBLIC_DEMO_READ_ONLY } from '@/lib/public-demo-mode';
+import { useLanguage } from '@/lib/language-context';
 
 export default function UserSettingsPage() {
+    const { t } = useLanguage();
     const isReadOnlyDemo = PUBLIC_DEMO_READ_ONLY;
     const [user, setUser] = useState<{ username?: string; role?: string } | null>(null);
     const [currentPassword, setCurrentPassword] = useState('');
@@ -26,17 +28,17 @@ export default function UserSettingsPage() {
         setMessage(null);
 
         if (isReadOnlyDemo) {
-            setMessage({ type: 'error', text: 'Die öffentliche Demo ist schreibgeschützt.' });
+            setMessage({ type: 'error', text: t('demo.readonly') });
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            setMessage({ type: 'error', text: 'Die neuen Passwörter stimmen nicht überein' });
+            setMessage({ type: 'error', text: t('profile.passwords_mismatch') });
             return;
         }
 
         if (newPassword.length < 6) {
-            setMessage({ type: 'error', text: 'Das neue Passwort muss mindestens 6 Zeichen lang sein' });
+            setMessage({ type: 'error', text: t('profile.password_min') });
             return;
         }
 
@@ -52,38 +54,38 @@ export default function UserSettingsPage() {
             const data = await res.json();
 
             if (res.ok) {
-                setMessage({ type: 'success', text: 'Passwort wurde erfolgreich geändert' });
+                setMessage({ type: 'success', text: t('profile.password_changed') });
                 setCurrentPassword('');
                 setNewPassword('');
                 setConfirmPassword('');
             } else {
-                setMessage({ type: 'error', text: data.error || 'Fehler beim Ändern des Passworts' });
+                setMessage({ type: 'error', text: data.error || t('profile.password_error') });
             }
         } catch {
-            setMessage({ type: 'error', text: 'Ein Netzwerkfehler ist aufgetreten' });
+            setMessage({ type: 'error', text: t('login.network_error') });
         } finally {
             setLoading(false);
         }
     };
 
     if (!user) {
-        return <div className="p-8 text-center text-muted-foreground animate-pulse">Lade Einstellungen...</div>;
+        return <div className="p-8 text-center text-muted-foreground animate-pulse">{t('profile.loading')}</div>;
     }
 
     const roleLabel = user.role === 'admin'
-        ? 'Administrator'
+        ? t('profile.administrator')
         : user.role === 'agent'
-            ? 'Betreuer'
-            : 'Teamleiter';
+            ? t('profile.agent')
+            : t('profile.teamlead');
 
     return (
         <div className="max-w-2xl mx-auto space-y-8 animate-fade-in py-8 px-4">
             <header>
                 <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                    Mein Profil
+                    {t('profile.title')}
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                    Verwalte deine Kontoeinstellungen und Sicherheit
+                    {t('profile.manage')}
                 </p>
             </header>
 
@@ -93,7 +95,7 @@ export default function UserSettingsPage() {
                     <User className="w-10 h-10 text-primary" />
                 </div>
                 <div>
-                    <div className="text-sm text-muted-foreground uppercase tracking-wider font-bold">Benutzername</div>
+                    <div className="text-sm text-muted-foreground uppercase tracking-wider font-bold">{t('profile.username')}</div>
                     <div className="text-2xl font-bold text-foreground">{user.username}</div>
                     <div className="flex items-center gap-2 mt-1">
                         <ShieldCheck className="w-4 h-4 text-primary" />
@@ -110,49 +112,49 @@ export default function UserSettingsPage() {
                     <div className="p-2 rounded-lg bg-orange-500/10">
                         <Key className="w-5 h-5 text-primary" />
                     </div>
-                    <h2 className="text-xl font-bold">Passwort ändern</h2>
+                    <h2 className="text-xl font-bold">{t('profile.change_password')}</h2>
                 </div>
 
                 {isReadOnlyDemo && (
                     <div className="p-4 rounded-xl bg-primary/5 border border-primary/15 text-sm text-muted-foreground">
-                        Demo-Modus: Passwortänderungen sind deaktiviert.
+                        {t('demo.password_disabled')}
                     </div>
                 )}
 
                 <form onSubmit={handleChangePassword} className="space-y-4">
                     <div className="space-y-1.5">
-                        <label className="text-sm font-semibold text-muted-foreground ml-1">Aktuelles Passwort</label>
+                        <label className="text-sm font-semibold text-muted-foreground ml-1">{t('profile.current_password')}</label>
                         <input
                             type="password"
                             value={currentPassword}
                             onChange={(e) => setCurrentPassword(e.target.value)}
                             className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                            placeholder="Altes Passwort eingeben"
+                            placeholder={t('profile.placeholder_current_password')}
                             required
                         />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                            <label className="text-sm font-semibold text-muted-foreground ml-1">Neues Passwort</label>
+                            <label className="text-sm font-semibold text-muted-foreground ml-1">{t('profile.new_password')}</label>
                             <input
                                 type="password"
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                                placeholder="Min. 6 Zeichen"
+                                placeholder={t('profile.placeholder_new_password')}
                                 required
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-sm font-semibold text-muted-foreground ml-1">Passwort bestätigen</label>
+                            <label className="text-sm font-semibold text-muted-foreground ml-1">{t('profile.confirm_password')}</label>
                             <input
                                 type="password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                                placeholder="Gleiches Passwort erneut"
+                                placeholder={t('profile.placeholder_confirm_password')}
                                 required
                             />
                         </div>
@@ -178,14 +180,14 @@ export default function UserSettingsPage() {
                         className="btn-primary w-full flex items-center justify-center gap-2 py-4"
                     >
                         {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                        <span>Passwort jetzt speichern</span>
+                        <span>{t('profile.save_password')}</span>
                     </button>
                 </form>
             </div>
 
             <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 flex gap-3 italic text-xs text-muted-foreground">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <p>Bitte speichere dein neues Passwort sicher ab. Nach der Änderung wirst du nicht automatisch abgemeldet.</p>
+                <p>{t('profile.password_save_note')}</p>
             </div>
         </div>
     );

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { LayoutDashboard, LogOut, UserCircle } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useLanguage } from '@/lib/language-context';
 
 type SessionUser = {
     displayName?: string;
@@ -15,6 +16,7 @@ type SessionUser = {
 export default function UserFooterNav() {
     const pathname = usePathname();
     const router = useRouter();
+    const { t } = useLanguage();
     const [user, setUser] = useState<SessionUser | null>(null);
 
     useEffect(() => {
@@ -64,7 +66,7 @@ export default function UserFooterNav() {
                     )}
                 >
                     <LayoutDashboard className={clsx('h-4 w-4', isDashboard ? 'text-primary' : '')} />
-                    <span>Mein Dashboard</span>
+                    <span>{t('nav.my_dashboard')}</span>
                 </Link>
 
                 <Link
@@ -77,7 +79,7 @@ export default function UserFooterNav() {
                     )}
                 >
                     <UserCircle className={clsx('h-4 w-4', isSettings ? 'text-primary' : '')} />
-                    <span>Profil & Passwort</span>
+                    <span>{t('nav.profile_password')}</span>
                 </Link>
 
                 <button
@@ -86,7 +88,7 @@ export default function UserFooterNav() {
                     className="flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-medium text-muted-foreground hover:text-error hover:bg-error/5 transition-all"
                 >
                     <LogOut className="h-4 w-4" />
-                    <span>Abmelden</span>
+                    <span>{t('nav.logout')}</span>
                 </button>
             </div>
         </footer>
