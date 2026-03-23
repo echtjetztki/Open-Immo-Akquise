@@ -73,23 +73,27 @@ Du möchtest das System nicht selbst hosten? Wir übernehmen das komplette techn
 
 ### 📱 App Version
 
-Diese Version im Repository ist die **Standard-Version** zum Testen und sofortigen Einsatz im Web.
-Zusätzlich gibt es nativ installierbare Apps für iOS & Android.
+Diese Version im Repository ist die **Standard-Version** zum Testen und sofortigen Einsatz im Web. Zusätzlich gibt es nativ installierbare Apps für iOS & Android.
 
-#### Standard Version
+<br/>
+
+**🌐 Standard Version**  
+Die Basis-App für den direkten Start ins Projekt.
+
 <a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="In Vorbereitung">
-  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="42" alt="Download on the App Store">
-</a>
-<a href="https://play.google.com/store/apps/details?id=com.openakquise.dashboard" target="_blank">
+  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="44" alt="Download on the App Store">
+</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://play.google.com/store/apps/details?id=com.openakquise.dashboard" target="_blank">
   <img src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" height="64" alt="Jetzt bei Google Play">
 </a>
 
-#### Premium / Pro Version
-Erweitert um Offline-Funktionen und zusätzliche native Features.
+<br/>
+
+**🚀 Premium / Pro Version**  
+Erweitert um Offline-Funktionen, Push-Notices und native Features.
+
 <a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="In Vorbereitung">
-  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="42" alt="Download on the App Store">
-</a>
-<a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank">
+  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="44" alt="Download on the App Store">
+</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank">
   <img src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" height="64" alt="Jetzt bei Google Play">
 </a>
 
@@ -171,23 +175,27 @@ Don't want to host the system yourself? We handle the entire technical setup for
 
 ### 📱 App Version
 
-The version in this repository is the **Standard Version** for testing and immediate use on the web.
-Additionally, natively installable apps for iOS & Android are available.
+The version in this repository is the **Standard-Version** for testing and immediate deployment on the web. Additionally, native apps for iOS & Android are available.
 
-#### Standard Version
+<br/>
+
+**🌐 Standard Version**  
+The basic app for a quick and easy start.
+
 <a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="Work in Progress">
-  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="42" alt="Download on the App Store">
-</a>
-<a href="https://play.google.com/store/apps/details?id=com.openakquise.dashboard" target="_blank">
+  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="44" alt="Download on the App Store">
+</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://play.google.com/store/apps/details?id=com.openakquise.dashboard" target="_blank">
   <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="64" alt="Get it on Google Play">
 </a>
 
-#### Premium / Pro Version
-Featuring offline capabilities and extended native features.
+<br/>
+
+**🚀 Premium / Pro Version**  
+Extended with offline capabilities, push notifications, and native features.
+
 <a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="Work in Progress">
-  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="42" alt="Download on the App Store">
-</a>
-<a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank">
+  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="44" alt="Download on the App Store">
+</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank">
   <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="64" alt="Get it on Google Play">
 </a>
 
