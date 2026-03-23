@@ -146,17 +146,18 @@ export default function ReferralsPage() {
                         {t('ref.title')}
                     </h1>
                     <p className="text-muted-foreground mt-1">
-                        {user?.role === 'admin' ? 'Alle Empfehlungen im Überblick' : t('ref.entry_desc')}
+                        {user?.role === 'admin' ? t('ref.admin_overview') : t('ref.entry_desc')}
                     </p>
                 </div>
                 <div className="flex gap-3">
                     <button 
                         onClick={() => window.location.href = '/referral-entry'}
                         className="btn-secondary flex items-center gap-2 px-4 py-3"
-                        title="Neue Empfehlung manuell"
+                        title={t('ref.new')}
+
                     >
                         <TrendingUp className="w-4 h-4" />
-                        Neu
+                        {t('ref.new_btn')}
                     </button>
                     <button 
                         onClick={copyReferralLink}
@@ -205,7 +206,7 @@ export default function ReferralsPage() {
                                             <h3 className="font-bold text-foreground leading-tight">{r.client_name}</h3>
                                             <div className="flex gap-2 items-center flex-wrap">
                                                 <span className={`text-[10px] uppercase font-black px-1.5 py-0.5 rounded border mt-1 inline-block ${getStatusStyle(r.status)}`}>
-                                                    {r.status}
+                                                    {t('ref.status_' + r.status.toLowerCase())}
                                                 </span>
                                                 {user?.role === 'admin' && r.agent && (
                                                     <span className="text-[10px] uppercase font-black px-1.5 py-0.5 rounded border border-secondary/20 bg-secondary/10 text-secondary mt-1 inline-block">
@@ -275,11 +276,11 @@ export default function ReferralsPage() {
                                     onChange={e => handleUpdateStatus(r.id, e.target.value)}
                                     className="text-xs bg-white border border-primary/10 rounded-lg p-1.5 focus:outline-none focus:ring-2 focus:ring-primary/20"
                                 >
-                                    <option value="Neu">Neu</option>
-                                    <option value="Kontaktiert">Kontaktiert</option>
-                                    <option value="Qualifiziert">Qualifiziert</option>
-                                    <option value="Abschluss">Abschluss</option>
-                                    <option value="Abgelehnt">Abgelehnt</option>
+                                    <option value="Neu">{t('ref.status_neu')}</option>
+                                    <option value="Kontaktiert">{t('ref.status_kontaktiert')}</option>
+                                    <option value="Qualifiziert">{t('ref.status_qualifiziert')}</option>
+                                    <option value="Abschluss">{t('ref.status_abschluss')}</option>
+                                    <option value="Abgelehnt">{t('ref.status_abgelehnt')}</option>
                                 </select>
                                 <div className="text-[10px] text-muted-foreground flex items-center justify-end pr-2 font-mono">
                                     {new Date(r.created_at).toLocaleDateString()}

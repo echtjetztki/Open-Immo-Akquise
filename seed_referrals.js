@@ -54,11 +54,18 @@ const examples = [
 async function seed() {
   const client = await pool.connect();
   try {
+    // Prüfe ob schon Daten existieren - nicht überschreiben
+    const { rows } = await client.query('SELECT COUNT(*) as cnt FROM public.referrals');
+    const count = parseInt(rows[0].cnt);
+    if (count > 0) {
+      console.log(`Es existieren bereits ${count} Empfehlungen. Seed wird übersprungen.`);
+      return;
+    }
     for (const ex of examples) {
       await client.query(
-        `INSERT INTO public.referrals (client_name, client_address, client_phone, recommender_name, recommender_email, commission_pct, status, notes)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [ex.client_name, ex.client_address, ex.client_phone, ex.recommender_name, ex.recommender_email, ex.commission_pct, ex.status, ex.notes]
+        `INSERT INTO public.referrals (client_name, client_address, client_phone, recommender_name, recommender_email, commission_pct, status, notes, agent_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [ex.client_name, ex.client_address, ex.client_phone, ex.recommender_name, ex.recommender_email, ex.commission_pct, ex.status, ex.notes, ex.agent_id]
       );
     }
     console.log('Example referrals seeded successfully.');

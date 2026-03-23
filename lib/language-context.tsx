@@ -772,6 +772,20 @@ const translations: Record<string, Record<Language, string>> = {
     'ios.ios_coming_soon': { de: 'iOS App folgt in Kürze', en: 'iOS app coming soon', bg: 'Приложението за iOS очаквайте скоро' },
     'app.standard': { de: 'Standard Version', en: 'Standard Version', bg: 'Стандартна версия' },
     'app.premium': { de: 'Premium Version', en: 'Premium Version', bg: 'Премиум версия' },
+    'ref.success_message': { de: 'Wir werden uns in Kürze bei Ihnen melden.', en: 'We will get back to you shortly.', bg: 'Ще се свържем с вас скоро.' },
+    'ref.send_another': { de: 'Weitere Empfehlung senden', en: 'Send another recommendation', bg: 'Изпрати нова препоръка' },
+    'ref.internal_title': { de: 'Mandats-Check / Empfehlung', en: 'Mandate Check / Referral', bg: 'Проверка на мандат / Препоръка' },
+    'ref.internal_desc': { de: 'Erfassen Sie hier eine neue Empfehlung oder prüfen Sie ein Mandat für das System.', en: 'Enter a new recommendation or check a mandate for the system.', bg: 'Въведете нова препоръка или проверете мандат за системата.' },
+    'ref.client_section': { de: 'Die Empfehlung (Kunde)', en: 'The Recommendation (Client)', bg: 'Препоръката (Клиент)' },
+    'ref.recorder_section': { de: 'Erfasser (Intern)', en: 'Recorder (Internal)', bg: 'Регистратор (Вътрешен)' },
+    'ref.internal_only': { de: 'Nur intern sichtbar', en: 'Internal only', bg: 'Само вътрешно' },
+    'ref.admin_overview': { de: 'Alle Empfehlungen im Überblick', en: 'Overview of all referrals', bg: 'Преглед на всички препоръки' },
+    'ref.new_btn': { de: 'Neu', en: 'New', bg: 'Нова' },
+    'ref.status_neu': { de: 'Neu', en: 'New', bg: 'Нова' },
+    'ref.status_kontaktiert': { de: 'Kontaktiert', en: 'Contacted', bg: 'Контактуван' },
+    'ref.status_qualifiziert': { de: 'Qualifiziert', en: 'Qualified', bg: 'Квалифициран' },
+    'ref.status_abschluss': { de: 'Abschluss', en: 'Closed', bg: 'Приключено' },
+    'ref.status_abgelehnt': { de: 'Abgelehnt', en: 'Rejected', bg: 'Отхвърлено' },
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);

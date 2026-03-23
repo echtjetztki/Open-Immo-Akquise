@@ -432,7 +432,7 @@ export default function CRMDashboard() {
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                    CRM & Finanzen
+                    {t('crm.title')}
                 </h1>
                 <p className="text-muted-foreground mt-2">
                     {t('crm.description')}
@@ -543,11 +543,11 @@ export default function CRMDashboard() {
                                     <div className="flex gap-2 flex-shrink-0">
                                         <button onClick={() => { navigator.clipboard.writeText(pl.url); alert(t('crm.link_copied')); }}
                                             className="flex items-center gap-1.5 px-4 py-2 text-xs rounded-lg bg-violet-100 text-violet-700 border border-violet-300 hover:bg-violet-200 font-bold" title="Link kopieren">
-                                            <Copy className="w-3.5 h-3.5" /> Kopieren
+                                            <Copy className="w-3.5 h-3.5" /> {t('crm.copy')}
                                         </button>
                                         <a href={pl.url} target="_blank" rel="noopener noreferrer"
-                                            className="flex items-center gap-1.5 px-4 py-2 text-xs rounded-lg bg-violet-600 text-white hover:bg-violet-700 font-medium" title="Link öffnen">
-                                            <ExternalLink className="w-3.5 h-3.5" /> Öffnen
+                                            className="flex items-center gap-1.5 px-4 py-2 text-xs rounded-lg bg-violet-600 text-white hover:bg-violet-700 font-medium" title={t('crm.open_link')}>
+                                            <ExternalLink className="w-3.5 h-3.5" /> {t('crm.open')}
                                         </a>
                                     </div>
                                 </div>
@@ -869,7 +869,7 @@ export default function CRMDashboard() {
                                             <input type="number" min="1" value={selectedQuantity} onChange={e => setSelectedQuantity(parseInt(e.target.value) || 1)} className="input-field py-2 text-sm w-full" />
                                         </div>
                                         <button type="button" onClick={handleAddInvoiceItem} disabled={!selectedArticleId} className="btn-secondary py-2 h-[38px] flex items-center gap-2 px-4">
-                                            <PlusCircle className="w-4 h-4" /> Hinzufuegen
+                                            <PlusCircle className="w-4 h-4" /> {t('crm.add')}
                                         </button>
                                     </div>
 
@@ -1008,16 +1008,16 @@ export default function CRMDashboard() {
                                             <div className="space-y-1.5">
                                                 {inv.stripe_payment_link ? (
                                                     <div className="flex gap-1">
-                                                        <button onClick={() => { navigator.clipboard.writeText(inv.stripe_payment_link); alert('PayLink kopiert!'); }}
-                                                            className="flex-1 flex items-center justify-center gap-1.5 text-[10px] py-2 rounded-md bg-violet-100 text-violet-700 border border-violet-300 hover:bg-violet-200 font-bold" title="Stripe {t('crm.copy_paylink')}">
+                                                        <button onClick={() => { navigator.clipboard.writeText(inv.stripe_payment_link); alert(t('crm.paylink_copied')); }}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 text-[10px] py-2 rounded-md bg-violet-100 text-violet-700 border border-violet-300 hover:bg-violet-200 font-bold" title={t('crm.copy_paylink')}>
                                                             <Copy className="w-3 h-3" /> {t('crm.copy_paylink')}
                                                         </button>
                                                         <a href={inv.stripe_payment_link} target="_blank" rel="noopener noreferrer"
-                                                            className="flex items-center justify-center gap-1 px-2.5 py-2 text-[10px] rounded-md bg-violet-600 text-white hover:bg-violet-700 font-medium" title="PayLink öffnen">
+                                                            className="flex items-center justify-center gap-1 px-2.5 py-2 text-[10px] rounded-md bg-violet-600 text-white hover:bg-violet-700 font-medium" title={t('crm.open_paylink')}>
                                                             <ExternalLink className="w-3 h-3" />
                                                         </a>
                                                         <button onClick={() => handleCreateStripeLink(inv.id)} disabled={creatingPaymentLink === inv.id}
-                                                            className="flex items-center justify-center gap-1 px-2.5 py-2 text-[10px] rounded-md bg-violet-50 text-violet-600 border border-violet-200 hover:bg-violet-100 font-medium disabled:opacity-50" title="{t('crm.new_paylink')}">
+                                                            className="flex items-center justify-center gap-1 px-2.5 py-2 text-[10px] rounded-md bg-violet-50 text-violet-600 border border-violet-200 hover:bg-violet-100 font-medium disabled:opacity-50" title={t('crm.new_paylink')}>
                                                             <RefreshCw className={`w-3 h-3 ${creatingPaymentLink === inv.id ? 'animate-spin' : ''}`} />
                                                         </button>
                                                     </div>
@@ -1029,7 +1029,7 @@ export default function CRMDashboard() {
                                                         </button>
                                                         <button onClick={() => handleSetVorkasse(inv.id)}
                                                             className="flex items-center justify-center gap-1.5 text-[10px] px-3 py-2 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 font-medium" title={t('crm.set_prepay')}>
-                                                            <Banknote className="w-3 h-3" /> Vorkasse
+                                                            <Banknote className="w-3 h-3" /> {t('crm.prepay')}
                                                         </button>
                                                     </div>
                                                 )}
@@ -1038,24 +1038,24 @@ export default function CRMDashboard() {
 
                                         {/* PDF, E-Mail & {t('crm.share')} */}
                                         <div className="grid grid-cols-4 gap-2">
-                                            <button onClick={() => handleDownloadPDF(inv)} className="btn-secondary flex items-center justify-center gap-1.5 py-2 text-xs" title="{t('crm.download_pdf')}">
+                                            <button onClick={() => handleDownloadPDF(inv)} className="btn-secondary flex items-center justify-center gap-1.5 py-2 text-xs" title={t('crm.download_pdf')}>
                                                 <Download className="w-3.5 h-3.5" /> PDF
                                             </button>
                                             {inv.customer_email && !isReadOnlyDemo ? (
                                                 <button onClick={() => handleSendEmail(inv.id)} disabled={sendingEmail === inv.id}
-                                                    className="flex items-center justify-center gap-1.5 py-2 text-xs rounded-xl bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-colors disabled:opacity-50" title="{t('crm.send_email')}">
+                                                    className="flex items-center justify-center gap-1.5 py-2 text-xs rounded-xl bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-colors disabled:opacity-50" title={t('crm.send_email')}>
                                                     <Mail className="w-3.5 h-3.5" /> {sendingEmail === inv.id ? '...' : 'Mail'}
                                                 </button>
                                             ) : (
-                                                <button onClick={() => handleShare(inv)} className="btn-primary flex items-center justify-center gap-1.5 py-2 text-xs" title="{t('crm.share')}">
+                                                <button onClick={() => handleShare(inv)} className="btn-primary flex items-center justify-center gap-1.5 py-2 text-xs" title={t('crm.share')}>
                                                     <Send className="w-3.5 h-3.5" /> {t('crm.share')}
                                                 </button>
                                             )}
-                                            <button onClick={() => handleShare(inv)} className="btn-secondary flex items-center justify-center gap-1.5 py-2 text-xs" title="{t('crm.share_app')}">
+                                            <button onClick={() => handleShare(inv)} className="btn-secondary flex items-center justify-center gap-1.5 py-2 text-xs" title={t('crm.share_app')}>
                                                 <Send className="w-3.5 h-3.5" />
                                             </button>
                                             {!isReadOnlyDemo && (
-                                                <button onClick={() => handleDeleteInvoice(inv.id)} className="flex items-center justify-center gap-1.5 py-2 text-xs rounded-xl border border-red-200 text-red-500 hover:bg-red-50 transition-colors" title="Loeschen">
+                                                <button onClick={() => handleDeleteInvoice(inv.id)} className="flex items-center justify-center gap-1.5 py-2 text-xs rounded-xl border border-red-200 text-red-500 hover:bg-red-50 transition-colors" title={t('crm.delete')}>
                                                     <Trash2 className="w-3.5 h-3.5" />
                                                 </button>
                                             )}

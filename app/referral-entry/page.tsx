@@ -95,13 +95,13 @@ function ReferralForm() {
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-foreground">{t('ref.success')}</h2>
-                        <p className="text-muted-foreground mt-2">Wir werden uns in Kürze bei Ihnen melden.</p>
+                        <p className="text-muted-foreground mt-2">{t('ref.success_message')}</p>
                     </div>
-                    <button 
+                    <button
                         onClick={() => window.location.reload()}
                         className="btn-secondary w-full"
                     >
-                        Weitere Empfehlung senden
+                        {t('ref.send_another')}
                     </button>
                 </motion.div>
             </div>
@@ -117,10 +117,10 @@ function ReferralForm() {
                         <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
                     </div>
                     <h1 className="text-3xl md:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                        {isInternal ? "Mandats-Check / Empfehlung" : t('ref.entry_title')}
+                        {isInternal ? t('ref.internal_title') : t('ref.entry_title')}
                     </h1>
                     <p className="text-muted-foreground max-w-lg mx-auto leading-relaxed">
-                        {isInternal ? "Erfassen Sie hier eine neue Empfehlung oder prüfen Sie ein Mandat für das System." : t('ref.entry_desc')}
+                        {isInternal ? t('ref.internal_desc') : t('ref.entry_desc')}
                     </p>
                 </div>
 
@@ -133,8 +133,8 @@ function ReferralForm() {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-4">
                             <h3 className="text-lg font-bold flex items-center gap-2 text-primary border-b border-primary/10 pb-2">
-                                <Users className="w-5 h-5" /> 
-                                Die Empfehlung (Kunde)
+                                <Users className="w-5 h-5" />
+                                {t('ref.client_section')}
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
@@ -177,7 +177,7 @@ function ReferralForm() {
                         <div className="space-y-4 pt-4">
                             <h3 className={`text-lg font-bold flex items-center gap-2 border-b pb-2 ${isInternal ? 'text-primary border-primary/10' : 'text-secondary border-secondary/10'}`}>
                                 {isInternal ? <UserCircle className="w-5 h-5" /> : <TrendingUp className="w-5 h-5" />}
-                                {isInternal ? "Erfasser (Intern)" : t('ref.recommender')}
+                                {isInternal ? t('ref.recorder_section') : t('ref.recommender')}
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
@@ -208,7 +208,7 @@ function ReferralForm() {
                             {isInternal ? (
                                 <div className="animate-fade-in group">
                                     <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 ml-1">
-                                        {t('ref.commission_choice')} <span className="text-[10px] text-primary lowercase">(Nur Intern sichtbar)</span>
+                                        {t('ref.commission_choice')} <span className="text-[10px] text-primary lowercase">({t('ref.internal_only')})</span>
                                     </label>
                                     <div className="grid grid-cols-3 gap-3">
                                         {['5', '10', '15'].map(pct => (
