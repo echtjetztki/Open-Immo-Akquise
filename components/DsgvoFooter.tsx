@@ -86,7 +86,7 @@ export function DsgvoFooter() {
 
     return (
         <>
-            <footer className="w-full border-t border-primary/10 bg-background/80 backdrop-blur-sm mt-14 pt-6 pb-28 px-4 lg:pl-60">
+            <footer className="w-full border-t border-primary/10 bg-background/80 backdrop-blur-sm mt-14 pt-6 pb-6 px-4 lg:pl-60">
                 <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-4">
                         <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
