@@ -73,7 +73,11 @@ function ReferralForm() {
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
-                setSubmitted(true);
+                if (isInternal) {
+                    window.location.href = '/referrals';
+                } else {
+                    setSubmitted(true);
+                }
             }
         } catch (error) {
             console.error(error);
