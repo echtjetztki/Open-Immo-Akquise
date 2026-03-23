@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
-    const { id } = params;
+export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
+    const { id } = await context.params;
     try {
         const body = await request.json();
         const { data, error } = await supabase
@@ -21,8 +21,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
-    const { id } = params;
+export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
+    const { id } = await context.params;
     const { error } = await supabase
         .from('referrals')
         .delete()
