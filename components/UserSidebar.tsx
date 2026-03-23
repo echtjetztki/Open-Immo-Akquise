@@ -25,7 +25,7 @@ export function UserSidebar() {
                     <img
                         src="/logo.png"
                         alt="Open-Akquise Logo"
-                        className="w-full h-full object-contain p-2"
+                        className="w-full h-full object-contain"
                     />
                 </div>
                 <div>

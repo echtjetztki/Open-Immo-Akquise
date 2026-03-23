@@ -82,7 +82,7 @@ function PublicReferralForm() {
             <div className="max-w-2xl mx-auto space-y-8">
                 {/* Header */}
                 <div className="text-center space-y-3">
-                    <div className="w-16 h-16 bg-white rounded-2xl shadow-xl flex items-center justify-center mx-auto p-3 mb-4">
+                    <div className="w-20 h-20 bg-white rounded-2xl shadow-xl flex items-center justify-center mx-auto overflow-hidden mb-4">
                         <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
                     </div>
                     <h1 className="text-3xl md:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
