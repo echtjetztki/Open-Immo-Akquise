@@ -112,7 +112,7 @@ export default function ReferralsPage() {
     };
 
     const copyReferralLink = () => {
-        let link = `${window.location.origin}/referral-entry`;
+        let link = `${window.location.origin}/empfehlung`;
         if (user && user.role === 'agent') {
             link += `?agent=${user.id}`;
         }
