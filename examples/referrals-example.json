@@ -1,0 +1,35 @@
+[
+  {
+    "client_name": "Max Mustermann",
+    "client_address": "Musterstrasse 10, 1010 Wien",
+    "client_phone": "+43 660 1234567",
+    "recommender_name": "Anna Beispiel",
+    "recommender_email": "anna@example.com",
+    "commission_pct": 10,
+    "status": "Neu",
+    "notes": "Eigentumswohnung, Verkauf in den naechsten 2 Monaten",
+    "agent_id": 2
+  },
+  {
+    "client_name": "Julia Berger",
+    "client_address": "Hauptplatz 3, 5020 Salzburg",
+    "client_phone": "+43 664 9876543",
+    "recommender_name": "Thomas Leitner",
+    "recommender_email": "thomas@example.com",
+    "commission_pct": 5,
+    "status": "Kontaktiert",
+    "notes": "Einfamilienhaus, Erstgespraech erfolgt",
+    "agent_id": 3
+  },
+  {
+    "client_name": "Peter Hofer",
+    "client_address": "Seegasse 7, 6020 Innsbruck",
+    "client_phone": "+43 676 5566778",
+    "recommender_name": "Maria Klein",
+    "recommender_email": "maria@example.com",
+    "commission_pct": 15,
+    "status": "Qualifiziert",
+    "notes": "Gewerbeobjekt, Unterlagen bereits vorhanden",
+    "agent_id": null
+  }
+]
