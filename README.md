@@ -79,11 +79,11 @@ Eine installierbare **Premium App-Version** (iOS & Android) mit Offline-Funktion
 <a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;">
   <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="50" alt="Download on the App Store (In Arbeit)">
 </a>
-<a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;">
-  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" height="50" alt="Jetzt bei Google Play (In Arbeit)">
+<a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank">
+  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" height="50" alt="Jetzt bei Google Play">
 </a>
 
-*(Platzhalter: Hier warten wir noch auf die finale Freigabe der App-Stores für iOS und Android)*
+*(Platzhalter: Hier warten wir noch auf die finale Freigabe des iOS App-Stores, Android ist verfügbar)*
 
 ### ⚙️ Installation & Deployment
 
@@ -138,11 +138,11 @@ An installable **Premium App Version** (iOS & Android) featuring offline capabil
 <a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;">
   <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="50" alt="Download on the App Store (Work in Progress)">
 </a>
-<a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;">
-  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="50" alt="Get it on Google Play (Work in Progress)">
+<a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank">
+  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="50" alt="Get it on Google Play">
 </a>
 
-*(Placeholder: We are currently waiting for the final approval from the iOS and Android app stores)*
+*(Placeholder: We are currently waiting for the final approval from the iOS app store, Android is available)*
 
 ### ⚙️ Installation & Deployment
 
