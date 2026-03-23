@@ -818,15 +818,15 @@ export default function CRMDashboard() {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <label className="block text-xs font-medium mb-1">{t('crm.name')} <span className="text-error">*</span></label>
-                                        <input type="text" required title={t('crm.name')} placeholder="Max Mustermann" value={newInvoice.customer_name} onChange={e => setNewInvoice({ ...newInvoice, customer_name: e.target.value })} className="input-field py-2 text-sm w-full" placeholder="Max Mustermann" />
+                                        <input type="text" required title={t('crm.name')} placeholder="Max Mustermann" value={newInvoice.customer_name} onChange={e => setNewInvoice({ ...newInvoice, customer_name: e.target.value })} className="input-field py-2 text-sm w-full" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-medium mb-1">{t('crm.email')}</label>
-                                        <input type="email" title={t('crm.email')} placeholder="max@beispiel.com" value={newInvoice.customer_email} onChange={e => setNewInvoice({ ...newInvoice, customer_email: e.target.value })} className="input-field py-2 text-sm w-full" placeholder="max@beispiel.com" />
+                                        <input type="email" title={t('crm.email')} placeholder="max@beispiel.com" value={newInvoice.customer_email} onChange={e => setNewInvoice({ ...newInvoice, customer_email: e.target.value })} className="input-field py-2 text-sm w-full" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-medium mb-1">{t('crm.address')}</label>
-                                        <input type="text" title={t('crm.address')} placeholder={t('crm.address_placeholder')} value={newInvoice.customer_address} onChange={e => setNewInvoice({ ...newInvoice, customer_address: e.target.value })} className="input-field py-2 text-sm w-full" placeholder={t('crm.address_placeholder')} />
+                                        <input type="text" title={t('crm.address')} placeholder={t('crm.address_placeholder')} value={newInvoice.customer_address} onChange={e => setNewInvoice({ ...newInvoice, customer_address: e.target.value })} className="input-field py-2 text-sm w-full" />
                                     </div>
                                 </div>
 
@@ -847,7 +847,7 @@ export default function CRMDashboard() {
                                     </div>
                                     <div>
                                         <label className="block text-xs font-medium mb-1">{t('crm.notes')}</label>
-                                        <input type="text" title={t('crm.notes')} placeholder={t('crm.notes_placeholder')} value={newInvoice.notes} onChange={e => setNewInvoice({ ...newInvoice, notes: e.target.value })} className="input-field py-2 text-sm w-full" placeholder="Optional..." />
+                                        <input type="text" title={t('crm.notes')} placeholder={t('crm.notes_placeholder')} value={newInvoice.notes} onChange={e => setNewInvoice({ ...newInvoice, notes: e.target.value })} className="input-field py-2 text-sm w-full" />
                                     </div>
                                 </div>
 
