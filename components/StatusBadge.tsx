@@ -2,6 +2,7 @@
 
 import { clsx } from 'clsx';
 import { PropertyStatus } from '@/lib/types';
+import { useLanguage } from '@/lib/language-context';
 
 interface StatusBadgeProps {
     status: PropertyStatus;
@@ -52,16 +53,21 @@ const statusConfig = {
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
+    const { t } = useLanguage();
     const config = statusConfig[status as keyof typeof statusConfig] || {
         label: status || 'Unbekannt',
         emoji: '❓',
         className: 'bg-gray-200 text-gray-700',
     };
 
+    const translatedLabel = config === statusConfig[status as keyof typeof statusConfig]
+        ? (t('status.' + status) || config.label)
+        : (t('status.' + status) || status || t('status.unknown'));
+
     return (
         <span className={clsx('status-badge', config.className, className)}>
             <span>{config.emoji}</span>
-            {config.label}
+            {translatedLabel}
         </span>
     );
 }

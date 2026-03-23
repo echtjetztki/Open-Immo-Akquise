@@ -1,35 +1,38 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Share, X } from 'lucide-react';
+import { X, Download, Smartphone } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 
 export function IOSInstallPrompt() {
     const { t } = useLanguage();
-    const [isIOS, setIsIOS] = useState(false);
+    const [platform, setPlatform] = useState<'ios' | 'android' | null>(null);
     const [isStandalone, setIsStandalone] = useState(false);
     const [showPrompt, setShowPrompt] = useState(false);
 
     useEffect(() => {
-        // Check if user is on iOS
         const userAgent = window.navigator.userAgent.toLowerCase();
         const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
-        setIsIOS(isIOSDevice);
+        const isAndroidDevice = /android/i.test(userAgent);
+
+        if (isIOSDevice) setPlatform('ios');
+        else if (isAndroidDevice) setPlatform('android');
 
         // Check if already installed (running in standalone mode)
-        const isStandaloneMode = ('standalone' in window.navigator) && ((window.navigator as any).standalone === true);
+        const isStandaloneMode =
+            ('standalone' in window.navigator && (window.navigator as any).standalone === true) ||
+            window.matchMedia('(display-mode: standalone)').matches;
         setIsStandalone(isStandaloneMode);
 
-        // Show prompt if on iOS and not standalone
-        if (isIOSDevice && !isStandaloneMode) {
-            // Check if user closed it recently (e.g., save in localStorage to not annoy them)
+        // Show prompt if on iOS or Android and not standalone
+        if ((isIOSDevice || isAndroidDevice) && !isStandaloneMode) {
             const promptDismissed = localStorage.getItem('ios_prompt_dismissed');
             const dismissalTime = promptDismissed ? parseInt(promptDismissed) : 0;
             const now = new Date().getTime();
-            
-            // Show if never dismissed or dismissed more than X days ago (e.g. 7 days: 7 * 24 * 60 * 60 * 1000)
+
+            // Show if never dismissed or dismissed more than 7 days ago
             if (now - dismissalTime > 7 * 24 * 60 * 60 * 1000) {
-                 setShowPrompt(true);
+                setShowPrompt(true);
             }
         }
     }, []);
@@ -39,11 +42,11 @@ export function IOSInstallPrompt() {
         localStorage.setItem('ios_prompt_dismissed', new Date().getTime().toString());
     };
 
-    if (!showPrompt || !isIOS || isStandalone) return null;
+    if (!showPrompt || !platform || isStandalone) return null;
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-[100] p-4 bg-background/95 backdrop-blur-md border-t border-primary/20 shadow-2xl safe-area-bottom animate-fade-in-up">
-            <button 
+            <button
                 onClick={handleDismiss}
                 className="absolute top-2 right-2 p-1.5 rounded-full hover:bg-primary/10 text-muted-foreground"
             >
@@ -54,20 +57,26 @@ export function IOSInstallPrompt() {
                     AI
                 </div>
                 <div className="flex-1">
-                    <h3 className="font-bold text-foreground">{t('ios.install_app')}</h3>
+                    <h3 className="font-bold text-foreground">{t('ios.download_app')}</h3>
                     <p className="text-sm text-muted-foreground mt-1 mb-3">
-                        {t('ios.install_desc')}
+                        {t('ios.download_desc')}
                     </p>
-                    <div className="bg-primary/5 rounded-lg p-3 text-sm text-foreground flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                           <span className="bg-background w-6 h-6 rounded flex items-center justify-center font-bold shadow-sm border border-primary/10">1</span>
-                           <span>{t('ios.step1')} <Share className="inline-block w-4 h-4 mx-1 text-blue-500" /> {t('ios.share_icon')} {t('ios.step1_suffix')}</span>
+                    {platform === 'android' ? (
+                        <a
+                            href="https://play.google.com/store/apps/details?id=at.echtjetztki.openimmoakquise"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity shadow-md"
+                        >
+                            <Download className="w-4 h-4" />
+                            {t('ios.open_play_store')}
+                        </a>
+                    ) : (
+                        <div className="inline-flex items-center gap-2 bg-primary/10 text-foreground px-4 py-2.5 rounded-lg text-sm">
+                            <Smartphone className="w-4 h-4" />
+                            {t('ios.ios_coming_soon')}
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="bg-background w-6 h-6 rounded flex items-center justify-center font-bold shadow-sm border border-primary/10">2</span>
-                            <span>{t('ios.step2')}</span>
-                        </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

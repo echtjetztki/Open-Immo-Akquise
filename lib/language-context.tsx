@@ -11,6 +11,23 @@ interface LanguageContextType {
 }
 
 const translations: Record<string, Record<Language, string>> = {
+    // ============ STATUS & TYPE LABELS ============
+    'status.NEU': { de: 'NEU', en: 'NEW', bg: 'НОВО' },
+    'status.Zu vergeben': { de: 'Zu vergeben', en: 'To assign', bg: 'За възлагане' },
+    'status.Von GP kontaktiert': { de: 'Von GP kontaktiert', en: 'Contacted by GP', bg: 'Свързан от GP' },
+    'status.Aufgenommen': { de: 'Aufgenommen', en: 'Recorded', bg: 'Записано' },
+    'status.Vermarktung': { de: 'Vermarktung', en: 'Marketing', bg: 'Маркетинг' },
+    'status.Abschluss/Verkauf': { de: 'Abschluss/Verkauf', en: 'Closing/Sale', bg: 'Приключване/Продажба' },
+    'status.Follow-up': { de: 'Follow-up', en: 'Follow-up', bg: 'Проследяване' },
+    'status.Storniert': { de: 'Storniert', en: 'Cancelled', bg: 'Анулирано' },
+    'status.unknown': { de: 'Unbekannt', en: 'Unknown', bg: 'Неизвестно' },
+
+    'type.Kauf': { de: 'Kauf', en: 'Purchase', bg: 'Покупка' },
+    'type.Miete': { de: 'Miete', en: 'Rent', bg: 'Наем' },
+    'type.Grundstück': { de: 'Grundstück', en: 'Land', bg: 'Парцел' },
+    'type.Garage': { de: 'Garage', en: 'Garage', bg: 'Гараж' },
+    'type.Gewerblich': { de: 'Gewerblich', en: 'Commercial', bg: 'Търговски' },
+
     // ============ NAVIGATION / SIDEBAR ============
     'nav.team_dashboard': { de: 'Team-Dashboard', en: 'Team Dashboard', bg: 'Табло на екипа' },
     'nav.crm_invoices': { de: 'CRM & Rechnungen', en: 'CRM & Invoices', bg: 'CRM и фактури' },
@@ -74,6 +91,10 @@ const translations: Record<string, Record<Language, string>> = {
         en: 'Select "Add to Home Screen" from the list',
         bg: 'Изберете „Добави към началния екран" от списъка',
     },
+    'ios.download_app': { de: 'App herunterladen', en: 'Download App', bg: 'Изтегли приложението' },
+    'ios.download_desc': { de: 'Laden Sie unsere native App für ein besseres Erlebnis herunter.', en: 'Download our native app for a better experience.', bg: 'Изтеглете нашето приложение за по-добро изживяване.' },
+    'ios.open_play_store': { de: 'Im Google Play Store öffnen', en: 'Open in Google Play Store', bg: 'Отвори в Google Play Store' },
+    'ios.ios_coming_soon': { de: 'iOS App kommt in Kürze', en: 'iOS App coming soon', bg: 'iOS приложението идва скоро' },
 
     // ============ FOOTER ============
     'footer.demo_version': { de: 'Demo Version', en: 'Demo Version', bg: 'Демо версия' },

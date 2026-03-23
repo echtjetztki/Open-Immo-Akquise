@@ -380,10 +380,10 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                     className={`input-field w-full py-2 text-sm bg-background ${!isAdmin ? 'bg-muted/30 opacity-70 cursor-not-allowed' : ''}`}
                                     disabled={!isAdmin}
                                 >
-                                    <option value="Kauf">{t('property.type_purchase')}</option>
-                                    <option value="Miete">{t('property.type_rent')}</option>
-                                    <option value="Grundstück">{t('property.type_land')}</option>
-                                    <option value="Gewerblich">{t('property.type_commercial')}</option>
+                                    <option value="Kauf">{t('type.Kauf')}</option>
+                                    <option value="Miete">{t('type.Miete')}</option>
+                                    <option value="Grundstück">{t('type.Grundstück')}</option>
+                                    <option value="Gewerblich">{t('type.Gewerblich')}</option>
                                 </select>
                             </div>
                         </div>
@@ -423,14 +423,14 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                     className="input-field py-2 text-sm"
                                     required
                                 >
-                                    <option value="NEU">🤖 NEU</option>
-                                    <option value="Zu vergeben">👍 Zu vergeben</option>
-                                    <option value="Von GP kontaktiert">📞 Von GP kontaktiert</option>
-                                    <option value="Aufgenommen">📋 Aufgenommen</option>
-                                    <option value="Vermarktung">📣 Vermarktung</option>
-                                    <option value="Abschluss/Verkauf">✅ Abschluss/Verkauf</option>
-                                    <option value="Follow-up">🔄 Follow-up</option>
-                                    <option value="Storniert">❌ Storniert</option>
+                                    <option value="NEU">🤖 {t('status.NEU')}</option>
+                                    <option value="Zu vergeben">👍 {t('status.Zu vergeben')}</option>
+                                    <option value="Von GP kontaktiert">📞 {t('status.Von GP kontaktiert')}</option>
+                                    <option value="Aufgenommen">📋 {t('status.Aufgenommen')}</option>
+                                    <option value="Vermarktung">📣 {t('status.Vermarktung')}</option>
+                                    <option value="Abschluss/Verkauf">✅ {t('status.Abschluss/Verkauf')}</option>
+                                    <option value="Follow-up">🔄 {t('status.Follow-up')}</option>
+                                    <option value="Storniert">❌ {t('status.Storniert')}</option>
                                 </select>
                             </div>
                             <div>
@@ -563,7 +563,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                             <div className="absolute top-0 left-0 w-1 h-full bg-primary/20 group-hover:bg-primary transition-colors" />
                                             <div className="flex justify-between items-start mb-2">
                                                 <span className="px-2.5 py-1 bg-primary text-white rounded-lg font-black text-[9px] uppercase tracking-tighter shadow-sm">
-                                                    {report.status}
+                                                    {t('status.' + report.status) || report.status}
                                                 </span>
                                                 <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-bold">
                                                     <Clock className="w-3 h-3" />

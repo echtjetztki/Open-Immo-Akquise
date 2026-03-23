@@ -325,7 +325,7 @@ export function PropertyTable({
                             >
                                 <option value="">{t('table.all_statuses')}</option>
                                 {filterOptions.statuses.map(s => (
-                                    <option key={s} value={s}>{s}</option>
+                                    <option key={s} value={s}>{t('status.' + s)}</option>
                                 ))}
                             </select>
                         </div>
@@ -409,7 +409,7 @@ export function PropertyTable({
                                     <div className="flex flex-col gap-1.5 overflow-hidden">
                                         <div className="flex items-center gap-1.5">
                                             <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-black border border-primary/20 shadow-sm uppercase shrink-0">
-                                                {property.objekttyp || 'Kauf'}
+                                                {t('type.' + (property.objekttyp || 'Kauf'))}
                                             </span>
                                             <span className="font-mono text-[10px] text-muted-foreground bg-gray-100 px-1.5 py-0.5 rounded shrink-0">
                                                 {property.external_id || 'N/A'}
@@ -471,14 +471,14 @@ export function PropertyTable({
                                                 className="text-[10px] font-black px-1.5 py-1 rounded-lg border border-primary/10 bg-white/50 hover:bg-white hover:border-primary/30 transition-all cursor-pointer w-[170px] focus:ring-2 focus:ring-primary/10 outline-none shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
                                                 title={t('property.status_change')}
                                             >
-                                                <option value="NEU">🤖 NEU</option>
-                                                <option value="Zu vergeben">👍 Zu vergeben</option>
-                                                <option value="Von GP kontaktiert">📞 Von GP kontaktiert</option>
-                                                <option value="Aufgenommen">📋 Aufgenommen</option>
-                                                <option value="Vermarktung">📣 Vermarktung</option>
-                                                <option value="Abschluss/Verkauf">✅ Abschluss/Verkauf</option>
-                                                <option value="Follow-up">🔄 Follow-up</option>
-                                                <option value="Storniert">❌ Storniert</option>
+                                                <option value="NEU">🤖 {t('status.NEU')}</option>
+                                                <option value="Zu vergeben">👍 {t('status.Zu vergeben')}</option>
+                                                <option value="Von GP kontaktiert">📞 {t('status.Von GP kontaktiert')}</option>
+                                                <option value="Aufgenommen">📋 {t('status.Aufgenommen')}</option>
+                                                <option value="Vermarktung">📣 {t('status.Vermarktung')}</option>
+                                                <option value="Abschluss/Verkauf">✅ {t('status.Abschluss/Verkauf')}</option>
+                                                <option value="Follow-up">🔄 {t('status.Follow-up')}</option>
+                                                <option value="Storniert">❌ {t('status.Storniert')}</option>
                                             </select>
                                         )}
                                     </div>
@@ -649,7 +649,7 @@ export function PropertyTable({
                                         <a href={property.link} target="_blank" rel="noopener noreferrer" className="text-primary bg-primary/10 p-1 rounded-full" title={t('table.open_link')}><ExternalLink className="w-3.5 h-3.5" /></a>
                                     )}
                                 </div>
-                                <span className="text-xs font-medium text-primary">{property.objekttyp || 'Kauf'}</span>
+                                <span className="text-xs font-medium text-primary">{t('type.' + (property.objekttyp || 'Kauf'))}</span>
                             </div>
 
                             <div className="flex flex-col gap-1">
@@ -705,13 +705,13 @@ export function PropertyTable({
                                     className="w-full text-base font-bold p-3 rounded-xl border-2 border-primary/20 bg-white text-foreground hover:border-primary focus:border-primary focus:ring-4 focus:ring-primary/20 appearance-none shadow-sm transition-all text-center cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                                     title={t('property.status_change')}
                                 >
-                                    <option value="Zu vergeben">👍 Status: Zu vergeben</option>
-                                    <option value="Von GP kontaktiert">📞 Status: Von GP kontaktiert</option>
-                                    <option value="Aufgenommen">📋 Status: Aufgenommen</option>
-                                    <option value="Vermarktung">📣 Status: Vermarktung</option>
-                                    <option value="Abschluss/Verkauf">✅ Status: Abschluss/Verkauf</option>
-                                    <option value="Follow-up">🔄 Status: Follow-up</option>
-                                    <option value="Storniert">❌ Status: Storniert</option>
+                                    <option value="Zu vergeben">👍 Status: {t('status.Zu vergeben')}</option>
+                                    <option value="Von GP kontaktiert">📞 Status: {t('status.Von GP kontaktiert')}</option>
+                                    <option value="Aufgenommen">📋 Status: {t('status.Aufgenommen')}</option>
+                                    <option value="Vermarktung">📣 Status: {t('status.Vermarktung')}</option>
+                                    <option value="Abschluss/Verkauf">✅ Status: {t('status.Abschluss/Verkauf')}</option>
+                                    <option value="Follow-up">🔄 Status: {t('status.Follow-up')}</option>
+                                    <option value="Storniert">❌ Status: {t('status.Storniert')}</option>
                                 </select>
                             )}
                         </div>

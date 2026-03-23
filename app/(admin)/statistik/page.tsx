@@ -434,7 +434,7 @@ export default function StatistikPage() {
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${colors.dot}`} />
-                                            <span className="text-sm font-medium truncate max-w-[130px]">{item.status}</span>
+                                            <span className="text-sm font-medium truncate max-w-[130px]">{t('status.' + item.status)}</span>
                                         </div>
                                         <span className={`text-sm font-bold ${colors.text}`}>
                                             {item.count}
@@ -557,10 +557,10 @@ export default function StatistikPage() {
                         </div>
                     </div>
                     <div className="space-y-3">
-                        {stats.by_type.map(t => (
-                            <BarRow key={t.type} label={t.type} value={t.count}
+                        {stats.by_type.map(typ => (
+                            <BarRow key={typ.type} label={t('type.' + typ.type) || typ.type} value={typ.count}
                                 max={Math.max(...stats.by_type.map(x => x.count), 1)}
-                                colorClass="bg-teal-500" sub={`${t.count} · ${euro(t.commission)}`} />
+                                colorClass="bg-teal-500" sub={`${typ.count} · ${euro(typ.commission)}`} />
                         ))}
                     </div>
                 </div>
@@ -601,7 +601,7 @@ export default function StatistikPage() {
                                             <td className="py-3 pr-4 text-right text-muted-foreground hidden md:table-cell">{euro(prop.gesamtprovision)}</td>
                                             <td className="py-3 text-right">
                                                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${statusColorClasses[prop.status]?.bg || 'bg-slate-400/10'} ${statusColorClasses[prop.status]?.text || 'text-slate-400'}`}>
-                                                    {prop.status}
+                                                    {t('status.' + prop.status)}
                                                 </span>
                                             </td>
                                         </tr>

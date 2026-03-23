@@ -138,7 +138,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                 {/* Type & Location Badges */}
                 <div className="flex flex-wrap gap-2">
                     <span className="px-2 py-1 rounded-md bg-primary/10 text-primary text-xs font-medium border border-primary/20">
-                        {property.objekttyp || 'Kauf'}
+                        {t('type.' + (property.objekttyp || 'Kauf'))}
                     </span>
                     {(property.plz || property.ort) && (
                         <span className="px-2 py-1 rounded-md bg-muted text-muted-foreground text-xs font-medium border border-border">
@@ -220,7 +220,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                                 aria-label={t('property.select_status')}
                             >
                                 {statuses.map(status => (
-                                    <option key={status} value={status}>{status}</option>
+                                    <option key={status} value={status}>{t('status.' + status)}</option>
                                 ))}
                             </select>
                             <button
@@ -240,7 +240,7 @@ export function UserPropertyCard({ property, onStatusUpdate, onNoteUpdate }: Use
                         </div>
                     ) : (
                         <div className={`px-4 py-2 rounded-lg border-2 font-medium text-center ${statusColors[property.status] || 'bg-gray-500/10 text-gray-500 border-gray-500/30'}`}>
-                            {property.status}
+                            {t('status.' + property.status)}
                         </div>
                     )}
                 </div>
