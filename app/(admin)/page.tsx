@@ -132,7 +132,7 @@ export default function Dashboard() {
 
             {isReadOnlyDemo && (
                 <div className="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
-                    Die oeffentliche Demo ist schreibgeschuetzt. Bearbeiten, Loeschen und Anlegen sind deaktiviert.
+                    Die öffentliche Demo ist schreibgeschützt. Bearbeiten, Löschen und Anlegen sind deaktiviert.
                 </div>
             )}
 

@@ -474,14 +474,14 @@ export default function SettingsPage() {
                                 </p>
                             </div>
                             <div className="text-left p-3 rounded-xl bg-primary/5 border border-primary/10 space-y-2">
-                                <p className="text-xs font-bold uppercase tracking-wider text-primary">Funktion & Loesung</p>
+                                <p className="text-xs font-bold uppercase tracking-wider text-primary">Funktion & Lösung</p>
                                 <ul className="list-disc pl-4 text-xs text-muted-foreground space-y-1">
                                     <li>Automatischer Import neuer Objekte aus n8n-Workflows (Webhook/API).</li>
-                                    <li>Sicherer Datenaustausch mit geschuetztem Endpunkt und App-Key.</li>
-                                    <li>Sync-Tools fuer schnelleren Abgleich mit weniger manuellen Schritten.</li>
+                                    <li>Sicherer Datenaustausch mit geschütztem Endpunkt und App-Key.</li>
+                                    <li>Sync-Tools für schnelleren Abgleich mit weniger manuellen Schritten.</li>
                                 </ul>
                                 <p className="text-xs text-muted-foreground">
-                                    Nutzen: kuerzere Reaktionszeiten, weniger Fehler und ein reproduzierbarer Team-Prozess.
+                                    Nutzen: kürzere Reaktionszeiten, weniger Fehler und ein reproduzierbarer Team-Prozess.
                                 </p>
                                 <a
                                     href="https://n8n.io/"

@@ -60,7 +60,7 @@ export async function POST(request: Request) {
                 } else if (inv.payment_method === 'vorkasse' && settings.iban) {
                     paymentInfo = `
                         <div style="margin: 20px 0; padding: 16px; background: #f0fdf4; border-radius: 8px; border: 1px solid #a7f3d0;">
-                            <p style="margin: 0 0 4px 0; font-weight: bold; color: #065f46;">Bankverbindung fuer Ueberweisung:</p>
+                            <p style="margin: 0 0 4px 0; font-weight: bold; color: #065f46;">Bankverbindung für Überweisung:</p>
                             <p style="margin: 0; font-family: monospace;">IBAN: ${settings.iban}${settings.bic ? '<br>BIC: ' + settings.bic : ''}</p>
                             <p style="margin: 8px 0 0 0; font-size: 13px; color: #666;">Verwendungszweck: ${inv.invoice_number}</p>
                         </div>
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
                                     <td style="padding: 4px 0; color: #666;">Datum:</td>
                                     <td style="padding: 4px 0; text-align: right;">${new Date(inv.issue_date).toLocaleDateString('de-DE')}</td>
                                 </tr>
-                                ${inv.due_date ? `<tr><td style="padding: 4px 0; color: #666;">Faellig:</td><td style="padding: 4px 0; text-align: right;">${new Date(inv.due_date).toLocaleDateString('de-DE')}</td></tr>` : ''}
+                                ${inv.due_date ? `<tr><td style="padding: 4px 0; color: #666;">Fällig:</td><td style="padding: 4px 0; text-align: right;">${new Date(inv.due_date).toLocaleDateString('de-DE')}</td></tr>` : ''}
                                 <tr style="border-top: 2px solid #2dd4bf;">
                                     <td style="padding: 8px 0 4px; font-weight: bold; font-size: 16px;">Gesamtbetrag:</td>
                                     <td style="padding: 8px 0 4px; font-weight: bold; font-size: 16px; text-align: right; color: #2dd4bf;">${amount} EUR</td>
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
                         </div>
                         ${paymentInfo}
                         <p style="color: #666; font-size: 13px; margin-top: 30px; padding-top: 16px; border-top: 1px solid #eee;">
-                            Mit freundlichen Gruessen<br>
+                            Mit freundlichen Grüßen<br>
                             <strong>${companyName}</strong><br>
                             ${settings.address ? settings.address + '<br>' : ''}
                             ${settings.city || ''}

@@ -267,7 +267,7 @@ export async function activateLicenseCodeWithServer(
             return {
                 active: false,
                 cacheTtlSeconds: DEFAULT_LICENSE_CACHE_TTL_SECONDS,
-                message: 'Maximale Anzahl von Installationen fuer diesen Lizenzcode erreicht.'
+                message: 'Maximale Anzahl von Installationen für diesen Lizenzcode erreicht.'
             };
         }
         throw error;

@@ -26,7 +26,7 @@ export default function UserSettingsPage() {
         setMessage(null);
 
         if (isReadOnlyDemo) {
-            setMessage({ type: 'error', text: 'Die oeffentliche Demo ist schreibgeschuetzt.' });
+            setMessage({ type: 'error', text: 'Die öffentliche Demo ist schreibgeschützt.' });
             return;
         }
 
@@ -115,7 +115,7 @@ export default function UserSettingsPage() {
 
                 {isReadOnlyDemo && (
                     <div className="p-4 rounded-xl bg-primary/5 border border-primary/15 text-sm text-muted-foreground">
-                        Demo-Modus: Passwortaenderungen sind deaktiviert.
+                        Demo-Modus: Passwortänderungen sind deaktiviert.
                     </div>
                 )}
 

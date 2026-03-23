@@ -1,4 +1,4 @@
-export const DEMO_READ_ONLY_MESSAGE = 'Die oeffentliche Demo ist schreibgeschuetzt.';
+export const DEMO_READ_ONLY_MESSAGE = 'Die öffentliche Demo ist schreibgeschützt.';
 
 const normalizeFlag = (value: string | undefined) => value?.trim().toLowerCase() === 'true';
 

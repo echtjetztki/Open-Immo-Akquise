@@ -258,7 +258,7 @@ export async function POST(request: Request) {
                         source: 'api/login'
                     });
                     return NextResponse.json(
-                        { success: false, error: 'Bitte einen gueltigen Betreuer auswaehlen' },
+                        { success: false, error: 'Bitte einen gültigen Betreuer auswählen' },
                         { status: 400 }
                     );
                 }
@@ -328,7 +328,7 @@ export async function POST(request: Request) {
                         source: 'api/login'
                     });
                     return NextResponse.json(
-                        { success: false, error: 'Bitte einen gueltigen Betreuer auswaehlen' },
+                        { success: false, error: 'Bitte einen gültigen Betreuer auswählen' },
                         { status: 400 }
                     );
                 }

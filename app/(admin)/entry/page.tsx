@@ -52,7 +52,7 @@ export default function EntryPage() {
             <div className="glass-card p-4 md:p-8">
                 {isReadOnlyDemo ? (
                     <div className="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-6 text-sm text-muted-foreground">
-                        Die oeffentliche Demo ist schreibgeschuetzt. Neue Immobilien koennen hier nur in selbst gehosteten Installationen angelegt werden.
+                        Die öffentliche Demo ist schreibgeschützt. Neue Immobilien können hier nur in selbst gehosteten Installationen angelegt werden.
                     </div>
                 ) : (
                     <PropertyForm onSuccess={handleSuccess} />

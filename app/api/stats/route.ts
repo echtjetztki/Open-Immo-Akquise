@@ -82,7 +82,7 @@ export async function GET(request: Request) {
             }
         } else {
             if (!selfName) {
-                return NextResponse.json({ error: 'Nicht autorisiert fuer diesen Benutzer' }, { status: 403 });
+                return NextResponse.json({ error: 'Nicht autorisiert für diesen Benutzer' }, { status: 403 });
             }
 
             const isOwnAgentPath = agentParam
@@ -90,7 +90,7 @@ export async function GET(request: Request) {
                 : false;
 
             if (agentParam && !isOwnAgentPath) {
-                return NextResponse.json({ error: 'Nicht autorisiert fuer diesen Benutzer' }, { status: 403 });
+                return NextResponse.json({ error: 'Nicht autorisiert für diesen Benutzer' }, { status: 403 });
             }
 
             if (role === 'agent' || agentParam) {

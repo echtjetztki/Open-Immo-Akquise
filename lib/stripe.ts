@@ -25,7 +25,7 @@ export async function hasStripeConfigured(): Promise<boolean> {
     return !!key;
 }
 
-// Fallback: ENV-Variable (fuer Webhook-Verifizierung etc.)
+// Fallback: ENV-Variable (für Webhook-Verifizierung etc.)
 let stripeInstance: Stripe | null = null;
 
 export function getStripe(): Stripe | null {

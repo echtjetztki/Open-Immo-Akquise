@@ -63,7 +63,7 @@ export async function POST(request: Request) {
         for (const [key, value] of Object.entries(body)) {
             if (!allowedKeys.includes(key)) continue;
             const strValue = (value as string) ?? '';
-            // Leere Werte: bestehende Daten NICHT ueberschreiben
+            // Leere Werte: bestehende Daten NICHT überschreiben
             if (strValue === '' || strValue === null || strValue === undefined) continue;
             await query(
                 `INSERT INTO "crm_settings" (key, value, updated_at) 

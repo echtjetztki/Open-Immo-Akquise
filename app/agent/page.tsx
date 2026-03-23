@@ -207,7 +207,7 @@ export default function AgentLoginPage() {
                             {portalType}
                         </h2>
                         <p className="text-sm text-white/70 mt-2 font-medium">
-                            Betreuer auswaehlen und Passwort eingeben
+                            Betreuer auswählen und Passwort eingeben
                         </p>
 
                     </div>
@@ -237,9 +237,9 @@ export default function AgentLoginPage() {
                                     value={agent}
                                     onChange={(e) => setAgent(e.target.value)}
                                     className="w-full px-4 py-4 text-gray-900 bg-transparent focus:outline-none font-medium text-base"
-                                    title="Betreuer auswaehlen"
+                                    title="Betreuer auswählen"
                                 >
-                                    <option value="">Betreuer auswaehlen...</option>
+                                    <option value="">Betreuer auswählen...</option>
                                     {agentOptions.map((name) => (
                                         <option key={name} value={name}>{name}</option>
                                     ))}

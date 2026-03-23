@@ -54,6 +54,7 @@ export const viewport: Viewport = {
 import { IOSInstallPrompt } from "@/components/IOSInstallPrompt";
 import { CookieConsent } from "@/components/CookieConsent";
 import { DsgvoFooter } from "@/components/DsgvoFooter";
+import { LanguageProvider } from "@/lib/language-context";
 
 export default function RootLayout({
   children,
@@ -63,10 +64,12 @@ export default function RootLayout({
   return (
     <html lang="de" suppressHydrationWarning>
       <body className="antialiased" suppressHydrationWarning>
-        {children}
-        <DsgvoFooter />
-        <CookieConsent />
-        <IOSInstallPrompt />
+        <LanguageProvider>
+          {children}
+          <DsgvoFooter />
+          <CookieConsent />
+          <IOSInstallPrompt />
+        </LanguageProvider>
       </body>
     </html>
   );

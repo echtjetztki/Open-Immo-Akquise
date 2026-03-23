@@ -65,7 +65,7 @@ export async function GET(request: Request) {
 
         return NextResponse.json({
             success: true,
-            message: 'DEMO DB erfolgreich bereinigt. Login-Daten gemaess ENV zurueckgesetzt.',
+            message: 'DEMO DB erfolgreich bereinigt. Login-Daten gemäß ENV zurückgesetzt.',
             cleared_tables: ['property-leads', 'property_notes', 'external_source_replies', 'users'],
             timestamp: new Date().toISOString()
         });

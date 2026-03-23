@@ -80,22 +80,39 @@ Diese Version im Repository ist die **Standard-Version** zum Testen und sofortig
 **🌐 Standard Version**  
 Die Basis-App für den direkten Start ins Projekt.
 
-<a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="In Vorbereitung">
-  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="44" alt="Download on the App Store">
-</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://play.google.com/store/apps/details?id=com.openakquise.dashboard" target="_blank">
-  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" height="64" alt="Jetzt bei Google Play">
-</a>
+<table><tr>
+  <td><a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="In Vorbereitung"><img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="52" alt="Download on the App Store"></a></td>
+  <td><a href="https://play.google.com/store/apps/details?id=com.openakquise.dashboard" target="_blank"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" height="52" alt="Jetzt bei Google Play"></a></td>
+</tr></table>
 
 <br/>
 
-**🚀 Premium / Pro Version**  
-Erweitert um Offline-Funktionen, Push-Notices und native Features.
+**🚀 Premium / Pro Version**
+Die eigenständige Pro-App mit Offline-Funktionen, Push-Benachrichtigungen und nativen Features. Verfügbar als Abo-Modell direkt im Store.
 
-<a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="In Vorbereitung">
-  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="44" alt="Download on the App Store">
-</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank">
-  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" height="64" alt="Jetzt bei Google Play">
-</a>
+**Preis:** 19,90 € / Monat (direkt über den Google Play Store)
+
+<table><tr>
+  <td><a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="iOS folgt in Kürze"><img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="52" alt="Download on the App Store"></a></td>
+  <td><a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" height="52" alt="Jetzt bei Google Play"></a></td>
+</tr></table>
+
+> iOS-Version folgt in Kürze.
+
+### 🗺️ Roadmap
+
+| Status | Feature | Beschreibung |
+|--------|---------|--------------|
+| ✅ | **Mehrsprachigkeit (i18n)** | Sprachumschalter mit DE, EN und BG – inkl. SVG-Flaggen und persistenter Sprachwahl |
+| ✅ | **Rechtschreibung & Grammatik** | Durchgehende Korrektur aller Umlaute und Sonderzeichen im gesamten Codebase |
+| ✅ | **Pro-App (Android)** | Eigenständige native Premium-App im Google Play Store (19,90 €/Monat) |
+| ✅ | **Standard-App (Android)** | Kostenlose Basis-App im Google Play Store |
+| 🔜 | **Pro-App (iOS)** | Native iOS-App im Apple App Store – in Vorbereitung |
+| 🔜 | **Erweiterte KI-Analyse** | Automatische Bewertung und Scoring von Immobilien-Leads |
+| 🔜 | **n8n Workflow-Templates** | Vorgefertigte Automatisierungen für Lead-Import und Benachrichtigungen |
+| 📋 | **Offline-Sync** | Vollständige Offline-Fähigkeit mit automatischer Synchronisation |
+| 📋 | **Team-Chat** | Integrierte Kommunikation zwischen Agenten und Teamleitern |
+| 📋 | **Erweiterte Reports** | PDF-Export und individuelle Dashboard-Ansichten |
 
 ### ⚙️ Installation & Deployment
 
@@ -182,22 +199,39 @@ The version in this repository is the **Standard-Version** for testing and immed
 **🌐 Standard Version**  
 The basic app for a quick and easy start.
 
-<a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="Work in Progress">
-  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="44" alt="Download on the App Store">
-</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://play.google.com/store/apps/details?id=com.openakquise.dashboard" target="_blank">
-  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="64" alt="Get it on Google Play">
-</a>
+<table><tr>
+  <td><a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="Work in Progress"><img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="52" alt="Download on the App Store"></a></td>
+  <td><a href="https://play.google.com/store/apps/details?id=com.openakquise.dashboard" target="_blank"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="52" alt="Get it on Google Play"></a></td>
+</tr></table>
 
 <br/>
 
-**🚀 Premium / Pro Version**  
-Extended with offline capabilities, push notifications, and native features.
+**🚀 Premium / Pro Version**
+The standalone Pro app with offline capabilities, push notifications, and native features. Available as a subscription directly in the store.
 
-<a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="Work in Progress">
-  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="44" alt="Download on the App Store">
-</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank">
-  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="64" alt="Get it on Google Play">
-</a>
+**Price:** 19.90 € / month (directly via Google Play Store)
+
+<table><tr>
+  <td><a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="iOS coming soon"><img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="52" alt="Download on the App Store"></a></td>
+  <td><a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="52" alt="Get it on Google Play"></a></td>
+</tr></table>
+
+> iOS version coming soon.
+
+### 🗺️ Roadmap
+
+| Status | Feature | Description |
+|--------|---------|-------------|
+| ✅ | **Multi-language (i18n)** | Language switcher with DE, EN, and BG – including SVG flags and persistent language selection |
+| ✅ | **Spelling & Grammar** | Comprehensive correction of all umlauts and special characters across the entire codebase |
+| ✅ | **Pro App (Android)** | Standalone native Premium app on Google Play Store (19.90 €/month) |
+| ✅ | **Standard App (Android)** | Free basic app on Google Play Store |
+| 🔜 | **Pro App (iOS)** | Native iOS app on Apple App Store – coming soon |
+| 🔜 | **Advanced AI Analysis** | Automatic evaluation and scoring of real estate leads |
+| 🔜 | **n8n Workflow Templates** | Pre-built automations for lead import and notifications |
+| 📋 | **Offline Sync** | Full offline capability with automatic synchronization |
+| 📋 | **Team Chat** | Integrated communication between agents and team leaders |
+| 📋 | **Advanced Reports** | PDF export and customizable dashboard views |
 
 ### ⚙️ Installation & Deployment
 

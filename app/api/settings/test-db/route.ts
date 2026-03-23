@@ -37,7 +37,7 @@ export async function GET() {
             'Environment',
             hasDbUrl ? 'success' : 'error',
             hasDbUrl
-                ? `Verbindung ueber ${dbSource} konfiguriert`
+                ? `Verbindung über ${dbSource} konfiguriert`
                 : 'Keine SUPABASE_DATABASE_URL oder SUPABASE_DB_URL gefunden',
             Date.now() - envStart
         );

@@ -356,7 +356,7 @@ export default function CRMDashboard() {
             doc.text('Zahlung via Stripe: ' + invoice.stripe_payment_link, 14, payY);
         } else if (settings.iban) {
             doc.text(`Bankverbindung: IBAN: ${settings.iban} ${settings.bic ? '| BIC: ' + settings.bic : ''}`, 14, payY);
-            doc.text('Bitte den Rechnungsbetrag per Ueberweisung an obige Bankverbindung ueberweisen.', 14, payY + 6);
+            doc.text('Bitte den Rechnungsbetrag per Überweisung an obige Bankverbindung überweisen.', 14, payY + 6);
         }
 
         if (invoice.notes) {
@@ -428,7 +428,7 @@ export default function CRMDashboard() {
 
             {isReadOnlyDemo && (
                 <div className="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
-                    Demo-Modus: Keine Aenderungen moeglich.
+                    Demo-Modus: Keine Änderungen möglich.
                 </div>
             )}
 
@@ -533,8 +533,8 @@ export default function CRMDashboard() {
                                             <Copy className="w-3.5 h-3.5" /> Kopieren
                                         </button>
                                         <a href={pl.url} target="_blank" rel="noopener noreferrer"
-                                            className="flex items-center gap-1.5 px-4 py-2 text-xs rounded-lg bg-violet-600 text-white hover:bg-violet-700 font-medium" title="Link oeffnen">
-                                            <ExternalLink className="w-3.5 h-3.5" /> Oeffnen
+                                            className="flex items-center gap-1.5 px-4 py-2 text-xs rounded-lg bg-violet-600 text-white hover:bg-violet-700 font-medium" title="Link öffnen">
+                                            <ExternalLink className="w-3.5 h-3.5" /> Öffnen
                                         </a>
                                     </div>
                                 </div>
@@ -579,7 +579,7 @@ export default function CRMDashboard() {
                                 <input id="email" placeholder="info@beispiel.at" type="email" value={settings.email} onChange={e => setSettings({ ...settings, email: e.target.value })} className="input-field py-2 text-sm w-full" />
                             </div>
                             <div>
-                                <label htmlFor="iban" className="block text-xs font-medium mb-1">IBAN (fuer Vorkasse)</label>
+                                <label htmlFor="iban" className="block text-xs font-medium mb-1">IBAN (für Vorkasse)</label>
                                 <input id="iban" placeholder="AT..." type="text" value={settings.iban} onChange={e => setSettings({ ...settings, iban: e.target.value })} className="input-field py-2 text-sm w-full" />
                             </div>
                             <div>
@@ -603,9 +603,6 @@ export default function CRMDashboard() {
                                         <input id="stripeSk" placeholder="sk_test_..." type="password" value={settings.stripe_secret_key} onChange={e => setSettings({ ...settings, stripe_secret_key: e.target.value })} className="input-field py-2 text-sm w-full font-mono" />
                                     </div>
                                 </div>
-                                <p className="text-xs text-muted-foreground mt-3">
-                                    Der serverseitige Secret Key muss zusaetzlich als ENV-Variable (STRIPE_SECRET_KEY) auf Vercel hinterlegt werden.
-                                </p>
                             </div>
 
                             {/* E-Mail / SMTP / SES Section */}
@@ -848,7 +845,7 @@ export default function CRMDashboard() {
                                         <div className="flex-1 min-w-[200px]">
                                             <label className="block text-xs font-medium mb-1">Artikel</label>
                                             <select value={selectedArticleId} onChange={e => setSelectedArticleId(e.target.value)} className="input-field py-2 text-sm w-full bg-background">
-                                                <option value="">-- Bitte waehlen --</option>
+                                                <option value="">-- Bitte wählen --</option>
                                                 {articles.map(a => (
                                                     <option key={a.id} value={a.id}>{a.title} ({Number(a.price).toLocaleString('de-DE')} €)</option>
                                                 ))}
@@ -1003,7 +1000,7 @@ export default function CRMDashboard() {
                                                             <Copy className="w-3 h-3" /> PayLink kopieren
                                                         </button>
                                                         <a href={inv.stripe_payment_link} target="_blank" rel="noopener noreferrer"
-                                                            className="flex items-center justify-center gap-1 px-2.5 py-2 text-[10px] rounded-md bg-violet-600 text-white hover:bg-violet-700 font-medium" title="PayLink oeffnen">
+                                                            className="flex items-center justify-center gap-1 px-2.5 py-2 text-[10px] rounded-md bg-violet-600 text-white hover:bg-violet-700 font-medium" title="PayLink öffnen">
                                                             <ExternalLink className="w-3 h-3" />
                                                         </a>
                                                         <button onClick={() => handleCreateStripeLink(inv.id)} disabled={creatingPaymentLink === inv.id}

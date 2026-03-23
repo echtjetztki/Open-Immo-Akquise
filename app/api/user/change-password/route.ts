@@ -114,7 +114,7 @@ export async function POST(request: Request) {
             metadata: { userId }
         });
 
-        return NextResponse.json({ success: true, message: 'Passwort erfolgreich geaendert' });
+        return NextResponse.json({ success: true, message: 'Passwort erfolgreich geändert' });
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unbekannter Fehler';
         console.error('Change password error:', error);

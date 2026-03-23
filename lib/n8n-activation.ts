@@ -225,7 +225,7 @@ export async function activateN8nCodeForRequest(
             return {
                 active: false,
                 cacheTtlSeconds: DEFAULT_N8N_CACHE_TTL_SECONDS,
-                message: 'Maximale Anzahl von Installationen fuer diesen n8n Code erreicht.'
+                message: 'Maximale Anzahl von Installationen für diesen n8n Code erreicht.'
             };
         }
         throw error;
