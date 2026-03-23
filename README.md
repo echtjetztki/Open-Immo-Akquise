@@ -77,10 +77,10 @@ Diese Version im Repository ist die **Standard-Version** zum Testen und sofortig
 Eine installierbare **Premium App-Version** (iOS & Android) mit Offline-Funktionen und erweiterten nativen Features ist in Vorbereitung.
 
 <a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;">
-  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="50" alt="Download on the App Store (In Arbeit)">
+  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="42" alt="Download on the App Store">
 </a>
 <a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank">
-  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" height="50" alt="Jetzt bei Google Play">
+  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" height="64" alt="Jetzt bei Google Play">
 </a>
 
 ### ⚙️ Installation & Deployment
@@ -108,6 +108,20 @@ Open-Akquise is a high-performance dashboard for managing real estate leads, pro
   </a>
   <br />
   <small>🔒 Demo credentials are sent via email upon request.</small>
+  <br />
+  <br />
+  <a href="https://echtjetztki.at/open-immo/" target="_blank">
+    <strong>🆓 REQUEST FREE BASIC LICENSE</strong>
+  </a>
+  <span> | </span>
+  <a href="https://echtjetztki.at/open-immo/" target="_blank">
+    <strong>🆓 REQUEST DEMO ACCESS</strong>
+  </a>
+  <br />
+  <br />
+  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fechtjetztki%2FOpen-Immo-Akquise&env=SUPABASE_DATABASE_URL,ADMIN_PASSWORD,USER_PASSWORD,CRON_SECRET,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY&project-name=open-immo-akquise&repository-name=open-immo-akquise">
+    <img src="https://vercel.com/button" alt="Deploy with Vercel">
+  </a>
 </p>
 
 ### 🚀 Why Open-Akquise?
@@ -120,6 +134,15 @@ This system isn't just code – it's a **ready-to-use business model**. Real est
 - 🔐 **Role-based System:** Strict separation between Administrators, Team Leaders, and Agents.
 - 💼 **CRM & Invoicing:** Integrated management of items, invoices, and customer contacts.
 
+### 🛡️ GDPR & Infrastructure Recommendations
+
+For legally compliant and high-performance operations (especially in Germany/Austria), we recommend the following partners:
+
+- **Hosting & VPS (GDPR-compliant):** For maximum speed and full control over your data, we recommend using a dedicated VPS.
+  👉 **[Get Hostinger VPS with a discount here](https://www.hostinger.com/de/cart?product=vps%3Avps_kvm_2&period=12&referral_type=cart_link&REFERRALCODE=echtjetztki&referral_id=019cf358-4d36-71a0-b7b9-e8ab7ac18314)**
+- **Legal Compliance (T&Cs & Privacy Policy):** We recommend the starter package from **IT-Recht Kanzlei** to obtain legally sound Terms and Conditions, Imprint, and Privacy Policies.
+  👉 **[IT-Recht Kanzlei T&C Starter Package](https://www.it-recht-kanzlei.de/agb-starterpaket.php?partner_id=1686)**
+
 ### 💎 Our Service: Full-Service Setup for 250 €
 
 Don't want to host the system yourself? We handle the entire technical setup for you or your clients!
@@ -128,16 +151,24 @@ Don't want to host the system yourself? We handle the entire technical setup for
 - ✅ **Domain Integration:** Connection to your custom domain (e.g., `dashboard.your-agency.com`).
 👉 **[Book Full-Service Setup Here](https://buy.stripe.com/9B63cv5nZ8n73UZ6GfeQM04)** | Mail: [support@echtjetztki.at](mailto:support@echtjetztki.at)
 
+### 🛠 Technology Stack
+
+- **Frontend:** Next.js 15+ (App Router) & React 19
+- **Styling:** Tailwind CSS 4 & Framer Motion (Fluid UI/UX)
+- **Backend:** PostgreSQL & Supabase (Vector Search & Real-time)
+- **Security:** JWT Roles & automated Security Logs
+- **Mobile:** Capacitor Integration for native iOS/Android Apps
+
 ### 📱 App Version
 
 The version in this repository is the **Standard Version** for testing and immediate use on the web.
 An installable **Premium App Version** (iOS & Android) featuring offline capabilities and extended native features is currently in preparation.
 
 <a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;">
-  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="50" alt="Download on the App Store (Work in Progress)">
+  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="42" alt="Download on the App Store">
 </a>
 <a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank">
-  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="50" alt="Get it on Google Play">
+  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="64" alt="Get it on Google Play">
 </a>
 
 ### ⚙️ Installation & Deployment
