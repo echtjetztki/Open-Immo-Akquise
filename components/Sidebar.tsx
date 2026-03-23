@@ -58,6 +58,7 @@ export function Sidebar() {
         { name: t('nav.user_management'), href: '/users', icon: UserCircle2 },
         { name: t('nav.settings'), href: '/settings', icon: TrendingUp },
         { name: t('nav.ai_chat'), href: '/chat', icon: MessageCircle },
+        { name: t('nav.referrals'), href: '/referrals', icon: Users2 },
         { name: t('nav.statistics'), href: '/statistik', icon: BarChart3 },
         { name: t('nav.entry'), href: '/entry', icon: PlusCircle },
     ];
