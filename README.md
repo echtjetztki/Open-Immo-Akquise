@@ -74,9 +74,19 @@ Du möchtest das System nicht selbst hosten? Wir übernehmen das komplette techn
 ### 📱 App Version
 
 Diese Version im Repository ist die **Standard-Version** zum Testen und sofortigen Einsatz im Web.
-Eine installierbare **Premium App-Version** (iOS & Android) mit Offline-Funktionen und erweiterten nativen Features ist in Vorbereitung.
+Zusätzlich gibt es nativ installierbare Apps für iOS & Android.
 
-<a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;">
+#### Standard Version
+<a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="In Vorbereitung">
+  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="42" alt="Download on the App Store">
+</a>
+<a href="https://play.google.com/store/apps/details?id=com.openakquise.dashboard" target="_blank">
+  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" height="64" alt="Jetzt bei Google Play">
+</a>
+
+#### Premium / Pro Version
+Erweitert um Offline-Funktionen und zusätzliche native Features.
+<a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="In Vorbereitung">
   <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="42" alt="Download on the App Store">
 </a>
 <a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank">
@@ -162,9 +172,19 @@ Don't want to host the system yourself? We handle the entire technical setup for
 ### 📱 App Version
 
 The version in this repository is the **Standard Version** for testing and immediate use on the web.
-An installable **Premium App Version** (iOS & Android) featuring offline capabilities and extended native features is currently in preparation.
+Additionally, natively installable apps for iOS & Android are available.
 
-<a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;">
+#### Standard Version
+<a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="Work in Progress">
+  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="42" alt="Download on the App Store">
+</a>
+<a href="https://play.google.com/store/apps/details?id=com.openakquise.dashboard" target="_blank">
+  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="64" alt="Get it on Google Play">
+</a>
+
+#### Premium / Pro Version
+Featuring offline capabilities and extended native features.
+<a href="#" target="_blank" style="pointer-events: none; opacity: 0.6;" title="Work in Progress">
   <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" height="42" alt="Download on the App Store">
 </a>
 <a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank">
