@@ -34,7 +34,8 @@ export default function UserHeader() {
         fetchUser();
     }, []);
 
-    const isAgent = user?.role === 'agent';
+    const isAgentByPath = pathname.startsWith('/agent');
+    const isAgent = user?.role === 'agent' || isAgentByPath;
     const dashboardPath = isAgent
         ? (user?.displayName || user?.username
             ? `/agent/${encodeURIComponent(user.displayName || user.username || '')}`
@@ -56,43 +57,46 @@ export default function UserHeader() {
     const isReferrals = pathname === referralsPath;
 
     return (
-        <header className="sticky top-0 left-0 right-0 z-50 border-b border-primary/10 bg-background/80 backdrop-blur-md shadow-sm">
-            <div className="max-w-[1600px] mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+        <header className="sticky top-0 left-0 right-0 z-50 border-b border-primary/10 bg-background/80 backdrop-blur-md shadow-md">
+            <div className="max-w-[1600px] mx-auto px-4 md:px-6 h-20 md:h-28 flex items-center justify-between">
                 {/* Logo Section */}
                 <div className="flex items-center gap-4">
-                    <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                        <img src="/logo.png" alt="Logo" className="h-8 w-auto" />
-                        <span className="font-bold text-lg hidden sm:block bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                            Open-Akquise
-                        </span>
+                    <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                        <img src="/logo.png" alt="Logo" className="h-12 md:h-20 w-auto" />
+                        <div className="flex flex-col">
+                            <span className="font-bold text-xl md:text-2xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+                                Open-Akquise
+                            </span>
+                            <span className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-widest font-bold">Immo-Akquise Dashboard</span>
+                        </div>
                     </Link>
                 </div>
 
                 {/* Navigation Menu */}
-                <nav className="hidden md:flex items-center gap-2">
+                <nav className="hidden lg:flex items-center gap-3">
                     <Link
                         href={dashboardPath}
                         className={clsx(
-                            'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
+                            'flex items-center gap-2 px-5 py-3 rounded-2xl text-base font-bold transition-all',
                             isDashboard
                                 ? 'text-primary bg-primary/10 shadow-inner'
                                 : 'text-muted-foreground hover:text-foreground hover:bg-primary/5'
                         )}
                     >
-                        <LayoutDashboard className="h-4 w-4" />
+                        <LayoutDashboard className="h-5 w-5" />
                         <span>{t('nav.my_dashboard')}</span>
                     </Link>
 
                     <Link
                         href={settingsPath}
                         className={clsx(
-                            'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
+                            'flex items-center gap-2 px-5 py-3 rounded-2xl text-base font-bold transition-all',
                             isSettings
                                 ? 'text-primary bg-primary/10 shadow-inner'
                                 : 'text-muted-foreground hover:text-foreground hover:bg-primary/5'
                         )}
                     >
-                        <UserCircle className="h-4 w-4" />
+                        <UserCircle className="h-5 w-5" />
                         <span>{t('nav.profile_password')}</span>
                     </Link>
 
@@ -100,25 +104,25 @@ export default function UserHeader() {
                         <Link
                             href={referralsPath}
                             className={clsx(
-                                'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
+                                'flex items-center gap-2 px-5 py-3 rounded-2xl text-base font-bold transition-all',
                                 isReferrals
                                     ? 'text-primary bg-primary/10 shadow-inner'
                                     : 'text-muted-foreground hover:text-foreground hover:bg-primary/5'
                             )}
                         >
-                            <Users2 className="h-4 w-4" />
+                            <Users2 className="h-5 w-5" />
                             <span>{t('nav.referrals')}</span>
                         </Link>
                     )}
 
-                    <div className="w-px h-6 bg-primary/10 mx-2" />
+                    <div className="w-px h-8 bg-primary/10 mx-3" />
 
                     <button
                         type="button"
                         onClick={handleLogout}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:text-error hover:bg-error/5 transition-all"
+                        className="flex items-center gap-2 px-5 py-3 rounded-2xl text-base font-bold text-muted-foreground hover:text-error hover:bg-error/5 transition-all"
                     >
-                        <LogOut className="h-4 w-4" />
+                        <LogOut className="h-5 w-5" />
                         <span>{t('nav.logout')}</span>
                     </button>
                 </nav>
