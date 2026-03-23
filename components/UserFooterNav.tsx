@@ -58,13 +58,13 @@ export default function UserFooterNav() {
     return (
         <footer className="fixed bottom-0 left-0 right-0 z-40 border-t border-primary/10 glass">
             <div className={clsx(
-                'grid gap-2 p-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]',
+                'grid gap-1.5 p-1.5 pb-[calc(env(safe-area-inset-bottom)+0.35rem)]',
                 isAgent ? 'grid-cols-4' : 'grid-cols-3'
             )}>
                 <Link
                     href={dashboardPath}
                     className={clsx(
-                        'flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-medium transition-all',
+                        'flex flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 text-[11px] font-medium transition-all',
                         isDashboard
                             ? 'text-primary bg-gradient-to-br from-orange-400/15 to-teal-400/15'
                             : 'text-muted-foreground hover:text-foreground hover:bg-primary/5'
@@ -77,7 +77,7 @@ export default function UserFooterNav() {
                 <Link
                     href={settingsPath}
                     className={clsx(
-                        'flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-medium transition-all',
+                        'flex flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 text-[11px] font-medium transition-all',
                         isSettings
                             ? 'text-primary bg-gradient-to-br from-orange-400/15 to-teal-400/15'
                             : 'text-muted-foreground hover:text-foreground hover:bg-primary/5'
@@ -91,7 +91,7 @@ export default function UserFooterNav() {
                     <Link
                         href={referralsPath}
                         className={clsx(
-                            'flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-medium transition-all',
+                            'flex flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 text-[11px] font-medium transition-all',
                             isReferrals
                                 ? 'text-primary bg-gradient-to-br from-orange-400/15 to-teal-400/15'
                                 : 'text-muted-foreground hover:text-foreground hover:bg-primary/5'
@@ -105,7 +105,7 @@ export default function UserFooterNav() {
                 <button
                     type="button"
                     onClick={handleLogout}
-                    className="flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-medium text-muted-foreground hover:text-error hover:bg-error/5 transition-all"
+                    className="flex flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-error hover:bg-error/5 transition-all"
                 >
                     <LogOut className="h-4 w-4" />
                     <span>{t('nav.logout')}</span>
