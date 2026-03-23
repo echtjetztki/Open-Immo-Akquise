@@ -29,6 +29,18 @@ const isTeamleiterPath = (path: string) =>
 const isAgentAreaPath = (path: string) =>
     path === '/agent' || path.startsWith('/agent/');
 
+// Öffentliche Routen (kein Login nötig)
+const PUBLIC_PATHS = [
+    '/login', 
+    '/agent', 
+    '/empfehlung', 
+    '/api/referrals/public',
+    '/.well-known'
+];
+
+const isPublicPath = (path: string) =>
+    PUBLIC_PATHS.some(p => path === p || path.startsWith(p + '/'));
+
 export async function proxy(request: NextRequest) {
     const normalizedPath = normalizePath(request.nextUrl.pathname);
 
@@ -67,21 +79,18 @@ export async function proxy(request: NextRequest) {
         return withCleanup(NextResponse.redirect(new URL(targetPath, request.url)));
     };
 
-    // Public login pages
-    if (normalizedPath === '/login' || normalizedPath === '/agent') {
-        if (isLoggedInAsAdmin) {
-            return redirectTo('/');
-        }
-        if (isLoggedInAsAgent) {
-            return redirectTo(normalizedAgentHomePath);
-        }
-        if (isLoggedInAsTeamleiter) {
-            return redirectTo('/user');
+    // Öffentliche Seiten - immer erlauben
+    if (isPublicPath(normalizedPath)) {
+        // Login: Eingeloggte User zur jeweiligen Startseite weiterleiten
+        if (normalizedPath === '/login' || normalizedPath === '/agent') {
+            if (isLoggedInAsAdmin) return redirectTo('/');
+            if (isLoggedInAsAgent) return redirectTo(normalizedAgentHomePath);
+            if (isLoggedInAsTeamleiter) return redirectTo('/user');
         }
         return allowRequest();
     }
 
-    // All other pages are protected.
+    // Alle anderen Seiten sind geschützt
     if (!isLoggedIn) {
         if (normalizedPath.startsWith('/agent/')) {
             return redirectTo('/agent');
@@ -92,7 +101,7 @@ export async function proxy(request: NextRequest) {
         return allowRequest();
     }
 
-    // Admin stays in admin area.
+    // Admin bleibt im Admin-Bereich
     if (isLoggedInAsAdmin) {
         if (isTeamleiterPath(normalizedPath) || isAgentAreaPath(normalizedPath)) {
             return redirectTo('/');
@@ -100,7 +109,7 @@ export async function proxy(request: NextRequest) {
         return allowRequest();
     }
 
-    // Agent area only: /agent/<name> and /agent/settings
+    // Agent: nur /agent/<name> und /agent/settings
     if (isLoggedInAsAgent) {
         if (normalizedPath === '/' || !normalizedPath.startsWith('/agent')) {
             return redirectTo(normalizedAgentHomePath);
@@ -118,7 +127,7 @@ export async function proxy(request: NextRequest) {
         return allowRequest();
     }
 
-    // Teamleiter area only: /user and /user/settings
+    // Teamleiter: nur /user und /user/settings
     if (isLoggedInAsTeamleiter) {
         if (normalizedPath === '/') {
             return redirectTo('/user');
