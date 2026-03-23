@@ -44,7 +44,7 @@ export default function UserHeader() {
     const settingsPath = isAgent ? '/agent/settings' : '/user/settings';
     const isAdmin = user?.role === 'admin';
     const referralsPath = isAgent
-        ? (user?.role === 'agent' ? '/agent/referrals' : '/referral-entry')
+        ? '/agent/referrals'
         : (isAdmin ? '/referrals' : '/referral-entry');
 
     const handleLogout = async () => {

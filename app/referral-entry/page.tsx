@@ -29,6 +29,7 @@ function ReferralForm() {
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [submitError, setSubmitError] = useState('');
+    const [internalRedirectPath, setInternalRedirectPath] = useState('/referrals');
     const [formData, setFormData] = useState({
         client_name: '',
         client_address: '',
@@ -49,6 +50,7 @@ function ReferralForm() {
                     const user = await res.json();
                     if (user.role === 'admin' || user.role === 'agent') {
                         setIsInternal(true);
+                        setInternalRedirectPath(user.role === 'agent' ? '/agent/referrals' : '/referrals');
                         setFormData(prev => ({
                             ...prev,
                             recommender_name: user.displayName || user.username || 'Agent',
@@ -76,7 +78,7 @@ function ReferralForm() {
             });
             if (res.ok) {
                 if (isInternal) {
-                    window.location.href = '/referrals';
+                    window.location.href = internalRedirectPath;
                 } else {
                     setSubmitted(true);
                 }
