@@ -13,12 +13,19 @@ import {
     UserCircle,
     Mail,
     Globe,
-    FileText
+    FileText,
+    RefreshCw
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
 
-export default function ReferralEntryPage() {
+import { Suspense } from 'react';
+
+function ReferralForm() {
     const { t } = useLanguage();
+    const searchParams = useSearchParams();
+    const agentId = searchParams.get('agent');
+    
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -28,7 +35,8 @@ export default function ReferralEntryPage() {
         recommender_name: '',
         recommender_email: '',
         commission_pct: '10',
-        notes: ''
+        notes: '',
+        agent_id: agentId || null
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -222,5 +230,13 @@ export default function ReferralEntryPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function ReferralEntryPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center p-4"><RefreshCw className="w-10 h-10 animate-spin text-primary opacity-20" /></div>}>
+            <ReferralForm />
+        </Suspense>
     );
 }

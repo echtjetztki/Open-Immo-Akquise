@@ -26,16 +26,31 @@ type Referral = {
     status: string;
     notes: string;
     created_at: string;
+    agent_id?: string;
+    agent?: { displayName?: string, username?: string };
+};
+
+type SessionUser = {
+    id: string;
+    displayName?: string;
+    username?: string;
+    role?: string;
 };
 
 export default function ReferralsPage() {
     const { t } = useLanguage();
     const [referrals, setReferrals] = useState<Referral[]>([]);
+    const [user, setUser] = useState<SessionUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [copying, setCopying] = useState(false);
 
     useEffect(() => {
+        const fetchUser = async () => {
+            const res = await fetch('/api/user/me');
+            if (res.ok) setUser(await res.json());
+        };
+        fetchUser();
         fetchReferrals();
     }, []);
 
@@ -82,7 +97,10 @@ export default function ReferralsPage() {
     };
 
     const copyReferralLink = () => {
-        const link = `${window.location.origin}/referral-entry`;
+        let link = `${window.location.origin}/referral-entry`;
+        if (user && user.role === 'agent') {
+            link += `?agent=${user.id}`;
+        }
         navigator.clipboard.writeText(link);
         setCopying(true);
         setTimeout(() => setCopying(false), 2000);
@@ -90,7 +108,8 @@ export default function ReferralsPage() {
 
     const filtered = referrals.filter(r => 
         r.client_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        r.recommender_name.toLowerCase().includes(searchQuery.toLowerCase())
+        r.recommender_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (r.agent?.displayName || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const getStatusStyle = (status: string) => {
@@ -111,7 +130,9 @@ export default function ReferralsPage() {
                     <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
                         {t('ref.title')}
                     </h1>
-                    <p className="text-muted-foreground mt-1">{t('ref.entry_desc')}</p>
+                    <p className="text-muted-foreground mt-1">
+                        {user?.role === 'admin' ? 'Alle Empfehlungen im Überblick' : t('ref.entry_desc')}
+                    </p>
                 </div>
                 <button 
                     onClick={copyReferralLink}
@@ -156,9 +177,16 @@ export default function ReferralsPage() {
                                         </div>
                                         <div>
                                             <h3 className="font-bold text-foreground leading-tight">{r.client_name}</h3>
-                                            <span className={`text-[10px] uppercase font-black px-1.5 py-0.5 rounded border mt-1 inline-block ${getStatusStyle(r.status)}`}>
-                                                {r.status}
-                                            </span>
+                                            <div className="flex gap-2 items-center flex-wrap">
+                                                <span className={`text-[10px] uppercase font-black px-1.5 py-0.5 rounded border mt-1 inline-block ${getStatusStyle(r.status)}`}>
+                                                    {r.status}
+                                                </span>
+                                                {user?.role === 'admin' && r.agent && (
+                                                    <span className="text-[10px] uppercase font-black px-1.5 py-0.5 rounded border border-secondary/20 bg-secondary/10 text-secondary mt-1 inline-block">
+                                                        Agent: {r.agent.displayName || r.agent.username}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                     <button onClick={() => handleDelete(r.id)} title={t('action.delete')} className="text-muted-foreground hover:text-error transition-colors p-1">

@@ -70,6 +70,7 @@ export function Sidebar() {
             icon: LayoutGrid
         },
         { name: t('nav.profile_password'), href: settingsPath, icon: UserCircle2 },
+        ...(isAgent ? [{ name: t('nav.referrals'), href: '/referrals', icon: Users2 }] : []),
     ];
 
     const navItems = isAdmin
