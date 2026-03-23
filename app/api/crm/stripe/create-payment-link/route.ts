@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { getStripe, hasStripe } from '@/lib/stripe';
+import { getStripeFromDb } from '@/lib/stripe';
 import { requireSessionUser } from '@/lib/access';
 
 export async function POST(request: Request) {
@@ -8,14 +8,14 @@ export async function POST(request: Request) {
         const access = await requireSessionUser(['admin']);
         if (!access.ok) return access.response;
 
-        if (!hasStripe()) {
+        const stripe = await getStripeFromDb();
+        if (!stripe) {
             return NextResponse.json(
-                { error: 'Stripe ist nicht konfiguriert. Bitte STRIPE_SECRET_KEY in den Umgebungsvariablen hinterlegen.' },
+                { error: 'Stripe ist nicht konfiguriert. Bitte Stripe Secret Key in den CRM-Einstellungen hinterlegen.' },
                 { status: 400 }
             );
         }
 
-        const stripe = getStripe()!;
         const body = await request.json();
         const { invoice_id } = body;
 

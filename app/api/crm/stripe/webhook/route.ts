@@ -2,9 +2,16 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import Stripe from 'stripe';
 
+async function getStripeKeyFromDb(): Promise<string | null> {
+    try {
+        const result = await query(`SELECT value FROM "crm_settings" WHERE key = 'stripe_secret_key' LIMIT 1`);
+        return result.rows[0]?.value?.trim() || null;
+    } catch { return null; }
+}
+
 export async function POST(request: Request) {
     try {
-        const secret = process.env.STRIPE_SECRET_KEY;
+        const secret = await getStripeKeyFromDb() || process.env.STRIPE_SECRET_KEY;
         if (!secret) {
             return NextResponse.json({ error: 'Stripe nicht konfiguriert' }, { status: 400 });
         }
