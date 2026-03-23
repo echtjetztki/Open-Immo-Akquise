@@ -32,7 +32,53 @@ export async function GET() {
 
         sql += ` ORDER BY r.created_at DESC`;
 
-        const result = await query(sql, values);
+        let result = await query(sql, values);
+
+        // Agent demo bootstrap: if an agent has no referrals yet, create a small starter set.
+        if (
+            access.user.role === 'agent' &&
+            access.user.userId &&
+            result.rows.length === 0
+        ) {
+            const agentName = (access.user.displayName || access.user.username || 'Agent').toString();
+            await query(
+                `INSERT INTO public.referrals (
+                    client_name,
+                    client_address,
+                    client_phone,
+                    recommender_name,
+                    recommender_email,
+                    commission_pct,
+                    status,
+                    notes,
+                    agent_id
+                ) VALUES
+                    ($1,$2,$3,$4,$5,$6,'Neu',$7,$8),
+                    ($9,$10,$11,$12,$13,$14,'Kontaktiert',$15,$16)`,
+                [
+                    `${agentName} Demo Lead 1`,
+                    'Musterstrasse 1, 1010 Wien',
+                    '+43 660 0000001',
+                    `${agentName} (Demo)`,
+                    'demo1@example.com',
+                    10,
+                    'Automatisch erzeugte Demo-Empfehlung fuer den Agentenbereich.',
+                    access.user.userId,
+
+                    `${agentName} Demo Lead 2`,
+                    'Beispielweg 7, 5020 Salzburg',
+                    '+43 660 0000002',
+                    `${agentName} (Demo)`,
+                    'demo2@example.com',
+                    5,
+                    'Zweite Demo-Empfehlung (bearbeitbar und loeschbar).',
+                    access.user.userId
+                ]
+            );
+
+            result = await query(sql, values);
+        }
+
         const data = result.rows.map((row: Record<string, unknown>) => {
             const agentDisplayName = (row.agent_display_name || '').toString();
             const agentUsername = (row.agent_username || '').toString();
