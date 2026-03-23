@@ -7,7 +7,7 @@ export default function UserLayout({
 }) {
     return (
         <div className="min-h-screen">
-            <main className="w-full p-1 lg:p-2 pt-4 pb-28 transition-all duration-300">
+            <main className="w-full p-1 lg:p-2 pt-4 pb-20 transition-all duration-300">
                 {children}
             </main>
             <UserFooterNav />

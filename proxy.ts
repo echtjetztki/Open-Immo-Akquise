@@ -111,10 +111,13 @@ export async function proxy(request: NextRequest) {
 
     // Agent: /agent/<name>, /agent/settings plus Empfehlungsseiten
     if (isLoggedInAsAgent) {
+        if (normalizedPath === '/referrals') {
+            return redirectTo('/agent/referrals');
+        }
+
         const isAgentAllowedPath =
             normalizedPath.startsWith('/agent/') ||
             normalizedPath === '/agent/settings' ||
-            normalizedPath === '/referrals' ||
             normalizedPath === '/referral-entry';
 
         if (normalizedPath === '/' || !isAgentAllowedPath) {

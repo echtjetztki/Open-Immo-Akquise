@@ -41,7 +41,7 @@ export default function UserFooterNav() {
             : '/agent')
         : '/user';
     const settingsPath = isAgent ? '/agent/settings' : '/user/settings';
-    const referralsPath = '/referrals';
+    const referralsPath = isAgent ? '/agent/referrals' : '/referrals';
 
     const handleLogout = async () => {
         await fetch('/api/login/logout', { method: 'POST' });
