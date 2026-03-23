@@ -104,6 +104,7 @@ Die eigenständige Pro-App mit Offline-Funktionen, Push-Benachrichtigungen und n
 | Status | Feature | Beschreibung |
 |--------|---------|--------------|
 | ✅ | **Mehrsprachigkeit (i18n)** | Sprachumschalter mit DE, EN und BG – inkl. SVG-Flaggen und persistenter Sprachwahl |
+| ✅ | **Empfehlungssystem** | Modul für Tippgeber mit persönlichem Link, Agenten-Zuordnung und Provisionsauswahl |
 | ✅ | **Rechtschreibung & Grammatik** | Durchgehende Korrektur aller Umlaute und Sonderzeichen im gesamten Codebase |
 | ✅ | **Pro-App (Android)** | Eigenständige native Premium-App im Google Play Store (19,90 €/Monat) |
 | ✅ | **Standard-App (Android)** | Kostenlose Basis-App im Google Play Store |
@@ -164,6 +165,7 @@ This system isn't just code – it's a **ready-to-use business model**. Real est
 - 🤖 **AI Integration:** Automated analysis of property descriptions and automatic categorization.
 - 🔐 **Role-based System:** Strict separation between Administrators, Team Leaders, and Agents.
 - 💼 **CRM & Invoicing:** Integrated management of items, invoices, and customer contacts.
+- 🤝 **Referral System:** Internal referral management with personalized links for agents.
 
 ### 🛡️ GDPR & Infrastructure Recommendations
 
@@ -223,6 +225,7 @@ The standalone Pro app with offline capabilities, push notifications, and native
 | Status | Feature | Description |
 |--------|---------|-------------|
 | ✅ | **Multi-language (i18n)** | Language switcher with DE, EN, and BG – including SVG flags and persistent language selection |
+| ✅ | **Referral System** | Module for referrers with personal links, agent assignment, and commission selection |
 | ✅ | **Spelling & Grammar** | Comprehensive correction of all umlauts and special characters across the entire codebase |
 | ✅ | **Pro App (Android)** | Standalone native Premium app on Google Play Store (19.90 €/month) |
 | ✅ | **Standard App (Android)** | Free basic app on Google Play Store |
