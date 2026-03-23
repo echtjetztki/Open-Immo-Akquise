@@ -13,8 +13,17 @@ const toUsernameSlug = (value: string) => {
     return slug || 'agent';
 };
 
-async function ensureAgentUserForSession(
-    user: { userId?: number; displayName?: string; username?: string }
+type SessionRoleLike = 'admin' | 'user' | 'agent';
+
+const normalizeSessionRole = (value: unknown): SessionRoleLike => {
+    if (value === 'admin' || value === 'user' || value === 'agent') {
+        return value;
+    }
+    return 'agent';
+};
+
+async function ensureSessionUserForSession(
+    user: { userId?: number; displayName?: string; username?: string; role?: string }
 ): Promise<number | null> {
     const sessionUserId = user.userId;
     if (!sessionUserId) {
@@ -27,15 +36,16 @@ async function ensureAgentUserForSession(
         return sessionUserId;
     }
 
-    const displayName = (user.displayName || user.username || `Agent ${sessionUserId}`).toString().trim();
-    const username = `${toUsernameSlug(user.username || displayName)}_${sessionUserId}`;
-    const passwordHash = hashPassword(`agent-${sessionUserId}-demo`);
+    const role = normalizeSessionRole(user.role);
+    const displayName = (user.displayName || user.username || `${role} ${sessionUserId}`).toString().trim();
+    const username = `${toUsernameSlug(user.username || role)}_${sessionUserId}`;
+    const passwordHash = hashPassword(`${role}-${sessionUserId}-autogen`);
 
     await query(
         `INSERT INTO users (id, username, password_hash, role, display_name)
-         VALUES ($1, $2, $3, 'agent', $4)
+         VALUES ($1, $2, $3, $4, $5)
          ON CONFLICT (id) DO NOTHING`,
-        [sessionUserId, username, passwordHash, displayName || username]
+        [sessionUserId, username, passwordHash, role, displayName || username]
     );
 
     return sessionUserId;
@@ -66,7 +76,7 @@ export async function GET() {
                 return NextResponse.json({ error: 'Agenten-Session unvollstaendig.' }, { status: 403 });
             }
 
-            agentSessionId = await ensureAgentUserForSession(access.user);
+            agentSessionId = await ensureSessionUserForSession(access.user);
             if (!agentSessionId) {
                 return NextResponse.json({ error: 'Agentenprofil konnte nicht initialisiert werden.' }, { status: 500 });
             }
@@ -166,16 +176,25 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'client_name und recommender_name sind erforderlich.' }, { status: 400 });
         }
 
+        const sessionOwnerId = await ensureSessionUserForSession(access.user);
+
         let agentId: number | null = null;
         if (access.user.role === 'agent') {
-            agentId = await ensureAgentUserForSession(access.user);
+            agentId = sessionOwnerId;
             if (!agentId) {
                 return NextResponse.json({ error: 'Agentenprofil konnte nicht initialisiert werden.' }, { status: 500 });
             }
         } else if (body?.agent_id !== undefined && body?.agent_id !== null && body?.agent_id !== '') {
             const parsedAgentId = Number(body.agent_id);
             if (Number.isInteger(parsedAgentId) && parsedAgentId > 0) {
-                agentId = parsedAgentId;
+                if (sessionOwnerId && parsedAgentId === sessionOwnerId) {
+                    agentId = sessionOwnerId;
+                } else {
+                    const existsResult = await query('SELECT 1 FROM public.users WHERE id = $1 LIMIT 1', [parsedAgentId]);
+                    if (existsResult.rows.length > 0) {
+                        agentId = parsedAgentId;
+                    }
+                }
             }
         }
 
