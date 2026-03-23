@@ -109,9 +109,15 @@ export async function proxy(request: NextRequest) {
         return allowRequest();
     }
 
-    // Agent: nur /agent/<name> und /agent/settings
+    // Agent: /agent/<name>, /agent/settings plus Empfehlungsseiten
     if (isLoggedInAsAgent) {
-        if (normalizedPath === '/' || !normalizedPath.startsWith('/agent')) {
+        const isAgentAllowedPath =
+            normalizedPath.startsWith('/agent/') ||
+            normalizedPath === '/agent/settings' ||
+            normalizedPath === '/referrals' ||
+            normalizedPath === '/referral-entry';
+
+        if (normalizedPath === '/' || !isAgentAllowedPath) {
             return redirectTo(normalizedAgentHomePath);
         }
         if (normalizedPath === '/agent') {

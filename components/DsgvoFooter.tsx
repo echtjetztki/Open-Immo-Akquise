@@ -86,8 +86,8 @@ export function DsgvoFooter() {
 
     return (
         <>
-            <footer className="w-full border-t border-primary/10 bg-background/80 backdrop-blur-sm mt-12 pt-6 pb-28 px-4 lg:pl-60">
-                <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-muted-foreground">
+            <footer className="w-full border-t border-primary/10 bg-background/80 backdrop-blur-sm mt-8 pt-4 pb-[calc(env(safe-area-inset-bottom)+4.5rem)] lg:pb-10 px-4 lg:pl-60">
+                <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-4">
                         <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                             <img src="/logo.png" alt={`${projectName} Logo`} className="h-8 w-auto" />
