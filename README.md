@@ -83,8 +83,6 @@ Eine installierbare **Premium App-Version** (iOS & Android) mit Offline-Funktion
   <img src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" height="50" alt="Jetzt bei Google Play">
 </a>
 
-*(Platzhalter: Hier warten wir noch auf die finale Freigabe des iOS App-Stores, Android ist verfügbar)*
-
 ### ⚙️ Installation & Deployment
 
 Ausführliche Details findest du in unserem [Handbuch (Wiki)](docs/wiki/Home.md).
@@ -141,8 +139,6 @@ An installable **Premium App Version** (iOS & Android) featuring offline capabil
 <a href="https://play.google.com/store/apps/details?id=com.openakquise.premium" target="_blank">
   <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="50" alt="Get it on Google Play">
 </a>
-
-*(Placeholder: We are currently waiting for the final approval from the iOS app store, Android is available)*
 
 ### ⚙️ Installation & Deployment
 
