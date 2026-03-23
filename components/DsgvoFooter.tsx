@@ -2,6 +2,7 @@
 
 import { Shield, Smartphone, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/lib/language-context';
 
 import { _r, _s } from '@/lib/rc';
@@ -46,11 +47,15 @@ function FlagBG({ className }: { className?: string }) {
 }
 
 export function DsgvoFooter() {
+    const pathname = usePathname();
     const [isMobileApp, setIsMobileApp] = useState(false);
     const { language, setLanguage, t } = useLanguage();
     const projectName = 'Open-Immo-Akquise';
     const repoUrl = 'https://github.com/echtjetztki/Open-Immo-Akquise/';
     const itRechtUrl = 'https://www.it-recht-kanzlei.de/agb-starterpaket.php?partner_id=1686';
+
+    const isAdminRoute = !pathname?.startsWith('/user') && !pathname?.startsWith('/agent') && pathname !== '/login';
+    const footerMarginClass = isAdminRoute ? 'lg:pl-60' : '';
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -63,7 +68,7 @@ export function DsgvoFooter() {
                 setIsMobileApp(true);
             }
         }
-    }, []);
+    }, [pathname]);
 
     const isPremiumApp = typeof navigator !== 'undefined' && navigator.userAgent.includes(_0xf(_ua1));
 
@@ -86,8 +91,8 @@ export function DsgvoFooter() {
 
     return (
         <>
-            <footer className="w-full border-t border-primary/10 bg-background/80 backdrop-blur-sm mt-4 pt-4 pb-4 px-4 lg:pl-60">
-                <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+            <footer className={`w-full border-t border-primary/10 bg-background/80 backdrop-blur-sm mt-8 pt-6 pb-6 px-4 ${footerMarginClass}`}>
+                <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-muted-foreground">
                     <div className="flex items-center gap-4">
                         <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                             <img src="/logo.png" alt={`${projectName} Logo`} className="h-8 w-auto" />
