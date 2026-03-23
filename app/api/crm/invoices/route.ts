@@ -4,7 +4,18 @@ import { blockDemoWrites, requireSessionUser } from '@/lib/access';
 
 export async function GET() {
     try {
-        const result = await query('SELECT * FROM "crm_invoices" ORDER BY issue_date DESC, created_at DESC');
+        const result = await query(`
+            SELECT * FROM "crm_invoices" 
+            ORDER BY 
+                CASE status 
+                    WHEN 'Inkasso' THEN 1
+                    WHEN 'Offen' THEN 2
+                    WHEN 'Entwurf' THEN 3
+                    WHEN 'Bezahlt' THEN 4
+                    WHEN 'Storniert' THEN 5
+                END,
+                issue_date DESC, created_at DESC
+        `);
         return NextResponse.json(result.rows || []);
     } catch (error: any) {
         return NextResponse.json({ error: 'Failed to fetch invoices', details: error.message }, { status: 500 });
@@ -25,27 +36,32 @@ export async function POST(request: Request) {
 
         const body = await request.json();
 
-        // Very simple insert - this could be wrapped in a transaction
         const sqlInvoice = `
-            INSERT INTO "crm_invoices" (invoice_number, customer_name, customer_email, customer_address, total_amount, issue_date, due_date, status)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            INSERT INTO "crm_invoices" (invoice_number, doc_type, customer_name, customer_email, customer_address, total_amount, issue_date, due_date, status, payment_method, notes)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             RETURNING *
         `;
+
+        const docType = body.doc_type || 'Rechnung';
+        const prefix = docType === 'Angebot' ? 'AG' : docType === 'Expose' ? 'EX' : 'RE';
+
         const paramsInvoice = [
-            body.invoice_number || `RE-${Date.now()}`,
+            body.invoice_number || `${prefix}-${Date.now()}`,
+            docType,
             body.customer_name,
             body.customer_email || null,
             body.customer_address || null,
             parseFloat(body.total_amount),
             body.issue_date || new Date().toISOString().split('T')[0],
             body.due_date || null,
-            body.status || 'Entwurf'
+            body.status || 'Entwurf',
+            body.payment_method || null,
+            body.notes || null,
         ];
 
         const result = await query(sqlInvoice, paramsInvoice);
         const invoice = result.rows[0];
 
-        // Insert items (naive approach for demonstration, in production use transaction)
         if (body.items && body.items.length > 0) {
             for (const item of body.items) {
                 const sqlItem = `

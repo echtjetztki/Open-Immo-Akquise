@@ -5,13 +5,32 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import { PUBLIC_DEMO_READ_ONLY } from '@/lib/public-demo-mode';
 import {
-    PlusCircle, Box, FileText, Download, Send, Tag, Save, User,
-    Euro, Search, Trash2, Mail, Phone, MessageCircle
+    PlusCircle, Box, FileText, Download, Send, Save, User,
+    Search, Trash2, Mail, CreditCard, Banknote,
+    AlertTriangle, CheckCircle2, Clock, XCircle, FileSpreadsheet,
+    Home, ExternalLink, Copy, RefreshCw
 } from 'lucide-react';
+
+const STATUS_CONFIG: Record<string, { color: string; bg: string; border: string; icon: any }> = {
+    'Entwurf': { color: 'text-gray-500', bg: 'bg-gray-100', border: 'border-gray-300', icon: FileText },
+    'Offen': { color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-400', icon: Clock },
+    'Bezahlt': { color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-400', icon: CheckCircle2 },
+    'Inkasso': { color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-400', icon: AlertTriangle },
+    'Storniert': { color: 'text-gray-400', bg: 'bg-gray-50', border: 'border-gray-200', icon: XCircle },
+};
+
+const DOC_TYPE_CONFIG: Record<string, { label: string; prefix: string; icon: any; color: string }> = {
+    'Rechnung': { label: 'Rechnung', prefix: 'RE', icon: FileText, color: 'text-primary' },
+    'Angebot': { label: 'Angebot', prefix: 'AG', icon: FileSpreadsheet, color: 'text-blue-600' },
+    'Expose': { label: 'Exposé', prefix: 'EX', icon: Home, color: 'text-violet-600' },
+};
 
 export default function CRMDashboard() {
     const isReadOnlyDemo = PUBLIC_DEMO_READ_ONLY;
     const [activeTab, setActiveTab] = useState<'invoices' | 'articles' | 'settings'>('invoices');
+    const [docTypeFilter, setDocTypeFilter] = useState<string>('all');
+    const [statusFilter, setStatusFilter] = useState<string>('all');
+    const [searchQuery, setSearchQuery] = useState('');
 
     const [settings, setSettings] = useState({
         companyName: 'Open-Akquise',
@@ -21,13 +40,37 @@ export default function CRMDashboard() {
         phone: '',
         email: '',
         iban: '',
-        bic: ''
+        bic: '',
+        stripe_publishable_key: '',
+        stripe_secret_key: '',
+        email_provider: 'none',
+        smtp_host: '',
+        smtp_port: '587',
+        smtp_user: '',
+        smtp_pass: '',
+        smtp_secure: 'false',
+        smtp_from_email: '',
+        smtp_from_name: '',
+        ses_region: 'eu-central-1',
+        ses_access_key: '',
+        ses_secret_key: '',
+        ses_from_email: '',
     });
+    const [savingSettings, setSavingSettings] = useState(false);
+    const [sendingEmail, setSendingEmail] = useState<number | null>(null);
 
-    const handleSaveSettings = (e: React.FormEvent) => {
+    const handleSaveSettings = async (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('crmSettings', JSON.stringify(settings));
-        alert('Stammdaten gespeichert!');
+        setSavingSettings(true);
+        try {
+            const res = await fetch('/api/crm/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(settings)
+            });
+            if (res.ok) alert('Einstellungen gespeichert!');
+            else alert('Fehler beim Speichern');
+        } catch { alert('Netzwerkfehler'); } finally { setSavingSettings(false); }
     };
 
     const [articles, setArticles] = useState<any[]>([]);
@@ -41,13 +84,39 @@ export default function CRMDashboard() {
         customer_name: '',
         customer_email: '',
         customer_address: '',
+        doc_type: 'Rechnung',
         status: 'Entwurf',
+        payment_method: '',
+        notes: '',
+        due_date: '',
         items: [] as any[]
     });
     const [showInvoiceForm, setShowInvoiceForm] = useState(false);
 
     const [selectedArticleId, setSelectedArticleId] = useState('');
     const [selectedQuantity, setSelectedQuantity] = useState(1);
+
+    const handleSendEmail = async (invoiceId: number) => {
+        setSendingEmail(invoiceId);
+        try {
+            const res = await fetch('/api/crm/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ invoice_id: invoiceId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(`E-Mail gesendet via ${data.provider}!`);
+                fetchData();
+            } else {
+                alert(`E-Mail Fehler: ${data.error}`);
+            }
+        } catch { alert('Netzwerkfehler beim E-Mail-Versand'); }
+        finally { setSendingEmail(null); }
+    };
+
+    // Stripe Payment Link Zustand
+    const [creatingPaymentLink, setCreatingPaymentLink] = useState<number | null>(null);
 
     const fetchData = async () => {
         setLoading(true);
@@ -67,12 +136,10 @@ export default function CRMDashboard() {
 
     useEffect(() => {
         fetchData();
-        const saved = localStorage.getItem('crmSettings');
-        if (saved) {
-            try {
-                setSettings(JSON.parse(saved));
-            } catch (e) { }
-        }
+        // Settings aus DB laden
+        fetch('/api/crm/settings').then(r => r.json()).then(data => {
+            if (data && !data.error) setSettings(prev => ({ ...prev, ...data }));
+        }).catch(() => {});
     }, []);
 
     const handleCreateArticle = async (e: React.FormEvent) => {
@@ -132,7 +199,11 @@ export default function CRMDashboard() {
                 })
             });
             if (res.ok) {
-                setNewInvoice({ customer_name: '', customer_email: '', customer_address: '', status: 'Entwurf', items: [] });
+                setNewInvoice({
+                    customer_name: '', customer_email: '', customer_address: '',
+                    doc_type: 'Rechnung', status: 'Entwurf', payment_method: '', notes: '', due_date: '',
+                    items: []
+                });
                 setShowInvoiceForm(false);
                 fetchData();
             }
@@ -141,18 +212,85 @@ export default function CRMDashboard() {
         }
     };
 
+    const handleUpdateStatus = async (id: number, newStatus: string) => {
+        try {
+            const patchBody: any = { status: newStatus };
+            if (newStatus === 'Bezahlt') {
+                patchBody.paid_at = new Date().toISOString();
+            }
+            const res = await fetch(`/api/crm/invoices/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(patchBody)
+            });
+            if (res.ok) fetchData();
+        } catch (error) {
+            console.error('Status update failed', error);
+        }
+    };
+
+    const handleDeleteInvoice = async (id: number) => {
+        if (!confirm('Dokument wirklich loeschen?')) return;
+        try {
+            const res = await fetch(`/api/crm/invoices/${id}`, { method: 'DELETE' });
+            if (res.ok) fetchData();
+        } catch (error) {
+            console.error('Delete failed', error);
+        }
+    };
+
+    const handleCreateStripeLink = async (invoiceId: number) => {
+        setCreatingPaymentLink(invoiceId);
+        try {
+            const res = await fetch('/api/crm/stripe/create-payment-link', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ invoice_id: invoiceId })
+            });
+            const data = await res.json();
+            if (res.ok && data.payment_url) {
+                // Link kopieren
+                await navigator.clipboard.writeText(data.payment_url);
+                alert(`Stripe Payment Link erstellt und kopiert!\n\n${data.payment_url}`);
+                fetchData();
+            } else {
+                alert(`Fehler: ${data.error || 'Unbekannter Fehler'}`);
+            }
+        } catch (error) {
+            console.error('Stripe link error', error);
+            alert('Stripe Payment Link konnte nicht erstellt werden.');
+        } finally {
+            setCreatingPaymentLink(null);
+        }
+    };
+
+    const handleSetVorkasse = async (id: number) => {
+        try {
+            const res = await fetch(`/api/crm/invoices/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ payment_method: 'vorkasse', status: 'Offen' })
+            });
+            if (res.ok) fetchData();
+        } catch (error) {
+            console.error('Vorkasse update failed', error);
+        }
+    };
+
     const generatePDFBlob = (invoice: any) => {
         const doc = new jsPDF();
+        const docTypeLabel = DOC_TYPE_CONFIG[invoice.doc_type]?.label || invoice.doc_type || 'Rechnung';
 
-        // Header
         doc.setFontSize(22);
-        doc.text('RECHNUNG', 14, 20);
+        doc.text(docTypeLabel.toUpperCase(), 14, 20);
 
         doc.setFontSize(10);
-        doc.text(`Rechnungsnr: ${invoice.invoice_number}`, 14, 30);
+        doc.text(`Nr: ${invoice.invoice_number}`, 14, 30);
         doc.text(`Datum: ${new Date(invoice.issue_date).toLocaleDateString('de-DE')}`, 14, 36);
+        if (invoice.due_date) {
+            doc.text(`Faellig: ${new Date(invoice.due_date).toLocaleDateString('de-DE')}`, 14, 42);
+        }
 
-        // From (Open-Akquise Immo)
         doc.setFontSize(12);
         doc.text(settings.companyName || 'Ihr Unternehmen', 130, 20);
         doc.setFontSize(10);
@@ -161,35 +299,40 @@ export default function CRMDashboard() {
         if (settings.phone) doc.text(settings.phone, 130, 38);
         if (settings.email) doc.text(settings.email, 130, 44);
 
-        // To
         doc.setFontSize(12);
-        doc.text('Rechnungsempfänger:', 14, 50);
+        doc.text('Empfaenger:', 14, 54);
         doc.setFontSize(10);
-        doc.text(invoice.customer_name || 'Unbekannt', 14, 56);
-        if (invoice.customer_address) doc.text(invoice.customer_address, 14, 62);
-        if (invoice.customer_email) doc.text(invoice.customer_email, 14, 68);
+        doc.text(invoice.customer_name || 'Unbekannt', 14, 60);
+        if (invoice.customer_address) doc.text(invoice.customer_address, 14, 66);
+        if (invoice.customer_email) doc.text(invoice.customer_email, 14, 72);
 
-        // Fetching Items would be needed ideally. For now we just print Total if we don't have items.
-        // Wait, the API GET /invoices doesn't return items. I'll just output the total amount.
         const startY = 85;
         (doc as any).autoTable({
             startY,
             head: [['Position', 'Menge', 'Einzelpreis', 'Gesamt']],
             body: [
-                ['Consulting / Dienstleistung', '1', `${invoice.total_amount} €`, `${invoice.total_amount} €`]
+                ['Gesamtposition', '1', `${invoice.total_amount} EUR`, `${invoice.total_amount} EUR`]
             ],
             theme: 'striped',
             headStyles: { fillColor: [45, 212, 191] }
         });
 
-        // Total
         const finalY = (doc as any).lastAutoTable.finalY || startY + 20;
         doc.setFontSize(14);
-        doc.text(`Gesamtbetrag: ${Number(invoice.total_amount).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Euro`, 14, finalY + 15);
+        doc.text(`Gesamtbetrag: ${Number(invoice.total_amount).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR`, 14, finalY + 15);
 
-        if (settings.iban) {
-            doc.setFontSize(10);
-            doc.text(`Bankverbindung: IBAN: ${settings.iban} ${settings.bic ? '| BIC: ' + settings.bic : ''}`, 14, finalY + 30);
+        // Zahlungsinformationen
+        const payY = finalY + 30;
+        doc.setFontSize(10);
+        if (invoice.payment_method === 'stripe' && invoice.stripe_payment_link) {
+            doc.text('Zahlung via Stripe: ' + invoice.stripe_payment_link, 14, payY);
+        } else if (settings.iban) {
+            doc.text(`Bankverbindung: IBAN: ${settings.iban} ${settings.bic ? '| BIC: ' + settings.bic : ''}`, 14, payY);
+            doc.text('Bitte den Rechnungsbetrag per Ueberweisung an obige Bankverbindung ueberweisen.', 14, payY + 6);
+        }
+
+        if (invoice.notes) {
+            doc.text(`Anmerkung: ${invoice.notes}`, 14, payY + 18);
         }
 
         return doc.output('blob');
@@ -200,7 +343,8 @@ export default function CRMDashboard() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `Rechnung_${invoice.invoice_number}.pdf`;
+        const prefix = DOC_TYPE_CONFIG[invoice.doc_type]?.label || 'Dokument';
+        link.download = `${prefix}_${invoice.invoice_number}.pdf`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -208,114 +352,231 @@ export default function CRMDashboard() {
 
     const handleShare = async (invoice: any) => {
         const blob = generatePDFBlob(invoice);
-        const file = new File([blob], `Rechnung_${invoice.invoice_number}.pdf`, { type: 'application/pdf' });
+        const prefix = DOC_TYPE_CONFIG[invoice.doc_type]?.label || 'Dokument';
+        const file = new File([blob], `${prefix}_${invoice.invoice_number}.pdf`, { type: 'application/pdf' });
 
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
             try {
                 await navigator.share({
                     files: [file],
-                    title: `Rechnung ${invoice.invoice_number}`,
-                    text: `Hallo, anbei die neue Rechnung ${invoice.invoice_number}.`
+                    title: `${prefix} ${invoice.invoice_number}`,
+                    text: `Hallo, anbei ${prefix} ${invoice.invoice_number}.`
                 });
-            } catch (error) {
-                console.log('Share was cancelled or failed', error);
-            }
+            } catch { }
         } else {
-            alert('Teilen von Dateien wird in diesem Browser direkt nicht unterstützt. Bitte lade die PDF herunter und versende sie manuell über WhatsApp Desktop / Email.');
             handleDownloadPDF(invoice);
         }
     };
+
+    // Gefilterte Rechnungen
+    const filteredInvoices = invoices.filter(inv => {
+        if (docTypeFilter !== 'all' && inv.doc_type !== docTypeFilter) return false;
+        if (statusFilter !== 'all' && inv.status !== statusFilter) return false;
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            return (inv.customer_name || '').toLowerCase().includes(q)
+                || (inv.invoice_number || '').toLowerCase().includes(q)
+                || (inv.customer_email || '').toLowerCase().includes(q);
+        }
+        return true;
+    });
+
+    // Zusammenfassung
+    const totalOffen = invoices.filter(i => i.status === 'Offen').reduce((s, i) => s + parseFloat(i.total_amount || 0), 0);
+    const totalBezahlt = invoices.filter(i => i.status === 'Bezahlt').reduce((s, i) => s + parseFloat(i.total_amount || 0), 0);
+    const totalInkasso = invoices.filter(i => i.status === 'Inkasso').reduce((s, i) => s + parseFloat(i.total_amount || 0), 0);
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 animate-fade-in pb-20">
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                    CRM & Rechnungen
+                    CRM & Finanzen
                 </h1>
                 <p className="text-muted-foreground mt-2">
-                    Kunden verwalten, Artikel anlegen und Rechnungen direkt per Mail/WhatsApp versenden.
+                    Angebote, Exposes und Rechnungen verwalten – mit Stripe & Vorkasse.
                 </p>
             </div>
 
             {isReadOnlyDemo && (
                 <div className="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
-                    Demo-Modus: Artikel und Rechnungen koennen nicht angelegt oder geaendert werden.
+                    Demo-Modus: Keine Aenderungen moeglich.
                 </div>
             )}
 
+            {/* KPI Karten */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="glass-card p-4 border-l-4 border-l-orange-400">
+                    <div className="text-xs text-muted-foreground font-medium mb-1">Offene Summe</div>
+                    <div className="text-xl font-bold text-orange-600">{totalOffen.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</div>
+                    <div className="text-xs text-muted-foreground">{invoices.filter(i => i.status === 'Offen').length} Dokumente</div>
+                </div>
+                <div className="glass-card p-4 border-l-4 border-l-emerald-400">
+                    <div className="text-xs text-muted-foreground font-medium mb-1">Bezahlt</div>
+                    <div className="text-xl font-bold text-emerald-600">{totalBezahlt.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</div>
+                    <div className="text-xs text-muted-foreground">{invoices.filter(i => i.status === 'Bezahlt').length} Dokumente</div>
+                </div>
+                <div className="glass-card p-4 border-l-4 border-l-red-400">
+                    <div className="text-xs text-muted-foreground font-medium mb-1">Inkasso</div>
+                    <div className="text-xl font-bold text-red-600">{totalInkasso.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</div>
+                    <div className="text-xs text-muted-foreground">{invoices.filter(i => i.status === 'Inkasso').length} Dokumente</div>
+                </div>
+                <div className="glass-card p-4 border-l-4 border-l-primary">
+                    <div className="text-xs text-muted-foreground font-medium mb-1">Gesamt</div>
+                    <div className="text-xl font-bold text-primary">{invoices.length}</div>
+                    <div className="text-xs text-muted-foreground">Dokumente insgesamt</div>
+                </div>
+            </div>
+
             {/* Tabs */}
-            <div className="flex border-b border-primary/20">
-                <button
-                    onClick={() => setActiveTab('invoices')}
-                    className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors border-b-2 ${activeTab === 'invoices' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
-                        }`}
-                >
-                    <FileText className="w-5 h-5" /> Rechnungen
+            <div className="flex border-b border-primary/20 overflow-x-auto">
+                <button onClick={() => setActiveTab('invoices')}
+                    className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors border-b-2 whitespace-nowrap ${activeTab === 'invoices' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+                    <FileText className="w-5 h-5" /> Dokumente
                 </button>
-                <button
-                    onClick={() => setActiveTab('articles')}
-                    className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors border-b-2 ${activeTab === 'articles' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
-                        }`}
-                >
-                    <Box className="w-5 h-5" /> Artikel-Stamm
+                <button onClick={() => setActiveTab('articles')}
+                    className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors border-b-2 whitespace-nowrap ${activeTab === 'articles' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+                    <Box className="w-5 h-5" /> Artikel
                 </button>
-                <button
-                    onClick={() => setActiveTab('settings')}
-                    className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors border-b-2 ${activeTab === 'settings' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
-                        }`}
-                >
-                    <User className="w-5 h-5" /> Meine Stammdaten
+                <button onClick={() => setActiveTab('settings')}
+                    className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors border-b-2 whitespace-nowrap ${activeTab === 'settings' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+                    <User className="w-5 h-5" /> Stammdaten & Stripe
                 </button>
             </div>
 
-            {/* CONTENT: STAMMDATEN */}
+            {/* =========== STAMMDATEN & STRIPE =========== */}
             {activeTab === 'settings' && (
                 <div className="space-y-6">
-                    <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-bold">Meine Stammdaten</h2>
-                    </div>
+                    <h2 className="text-xl font-bold">Stammdaten & Zahlungseinstellungen</h2>
 
                     <div className="glass-card p-6 border-l-4 border-l-primary">
                         <p className="text-sm text-muted-foreground mb-6">
-                            Diese Daten werden auf Ihren Rechnungen als Absender angezeigt.
+                            Diese Daten erscheinen auf Ihren Dokumenten als Absender. Die Stripe-Keys aktivieren die Online-Zahlung.
                         </p>
                         <form onSubmit={handleSaveSettings} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="companyName" className="block text-xs font-medium mb-1">Firmenname</label>
-                                <input id="companyName" title="Firmenname" placeholder="Firma" type="text" value={settings.companyName} onChange={e => setSettings({ ...settings, companyName: e.target.value })} className="input-field py-2 text-sm w-full" />
+                                <input id="companyName" placeholder="Firma" type="text" value={settings.companyName} onChange={e => setSettings({ ...settings, companyName: e.target.value })} className="input-field py-2 text-sm w-full" />
                             </div>
                             <div>
-                                <label htmlFor="ownerName" className="block text-xs font-medium mb-1">Inhaber (optional)</label>
-                                <input id="ownerName" title="Inhaber (optional)" placeholder="Max Mustermann" type="text" value={settings.ownerName} onChange={e => setSettings({ ...settings, ownerName: e.target.value })} className="input-field py-2 text-sm w-full" />
+                                <label htmlFor="ownerName" className="block text-xs font-medium mb-1">Inhaber</label>
+                                <input id="ownerName" placeholder="Max Mustermann" type="text" value={settings.ownerName} onChange={e => setSettings({ ...settings, ownerName: e.target.value })} className="input-field py-2 text-sm w-full" />
                             </div>
                             <div>
-                                <label htmlFor="address" className="block text-xs font-medium mb-1">Straße & Hausnummer</label>
-                                <input id="address" title="Straße und Hausnummer" placeholder="Musterstraße 1" type="text" value={settings.address} onChange={e => setSettings({ ...settings, address: e.target.value })} className="input-field py-2 text-sm w-full" />
+                                <label htmlFor="address" className="block text-xs font-medium mb-1">Adresse</label>
+                                <input id="address" placeholder="Musterstraße 1" type="text" value={settings.address} onChange={e => setSettings({ ...settings, address: e.target.value })} className="input-field py-2 text-sm w-full" />
                             </div>
                             <div>
                                 <label htmlFor="city" className="block text-xs font-medium mb-1">PLZ & Ort</label>
-                                <input id="city" title="PLZ und Ort" placeholder="1010 Wien" type="text" value={settings.city} onChange={e => setSettings({ ...settings, city: e.target.value })} className="input-field py-2 text-sm w-full" />
+                                <input id="city" placeholder="1010 Wien" type="text" value={settings.city} onChange={e => setSettings({ ...settings, city: e.target.value })} className="input-field py-2 text-sm w-full" />
                             </div>
                             <div>
-                                <label htmlFor="phone" className="block text-xs font-medium mb-1">Telefonnummer</label>
-                                <input id="phone" title="Telefonnummer" placeholder="+43..." type="text" value={settings.phone} onChange={e => setSettings({ ...settings, phone: e.target.value })} className="input-field py-2 text-sm w-full" />
+                                <label htmlFor="phone" className="block text-xs font-medium mb-1">Telefon</label>
+                                <input id="phone" placeholder="+43..." type="text" value={settings.phone} onChange={e => setSettings({ ...settings, phone: e.target.value })} className="input-field py-2 text-sm w-full" />
                             </div>
                             <div>
                                 <label htmlFor="email" className="block text-xs font-medium mb-1">E-Mail</label>
-                                <input id="email" title="E-Mail" placeholder="info@beispiel.at" type="email" value={settings.email} onChange={e => setSettings({ ...settings, email: e.target.value })} className="input-field py-2 text-sm w-full" />
+                                <input id="email" placeholder="info@beispiel.at" type="email" value={settings.email} onChange={e => setSettings({ ...settings, email: e.target.value })} className="input-field py-2 text-sm w-full" />
                             </div>
                             <div>
-                                <label htmlFor="iban" className="block text-xs font-medium mb-1">IBAN</label>
-                                <input id="iban" title="IBAN" placeholder="AT..." type="text" value={settings.iban} onChange={e => setSettings({ ...settings, iban: e.target.value })} className="input-field py-2 text-sm w-full" />
+                                <label htmlFor="iban" className="block text-xs font-medium mb-1">IBAN (fuer Vorkasse)</label>
+                                <input id="iban" placeholder="AT..." type="text" value={settings.iban} onChange={e => setSettings({ ...settings, iban: e.target.value })} className="input-field py-2 text-sm w-full" />
                             </div>
                             <div>
                                 <label htmlFor="bic" className="block text-xs font-medium mb-1">BIC</label>
-                                <input id="bic" title="BIC" placeholder="BIC" type="text" value={settings.bic} onChange={e => setSettings({ ...settings, bic: e.target.value })} className="input-field py-2 text-sm w-full" />
+                                <input id="bic" placeholder="BIC" type="text" value={settings.bic} onChange={e => setSettings({ ...settings, bic: e.target.value })} className="input-field py-2 text-sm w-full" />
                             </div>
+
+                            {/* Stripe Section */}
+                            <div className="md:col-span-2 mt-4 p-4 rounded-xl bg-violet-500/5 border border-violet-500/20">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <CreditCard className="w-5 h-5 text-violet-600" />
+                                    <h3 className="font-bold text-violet-600">Stripe Konfiguration</h3>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label htmlFor="stripePk" className="block text-xs font-medium mb-1">Publishable Key (pk_...)</label>
+                                        <input id="stripePk" placeholder="pk_test_..." type="password" value={settings.stripe_publishable_key} onChange={e => setSettings({ ...settings, stripe_publishable_key: e.target.value })} className="input-field py-2 text-sm w-full font-mono" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="stripeSk" className="block text-xs font-medium mb-1">Secret Key (sk_...)</label>
+                                        <input id="stripeSk" placeholder="sk_test_..." type="password" value={settings.stripe_secret_key} onChange={e => setSettings({ ...settings, stripe_secret_key: e.target.value })} className="input-field py-2 text-sm w-full font-mono" />
+                                    </div>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-3">
+                                    Der serverseitige Secret Key muss zusaetzlich als ENV-Variable (STRIPE_SECRET_KEY) auf Vercel hinterlegt werden.
+                                </p>
+                            </div>
+
+                            {/* E-Mail / SMTP / SES Section */}
+                            <div className="md:col-span-2 mt-4 p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Mail className="w-5 h-5 text-blue-600" />
+                                    <h3 className="font-bold text-blue-600">E-Mail Versand</h3>
+                                </div>
+                                <div className="mb-4">
+                                    <label htmlFor="emailProvider" className="block text-xs font-medium mb-1">Provider</label>
+                                    <select id="emailProvider" title="E-Mail Provider" value={settings.email_provider} onChange={e => setSettings({ ...settings, email_provider: e.target.value })} className="input-field py-2 text-sm w-full md:w-64 bg-background">
+                                        <option value="none">Nicht konfiguriert</option>
+                                        <option value="smtp">SMTP / POP (eigener Server)</option>
+                                        <option value="ses">AWS SES (Amazon)</option>
+                                    </select>
+                                </div>
+
+                                {settings.email_provider === 'smtp' && (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-blue-500/10">
+                                        <div>
+                                            <label htmlFor="smtpHost" className="block text-xs font-medium mb-1">SMTP Host</label>
+                                            <input id="smtpHost" placeholder="smtp.gmail.com" type="text" value={settings.smtp_host} onChange={e => setSettings({ ...settings, smtp_host: e.target.value })} className="input-field py-2 text-sm w-full font-mono" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="smtpPort" className="block text-xs font-medium mb-1">Port</label>
+                                            <input id="smtpPort" placeholder="587" type="text" value={settings.smtp_port} onChange={e => setSettings({ ...settings, smtp_port: e.target.value })} className="input-field py-2 text-sm w-full font-mono" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="smtpUser" className="block text-xs font-medium mb-1">Benutzer</label>
+                                            <input id="smtpUser" placeholder="user@domain.com" type="text" value={settings.smtp_user} onChange={e => setSettings({ ...settings, smtp_user: e.target.value })} className="input-field py-2 text-sm w-full font-mono" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="smtpPass" className="block text-xs font-medium mb-1">Passwort</label>
+                                            <input id="smtpPass" placeholder="••••••" type="password" value={settings.smtp_pass} onChange={e => setSettings({ ...settings, smtp_pass: e.target.value })} className="input-field py-2 text-sm w-full font-mono" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="smtpFromEmail" className="block text-xs font-medium mb-1">Absender E-Mail</label>
+                                            <input id="smtpFromEmail" placeholder="noreply@firma.at" type="email" value={settings.smtp_from_email} onChange={e => setSettings({ ...settings, smtp_from_email: e.target.value })} className="input-field py-2 text-sm w-full" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="smtpFromName" className="block text-xs font-medium mb-1">Absender Name</label>
+                                            <input id="smtpFromName" placeholder="Meine Firma" type="text" value={settings.smtp_from_name} onChange={e => setSettings({ ...settings, smtp_from_name: e.target.value })} className="input-field py-2 text-sm w-full" />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {settings.email_provider === 'ses' && (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-blue-500/10">
+                                        <div>
+                                            <label htmlFor="sesRegion" className="block text-xs font-medium mb-1">AWS Region</label>
+                                            <input id="sesRegion" placeholder="eu-central-1" type="text" value={settings.ses_region} onChange={e => setSettings({ ...settings, ses_region: e.target.value })} className="input-field py-2 text-sm w-full font-mono" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="sesFromEmail" className="block text-xs font-medium mb-1">Verifizierte Absender-E-Mail</label>
+                                            <input id="sesFromEmail" placeholder="noreply@firma.at" type="email" value={settings.ses_from_email} onChange={e => setSettings({ ...settings, ses_from_email: e.target.value })} className="input-field py-2 text-sm w-full" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="sesAccessKey" className="block text-xs font-medium mb-1">Access Key ID</label>
+                                            <input id="sesAccessKey" placeholder="AKIA..." type="password" value={settings.ses_access_key} onChange={e => setSettings({ ...settings, ses_access_key: e.target.value })} className="input-field py-2 text-sm w-full font-mono" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="sesSecretKey" className="block text-xs font-medium mb-1">Secret Access Key</label>
+                                            <input id="sesSecretKey" placeholder="••••••" type="password" value={settings.ses_secret_key} onChange={e => setSettings({ ...settings, ses_secret_key: e.target.value })} className="input-field py-2 text-sm w-full font-mono" />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="md:col-span-2 flex justify-end mt-4">
-                                <button type="submit" className="btn-primary flex items-center gap-2">
-                                    <Save className="w-4 h-4" /> Stammdaten speichern
+                                <button type="submit" disabled={savingSettings} className="btn-primary flex items-center gap-2">
+                                    <Save className="w-4 h-4" /> {savingSettings ? 'Speichere...' : 'Alle Einstellungen speichern'}
                                 </button>
                             </div>
                         </form>
@@ -323,16 +584,13 @@ export default function CRMDashboard() {
                 </div>
             )}
 
-            {/* CONTENT: ARTICLES */}
+            {/* =========== ARTICLES =========== */}
             {activeTab === 'articles' && (
                 <div className="space-y-6">
                     <div className="flex justify-between items-center">
                         <h2 className="text-xl font-bold">Artikelverwaltung</h2>
                         {!isReadOnlyDemo && (
-                            <button
-                                onClick={() => setShowArticleForm(!showArticleForm)}
-                                className="btn-primary flex items-center gap-2"
-                            >
+                            <button onClick={() => setShowArticleForm(!showArticleForm)} className="btn-primary flex items-center gap-2">
                                 <PlusCircle className="w-4 h-4" /> Neuer Artikel
                             </button>
                         )}
@@ -343,40 +601,16 @@ export default function CRMDashboard() {
                             <h3 className="text-lg font-semibold mb-4 text-primary">Artikel anlegen</h3>
                             <form onSubmit={handleCreateArticle} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div>
-                                    <label htmlFor="new_title" className="block text-xs font-medium mb-1">Titel / Name</label>
-                                    <input
-                                        id="new_title"
-                                        title="Titel des Artikels"
-                                        placeholder="Bitte Artikelbeschreibung eingeben"
-                                        type="text" required
-                                        value={newArticle.title}
-                                        onChange={e => setNewArticle({ ...newArticle, title: e.target.value })}
-                                        className="input-field py-2 text-sm w-full"
-                                    />
+                                    <label htmlFor="new_title" className="block text-xs font-medium mb-1">Titel</label>
+                                    <input id="new_title" placeholder="Artikelbezeichnung" type="text" required value={newArticle.title} onChange={e => setNewArticle({ ...newArticle, title: e.target.value })} className="input-field py-2 text-sm w-full" />
                                 </div>
                                 <div className="lg:col-span-2">
                                     <label htmlFor="new_desc" className="block text-xs font-medium mb-1">Beschreibung</label>
-                                    <input
-                                        id="new_desc"
-                                        title="Beschreibungstext für Artikel"
-                                        placeholder="Optionale Beschreibung"
-                                        type="text"
-                                        value={newArticle.description}
-                                        onChange={e => setNewArticle({ ...newArticle, description: e.target.value })}
-                                        className="input-field py-2 text-sm w-full"
-                                    />
+                                    <input id="new_desc" placeholder="Optional" type="text" value={newArticle.description} onChange={e => setNewArticle({ ...newArticle, description: e.target.value })} className="input-field py-2 text-sm w-full" />
                                 </div>
                                 <div>
-                                    <label htmlFor="new_price" className="block text-xs font-medium mb-1">Preis (€)</label>
-                                    <input
-                                        id="new_price"
-                                        title="Artikelpreis in Euro"
-                                        placeholder="z.B. 10.50"
-                                        type="number" step="0.01" required
-                                        value={newArticle.price}
-                                        onChange={e => setNewArticle({ ...newArticle, price: parseFloat(e.target.value) || 0 })}
-                                        className="input-field py-2 text-sm w-full"
-                                    />
+                                    <label htmlFor="new_price" className="block text-xs font-medium mb-1">Preis (EUR)</label>
+                                    <input id="new_price" placeholder="0.00" type="number" step="0.01" required value={newArticle.price} onChange={e => setNewArticle({ ...newArticle, price: parseFloat(e.target.value) || 0 })} className="input-field py-2 text-sm w-full" />
                                 </div>
                                 <div className="lg:col-span-4 flex justify-end gap-3 mt-2">
                                     <button type="button" onClick={() => setShowArticleForm(false)} className="btn-secondary">Abbrechen</button>
@@ -397,7 +631,7 @@ export default function CRMDashboard() {
                             </thead>
                             <tbody>
                                 {articles.length === 0 ? (
-                                    <tr><td colSpan={3} className="text-center py-8 text-muted-foreground">Keine Artikel gefunden.</td></tr>
+                                    <tr><td colSpan={3} className="text-center py-8 text-muted-foreground">Keine Artikel.</td></tr>
                                 ) : articles.map(a => (
                                     <tr key={a.id} className="border-b border-primary/5 last:border-0 hover:bg-primary/5">
                                         <td className="px-4 py-3 font-medium">{a.title}</td>
@@ -413,108 +647,122 @@ export default function CRMDashboard() {
                 </div>
             )}
 
-
-            {/* CONTENT: INVOICES */}
+            {/* =========== DOKUMENTE (INVOICES / ANGEBOTE / EXPOSÉS) =========== */}
             {activeTab === 'invoices' && (
                 <div className="space-y-6">
-                    <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-bold">Rechnungen</h2>
-                        {!isReadOnlyDemo && (
-                            <button
-                                onClick={() => setShowInvoiceForm(!showInvoiceForm)}
-                                className="btn-primary flex items-center gap-2"
-                            >
-                                <PlusCircle className="w-4 h-4" /> Neue Rechnung
+                    {/* Toolbar */}
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <div className="flex items-center gap-1 bg-background rounded-xl border border-border overflow-hidden">
+                                {[{ key: 'all', label: 'Alle' }, ...Object.entries(DOC_TYPE_CONFIG).map(([key, v]) => ({ key, label: v.label }))].map(opt => (
+                                    <button key={opt.key} onClick={() => setDocTypeFilter(opt.key)}
+                                        className={`px-3 py-1.5 text-xs font-medium transition-colors ${docTypeFilter === opt.key ? 'bg-primary text-white' : 'hover:bg-primary/10'}`}>
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} title="Statusfilter"
+                                className="input-field py-1.5 text-xs bg-background">
+                                <option value="all">Alle Status</option>
+                                {Object.keys(STATUS_CONFIG).map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                <input type="text" placeholder="Suche..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                                    className="input-field py-2 pl-9 text-sm w-48" />
+                            </div>
+                            <button onClick={() => fetchData()} className="btn-secondary p-2" title="Aktualisieren">
+                                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                             </button>
-                        )}
+                            {!isReadOnlyDemo && (
+                                <button onClick={() => setShowInvoiceForm(!showInvoiceForm)} className="btn-primary flex items-center gap-2">
+                                    <PlusCircle className="w-4 h-4" /> Neues Dokument
+                                </button>
+                            )}
+                        </div>
                     </div>
 
+                    {/* Neues Dokument Formular */}
                     {!isReadOnlyDemo && showInvoiceForm && (
                         <div className="glass-card p-6 border-l-4 border-l-secondary space-y-6">
-                            <h3 className="text-lg font-semibold text-secondary">Neue Rechnung erstellen</h3>
+                            <h3 className="text-lg font-semibold text-secondary">Neues Dokument erstellen</h3>
                             <form onSubmit={handleCreateInvoice} className="space-y-6">
+                                {/* Dokumenttyp */}
+                                <div className="flex items-center gap-3">
+                                    <label className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Typ:</label>
+                                    {Object.entries(DOC_TYPE_CONFIG).map(([key, cfg]) => {
+                                        const Icon = cfg.icon;
+                                        return (
+                                            <button key={key} type="button"
+                                                onClick={() => setNewInvoice({ ...newInvoice, doc_type: key })}
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all ${newInvoice.doc_type === key ? `${cfg.color} border-current bg-current/5` : 'border-border text-muted-foreground hover:border-primary/30'}`}>
+                                                <Icon className="w-4 h-4" /> {cfg.label}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
                                 {/* Kunde */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label htmlFor="customer_name" className="block text-xs font-medium mb-1">Kunden Name <span className="text-error">*</span></label>
-                                        <input
-                                            id="customer_name"
-                                            title="Name des Kunden"
-                                            type="text" required
-                                            value={newInvoice.customer_name}
-                                            onChange={e => setNewInvoice({ ...newInvoice, customer_name: e.target.value })}
-                                            className="input-field py-2 text-sm w-full"
-                                            placeholder="Max Mustermann"
-                                        />
+                                        <label className="block text-xs font-medium mb-1">Name <span className="text-error">*</span></label>
+                                        <input type="text" required value={newInvoice.customer_name} onChange={e => setNewInvoice({ ...newInvoice, customer_name: e.target.value })} className="input-field py-2 text-sm w-full" placeholder="Max Mustermann" />
                                     </div>
                                     <div>
-                                        <label htmlFor="customer_email" className="block text-xs font-medium mb-1">E-Mail</label>
-                                        <input
-                                            id="customer_email"
-                                            title="E-Mail des Kunden"
-                                            type="email"
-                                            value={newInvoice.customer_email}
-                                            onChange={e => setNewInvoice({ ...newInvoice, customer_email: e.target.value })}
-                                            className="input-field py-2 text-sm w-full"
-                                            placeholder="max@beispiel.com"
-                                        />
+                                        <label className="block text-xs font-medium mb-1">E-Mail</label>
+                                        <input type="email" value={newInvoice.customer_email} onChange={e => setNewInvoice({ ...newInvoice, customer_email: e.target.value })} className="input-field py-2 text-sm w-full" placeholder="max@beispiel.com" />
                                     </div>
                                     <div>
-                                        <label htmlFor="customer_address" className="block text-xs font-medium mb-1">Adresse</label>
-                                        <input
-                                            id="customer_address"
-                                            title="Adresse des Kunden"
-                                            type="text"
-                                            value={newInvoice.customer_address}
-                                            onChange={e => setNewInvoice({ ...newInvoice, customer_address: e.target.value })}
-                                            className="input-field py-2 text-sm w-full"
-                                            placeholder="Straße 1, 1010 Wien"
-                                        />
+                                        <label className="block text-xs font-medium mb-1">Adresse</label>
+                                        <input type="text" value={newInvoice.customer_address} onChange={e => setNewInvoice({ ...newInvoice, customer_address: e.target.value })} className="input-field py-2 text-sm w-full" placeholder="Straße 1, 1010 Wien" />
                                     </div>
                                 </div>
 
-                                {/* Artikel hinzufügen */}
+                                {/* Faelligkeitsdatum und Zahlungsart */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-medium mb-1">Faellig am</label>
+                                        <input type="date" value={newInvoice.due_date} onChange={e => setNewInvoice({ ...newInvoice, due_date: e.target.value })} className="input-field py-2 text-sm w-full" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium mb-1">Zahlungsart</label>
+                                        <select value={newInvoice.payment_method} onChange={e => setNewInvoice({ ...newInvoice, payment_method: e.target.value })} className="input-field py-2 text-sm w-full bg-background">
+                                            <option value="">Nicht festgelegt</option>
+                                            <option value="stripe">Stripe (Online)</option>
+                                            <option value="vorkasse">Vorkasse (Überweisung)</option>
+                                            <option value="bar">Bar</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium mb-1">Notizen</label>
+                                        <input type="text" value={newInvoice.notes} onChange={e => setNewInvoice({ ...newInvoice, notes: e.target.value })} className="input-field py-2 text-sm w-full" placeholder="Optional..." />
+                                    </div>
+                                </div>
+
+                                {/* Positionen */}
                                 <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
-                                    <h4 className="text-sm font-semibold mb-3">Positionen hinzufügen</h4>
+                                    <h4 className="text-sm font-semibold mb-3">Positionen</h4>
                                     <div className="flex items-end gap-3 flex-wrap">
                                         <div className="flex-1 min-w-[200px]">
-                                            <label htmlFor="select_article" className="block text-xs font-medium mb-1">Artikel auswählen</label>
-                                            <select
-                                                id="select_article"
-                                                title="Artikel auswählen"
-                                                value={selectedArticleId}
-                                                onChange={e => setSelectedArticleId(e.target.value)}
-                                                className="input-field py-2 text-sm w-full bg-background"
-                                            >
-                                                <option value="">-- Bitte wählen --</option>
+                                            <label className="block text-xs font-medium mb-1">Artikel</label>
+                                            <select value={selectedArticleId} onChange={e => setSelectedArticleId(e.target.value)} className="input-field py-2 text-sm w-full bg-background">
+                                                <option value="">-- Bitte waehlen --</option>
                                                 {articles.map(a => (
                                                     <option key={a.id} value={a.id}>{a.title} ({Number(a.price).toLocaleString('de-DE')} €)</option>
                                                 ))}
                                             </select>
                                         </div>
                                         <div className="w-24">
-                                            <label htmlFor="select_qty" className="block text-xs font-medium mb-1">Menge</label>
-                                            <input
-                                                id="select_qty"
-                                                title="Artikelmenge konfigurieren"
-                                                placeholder="1"
-                                                type="number" min="1"
-                                                value={selectedQuantity}
-                                                onChange={e => setSelectedQuantity(parseInt(e.target.value) || 1)}
-                                                className="input-field py-2 text-sm w-full"
-                                            />
+                                            <label className="block text-xs font-medium mb-1">Menge</label>
+                                            <input type="number" min="1" value={selectedQuantity} onChange={e => setSelectedQuantity(parseInt(e.target.value) || 1)} className="input-field py-2 text-sm w-full" />
                                         </div>
-                                        <button
-                                            type="button"
-                                            onClick={handleAddInvoiceItem}
-                                            disabled={!selectedArticleId}
-                                            className="btn-secondary py-2 h-[38px] flex items-center gap-2 px-4 shadow-sm"
-                                        >
-                                            <PlusCircle className="w-4 h-4" /> Hinzufügen
+                                        <button type="button" onClick={handleAddInvoiceItem} disabled={!selectedArticleId} className="btn-secondary py-2 h-[38px] flex items-center gap-2 px-4">
+                                            <PlusCircle className="w-4 h-4" /> Hinzufuegen
                                         </button>
                                     </div>
 
-                                    {/* Positionen Liste */}
                                     {newInvoice.items.length > 0 && (
                                         <div className="mt-4 pt-4 border-t border-primary/10">
                                             <table className="w-full text-sm">
@@ -529,17 +777,13 @@ export default function CRMDashboard() {
                                                 </thead>
                                                 <tbody>
                                                     {newInvoice.items.map((item, idx) => (
-                                                        <tr key={idx} className="border-b border-primary/5 last:border-0 hover:bg-primary/5">
+                                                        <tr key={idx} className="border-b border-primary/5 last:border-0">
                                                             <td className="py-2.5 font-medium">{item.title}</td>
                                                             <td className="py-2.5 text-center">{item.quantity}</td>
-                                                            <td className="py-2.5 text-right text-muted-foreground">
-                                                                {item.unit_price.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
-                                                            </td>
-                                                            <td className="py-2.5 text-right font-medium">
-                                                                {item.total_price.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
-                                                            </td>
+                                                            <td className="py-2.5 text-right text-muted-foreground">{item.unit_price.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</td>
+                                                            <td className="py-2.5 text-right font-medium">{item.total_price.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</td>
                                                             <td className="py-2.5 text-right">
-                                                                <button type="button" aria-label="Position löschen" title="Position löschen" onClick={() => handleRemoveInvoiceItem(idx)} className="text-error hover:bg-error/10 p-1.5 rounded-lg transition-colors">
+                                                                <button type="button" onClick={() => handleRemoveInvoiceItem(idx)} className="text-error hover:bg-error/10 p-1.5 rounded-lg">
                                                                     <Trash2 className="w-3.5 h-3.5" />
                                                                 </button>
                                                             </td>
@@ -549,9 +793,7 @@ export default function CRMDashboard() {
                                                 <tfoot>
                                                     <tr className="border-t-2 border-primary/20">
                                                         <td colSpan={3} className="py-3 text-right font-bold">Summe:</td>
-                                                        <td className="py-3 text-right font-bold text-primary text-base">
-                                                            {invoiceTotal.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
-                                                        </td>
+                                                        <td className="py-3 text-right font-bold text-primary text-base">{invoiceTotal.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</td>
                                                         <td></td>
                                                     </tr>
                                                 </tfoot>
@@ -560,68 +802,145 @@ export default function CRMDashboard() {
                                     )}
                                 </div>
 
-                                <div className="flex justify-end gap-3 mt-4">
+                                <div className="flex justify-end gap-3">
                                     <button type="button" onClick={() => setShowInvoiceForm(false)} className="btn-secondary">Abbrechen</button>
                                     <button type="submit" disabled={newInvoice.items.length === 0} className="btn-primary flex items-center gap-2">
-                                        <Save className="w-4 h-4" /> Rechnung Speichern
+                                        <Save className="w-4 h-4" /> Dokument speichern
                                     </button>
                                 </div>
                             </form>
                         </div>
                     )}
 
-
+                    {/* Dokumentkarten */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {invoices.length === 0 ? (
+                        {filteredInvoices.length === 0 ? (
                             <div className="col-span-full text-center py-12 text-muted-foreground glass-card">
-                                Bisher keine Rechnungen erstellt.
+                                {loading ? 'Lade Dokumente...' : 'Keine Dokumente gefunden.'}
                             </div>
-                        ) : invoices.map(inv => (
-                            <div key={inv.id} className="glass-card hover:shadow-xl transition-all duration-300 flex flex-col h-full border-t-4 border-t-secondary relative overflow-hidden">
-                                <div className="p-5 flex-1 space-y-4">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <div className="text-xs text-muted-foreground font-mono mb-1">{inv.invoice_number}</div>
-                                            <h3 className="font-bold text-lg text-foreground line-clamp-1" title={inv.customer_name}>
-                                                {inv.customer_name}
-                                            </h3>
+                        ) : filteredInvoices.map(inv => {
+                            const statusCfg = STATUS_CONFIG[inv.status] || STATUS_CONFIG['Entwurf'];
+                            const docCfg = DOC_TYPE_CONFIG[inv.doc_type] || DOC_TYPE_CONFIG['Rechnung'];
+                            const StatusIcon = statusCfg.icon;
+                            const DocIcon = docCfg.icon;
+
+                            return (
+                                <div key={inv.id} className={`glass-card hover:shadow-xl transition-all duration-300 flex flex-col h-full border-t-4 ${statusCfg.border} relative overflow-hidden`}>
+                                    <div className="p-5 flex-1 space-y-3">
+                                        {/* Header */}
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <DocIcon className={`w-4 h-4 ${docCfg.color} flex-shrink-0`} />
+                                                    <span className={`text-[10px] font-bold uppercase tracking-wider ${docCfg.color}`}>{docCfg.label}</span>
+                                                    <span className="text-[10px] text-muted-foreground font-mono">{inv.invoice_number}</span>
+                                                </div>
+                                                <h3 className="font-bold text-lg text-foreground line-clamp-1" title={inv.customer_name}>
+                                                    {inv.customer_name}
+                                                </h3>
+                                            </div>
+                                            <div className={`px-2.5 py-1 ${statusCfg.bg} ${statusCfg.color} text-[10px] font-bold uppercase tracking-wider rounded-md border ${statusCfg.border} flex items-center gap-1`}>
+                                                <StatusIcon className="w-3 h-3" />
+                                                {inv.status}
+                                            </div>
                                         </div>
-                                        <div className="px-2.5 py-1 bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-wider rounded-md border border-secondary/20">
-                                            {inv.status}
+
+                                        {/* Info */}
+                                        {inv.customer_email && (
+                                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                <Mail className="w-3.5 h-3.5" />
+                                                <span className="line-clamp-1">{inv.customer_email}</span>
+                                            </div>
+                                        )}
+
+                                        {/* Betrag */}
+                                        <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/10">
+                                            <div className="text-xs font-medium text-muted-foreground">Betrag</div>
+                                            <div className="font-bold text-lg text-primary">
+                                                {Number(inv.total_amount).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                            </div>
                                         </div>
+
+                                        {/* Zahlungsmethode */}
+                                        {inv.payment_method && (
+                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                {inv.payment_method === 'stripe' ? <CreditCard className="w-3.5 h-3.5 text-violet-500" /> : <Banknote className="w-3.5 h-3.5 text-emerald-500" />}
+                                                <span>{inv.payment_method === 'stripe' ? 'Stripe' : inv.payment_method === 'vorkasse' ? 'Vorkasse' : inv.payment_method}</span>
+                                                {inv.paid_at && <span className="text-emerald-600 font-medium ml-auto">bezahlt am {new Date(inv.paid_at).toLocaleDateString('de-DE')}</span>}
+                                            </div>
+                                        )}
+
+                                        {/* Stripe Payment Link anzeigen */}
+                                        {inv.stripe_payment_link && (
+                                            <button onClick={() => { navigator.clipboard.writeText(inv.stripe_payment_link); }} className="w-full flex items-center gap-2 text-xs text-violet-600 bg-violet-50 rounded-lg p-2 hover:bg-violet-100 transition-colors" title="Payment Link kopieren">
+                                                <Copy className="w-3.5 h-3.5" /> Payment Link kopieren
+                                            </button>
+                                        )}
                                     </div>
 
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <Mail className="w-3.5 h-3.5" />
-                                        <span className="line-clamp-1">{inv.customer_email || 'Keine Mail'}</span>
-                                    </div>
+                                    {/* Aktionen */}
+                                    <div className="p-3 border-t border-primary/10 bg-background/50 space-y-2 mt-auto">
+                                        {/* Status-Buttons */}
+                                        {!isReadOnlyDemo && inv.status !== 'Bezahlt' && inv.status !== 'Storniert' && (
+                                            <div className="flex gap-1 flex-wrap">
+                                                {inv.doc_type === 'Rechnung' && inv.status === 'Entwurf' && (
+                                                    <button onClick={() => handleUpdateStatus(inv.id, 'Offen')} className="text-[10px] px-2 py-1 rounded-md bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-100 font-medium">Versenden</button>
+                                                )}
+                                                {inv.status === 'Offen' && (
+                                                    <>
+                                                        <button onClick={() => handleUpdateStatus(inv.id, 'Bezahlt')} className="text-[10px] px-2 py-1 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 font-medium">Bezahlt</button>
+                                                        <button onClick={() => handleUpdateStatus(inv.id, 'Inkasso')} className="text-[10px] px-2 py-1 rounded-md bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 font-medium">Inkasso</button>
+                                                    </>
+                                                )}
+                                                {inv.status === 'Inkasso' && (
+                                                    <button onClick={() => handleUpdateStatus(inv.id, 'Bezahlt')} className="text-[10px] px-2 py-1 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 font-medium">Bezahlt</button>
+                                                )}
+                                                <button onClick={() => handleUpdateStatus(inv.id, 'Storniert')} className="text-[10px] px-2 py-1 rounded-md bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100 font-medium">Stornieren</button>
+                                            </div>
+                                        )}
 
-                                    <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/10">
-                                        <div className="text-xs font-medium text-muted-foreground">Rechnungsbetrag</div>
-                                        <div className="font-bold text-lg text-primary">
-                                            {Number(inv.total_amount).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                        {/* Zahlungsaktionen */}
+                                        {!isReadOnlyDemo && inv.doc_type === 'Rechnung' && (inv.status === 'Entwurf' || inv.status === 'Offen') && !inv.stripe_payment_link && (
+                                            <div className="flex gap-1">
+                                                <button onClick={() => handleCreateStripeLink(inv.id)} disabled={creatingPaymentLink === inv.id}
+                                                    className="flex-1 flex items-center justify-center gap-1.5 text-[10px] py-1.5 rounded-md bg-violet-50 text-violet-600 border border-violet-200 hover:bg-violet-100 font-medium disabled:opacity-50">
+                                                    <CreditCard className="w-3 h-3" /> {creatingPaymentLink === inv.id ? 'Erstelle...' : 'Stripe Link'}
+                                                </button>
+                                                <button onClick={() => handleSetVorkasse(inv.id)}
+                                                    className="flex-1 flex items-center justify-center gap-1.5 text-[10px] py-1.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 font-medium">
+                                                    <Banknote className="w-3 h-3" /> Vorkasse
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        {/* PDF, E-Mail & Teilen */}
+                                        <div className="grid grid-cols-4 gap-2">
+                                            <button onClick={() => handleDownloadPDF(inv)} className="btn-secondary flex items-center justify-center gap-1.5 py-2 text-xs" title="PDF herunterladen">
+                                                <Download className="w-3.5 h-3.5" /> PDF
+                                            </button>
+                                            {inv.customer_email && !isReadOnlyDemo ? (
+                                                <button onClick={() => handleSendEmail(inv.id)} disabled={sendingEmail === inv.id}
+                                                    className="flex items-center justify-center gap-1.5 py-2 text-xs rounded-xl bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-colors disabled:opacity-50" title="Per E-Mail senden">
+                                                    <Mail className="w-3.5 h-3.5" /> {sendingEmail === inv.id ? '...' : 'Mail'}
+                                                </button>
+                                            ) : (
+                                                <button onClick={() => handleShare(inv)} className="btn-primary flex items-center justify-center gap-1.5 py-2 text-xs" title="Teilen">
+                                                    <Send className="w-3.5 h-3.5" /> Teilen
+                                                </button>
+                                            )}
+                                            <button onClick={() => handleShare(inv)} className="btn-secondary flex items-center justify-center gap-1.5 py-2 text-xs" title="Via App teilen">
+                                                <Send className="w-3.5 h-3.5" />
+                                            </button>
+                                            {!isReadOnlyDemo && (
+                                                <button onClick={() => handleDeleteInvoice(inv.id)} className="flex items-center justify-center gap-1.5 py-2 text-xs rounded-xl border border-red-200 text-red-500 hover:bg-red-50 transition-colors" title="Loeschen">
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className="p-3 border-t border-primary/10 bg-background/50 grid grid-cols-2 gap-2 mt-auto">
-                                    <button
-                                        onClick={() => handleDownloadPDF(inv)}
-                                        className="btn-secondary flex items-center justify-center gap-2 py-2 text-xs hover:bg-primary/10"
-                                        title="PDF Herunterladen"
-                                    >
-                                        <Download className="w-3.5 h-3.5" /> PDF
-                                    </button>
-                                    <button
-                                        onClick={() => handleShare(inv)}
-                                        className="btn-primary flex items-center justify-center gap-2 py-2 text-xs shadow-md"
-                                        title="Senden via Mail/WhatsApp/Telegram..."
-                                    >
-                                        <Send className="w-3.5 h-3.5" /> Versenden
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             )}
