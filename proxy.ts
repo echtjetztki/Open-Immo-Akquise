@@ -129,6 +129,7 @@ export async function proxy(request: NextRequest) {
         if (
             normalizedPath.startsWith('/agent/') &&
             normalizedPath !== '/agent/settings' &&
+            normalizedPath !== '/agent/referrals' &&
             normalizedPath !== normalizedAgentHomePath
         ) {
             return redirectTo(normalizedAgentHomePath);

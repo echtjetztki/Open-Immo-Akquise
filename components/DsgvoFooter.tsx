@@ -3,7 +3,6 @@
 import { Shield, Smartphone, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/language-context';
-import { usePathname } from 'next/navigation';
 
 import { _r, _s } from '@/lib/rc';
 const _0xf = _r;
@@ -49,9 +48,6 @@ function FlagBG({ className }: { className?: string }) {
 export function DsgvoFooter() {
     const [isMobileApp, setIsMobileApp] = useState(false);
     const { language, setLanguage, t } = useLanguage();
-    const pathname = usePathname();
-    const hasBottomUserBar = pathname.startsWith('/agent') || pathname.startsWith('/user');
-    const hasDesktopSidebar = !hasBottomUserBar;
     const projectName = 'Open-Immo-Akquise';
     const repoUrl = 'https://github.com/echtjetztki/Open-Immo-Akquise/';
     const itRechtUrl = 'https://www.it-recht-kanzlei.de/agb-starterpaket.php?partner_id=1686';
@@ -90,12 +86,7 @@ export function DsgvoFooter() {
 
     return (
         <>
-            <footer
-                className={`w-full border-t border-primary/10 bg-background/80 backdrop-blur-sm mt-4 pt-3 px-4 ${hasDesktopSidebar ? 'lg:pl-60' : ''} ${hasBottomUserBar
-                    ? 'pb-4 mb-[calc(env(safe-area-inset-bottom)+4.75rem)] lg:mb-0'
-                    : 'pb-4 lg:pb-8'
-                    }`}
-            >
+            <footer className="w-full border-t border-primary/10 bg-background/80 backdrop-blur-sm mt-12 pt-6 pb-28 px-4 lg:pl-60">
                 <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-4">
                         <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:opacity-80 transition-opacity">

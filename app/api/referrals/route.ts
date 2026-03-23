@@ -2,6 +2,44 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { requireSessionUser } from '@/lib/access';
 import { ensureReferralsSchema } from '@/lib/referrals-schema';
+import { ensureUsersTable } from '@/lib/users';
+import { hashPassword } from '@/lib/password';
+
+const toUsernameSlug = (value: string) => {
+    const slug = value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+    return slug || 'agent';
+};
+
+async function ensureAgentUserForSession(
+    user: { userId?: number; displayName?: string; username?: string }
+): Promise<number | null> {
+    const sessionUserId = user.userId;
+    if (!sessionUserId) {
+        return null;
+    }
+
+    await ensureUsersTable();
+    const existing = await query('SELECT id FROM users WHERE id = $1 LIMIT 1', [sessionUserId]);
+    if (existing.rows.length > 0) {
+        return sessionUserId;
+    }
+
+    const displayName = (user.displayName || user.username || `Agent ${sessionUserId}`).toString().trim();
+    const username = `${toUsernameSlug(user.username || displayName)}_${sessionUserId}`;
+    const passwordHash = hashPassword(`agent-${sessionUserId}-demo`);
+
+    await query(
+        `INSERT INTO users (id, username, password_hash, role, display_name)
+         VALUES ($1, $2, $3, 'agent', $4)
+         ON CONFLICT (id) DO NOTHING`,
+        [sessionUserId, username, passwordHash, displayName || username]
+    );
+
+    return sessionUserId;
+}
 
 export async function GET() {
     try {
@@ -22,12 +60,19 @@ export async function GET() {
             LEFT JOIN public.users u ON u.id = r.agent_id
         `;
 
+        let agentSessionId: number | null = null;
         if (access.user.role === 'agent') {
             if (!access.user.userId) {
                 return NextResponse.json({ error: 'Agenten-Session unvollstaendig.' }, { status: 403 });
             }
+
+            agentSessionId = await ensureAgentUserForSession(access.user);
+            if (!agentSessionId) {
+                return NextResponse.json({ error: 'Agentenprofil konnte nicht initialisiert werden.' }, { status: 500 });
+            }
+
             sql += ` WHERE r.agent_id = $1`;
-            values.push(access.user.userId);
+            values.push(agentSessionId);
         }
 
         sql += ` ORDER BY r.created_at DESC`;
@@ -37,7 +82,7 @@ export async function GET() {
         // Agent demo bootstrap: if an agent has no referrals yet, create a small starter set.
         if (
             access.user.role === 'agent' &&
-            access.user.userId &&
+            agentSessionId &&
             result.rows.length === 0
         ) {
             const agentName = (access.user.displayName || access.user.username || 'Agent').toString();
@@ -63,7 +108,7 @@ export async function GET() {
                     'demo1@example.com',
                     10,
                     'Automatisch erzeugte Demo-Empfehlung fuer den Agentenbereich.',
-                    access.user.userId,
+                    agentSessionId,
 
                     `${agentName} Demo Lead 2`,
                     'Beispielweg 7, 5020 Salzburg',
@@ -72,7 +117,7 @@ export async function GET() {
                     'demo2@example.com',
                     5,
                     'Zweite Demo-Empfehlung (bearbeitbar und loeschbar).',
-                    access.user.userId
+                    agentSessionId
                 ]
             );
 
@@ -123,7 +168,10 @@ export async function POST(request: Request) {
 
         let agentId: number | null = null;
         if (access.user.role === 'agent') {
-            agentId = access.user.userId ?? null;
+            agentId = await ensureAgentUserForSession(access.user);
+            if (!agentId) {
+                return NextResponse.json({ error: 'Agentenprofil konnte nicht initialisiert werden.' }, { status: 500 });
+            }
         } else if (body?.agent_id !== undefined && body?.agent_id !== null && body?.agent_id !== '') {
             const parsedAgentId = Number(body.agent_id);
             if (Number.isInteger(parsedAgentId) && parsedAgentId > 0) {
