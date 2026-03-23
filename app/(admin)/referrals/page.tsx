@@ -178,7 +178,8 @@ export default function ReferralsPage() {
                         placeholder={t('action.search')}
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        className="input-field w-full pl-12"
+                        className="input-field w-full"
+                        style={{ paddingLeft: '3.5rem' }}
                     />
                 </div>
                 <button onClick={fetchReferrals} className="btn-secondary p-2.5" title={t('action.refresh')}>

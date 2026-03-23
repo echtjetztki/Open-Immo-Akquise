@@ -48,6 +48,12 @@ function ReferralForm() {
                     const user = await res.json();
                     if (user.role === 'admin' || user.role === 'agent') {
                         setIsInternal(true);
+                        setFormData(prev => ({
+                            ...prev,
+                            recommender_name: user.displayName || user.username || 'Agent',
+                            recommender_email: user.email || '',
+                            agent_id: user.id
+                        }));
                     }
                 }
             } catch (e) {
@@ -111,10 +117,10 @@ function ReferralForm() {
                         <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
                     </div>
                     <h1 className="text-3xl md:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                        {t('ref.entry_title')}
+                        {isInternal ? "Mandats-Check / Empfehlung" : t('ref.entry_title')}
                     </h1>
                     <p className="text-muted-foreground max-w-lg mx-auto leading-relaxed">
-                        {t('ref.entry_desc')}
+                        {isInternal ? "Erfassen Sie hier eine neue Empfehlung oder prüfen Sie ein Mandat für das System." : t('ref.entry_desc')}
                     </p>
                 </div>
 
@@ -169,9 +175,9 @@ function ReferralForm() {
                         </div>
 
                         <div className="space-y-4 pt-4">
-                            <h3 className="text-lg font-bold flex items-center gap-2 text-secondary border-b border-secondary/10 pb-2">
-                                <TrendingUp className="w-5 h-5" />
-                                Tippgeber (Ihre Daten)
+                            <h3 className={`text-lg font-bold flex items-center gap-2 border-b pb-2 ${isInternal ? 'text-primary border-primary/10' : 'text-secondary border-secondary/10'}`}>
+                                {isInternal ? <UserCircle className="w-5 h-5" /> : <TrendingUp className="w-5 h-5" />}
+                                {isInternal ? "Erfasser (Intern)" : t('ref.recommender')}
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
