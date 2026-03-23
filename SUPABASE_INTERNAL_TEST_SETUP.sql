@@ -370,8 +370,8 @@ begin
 
   insert into public.users (username, password_hash, role, display_name)
   values
-    ('admin', admin_hash, 'admin', 'Administrator'),
-    ('user', user_hash, 'user', 'Teamleitung'),
+    ('admin', admin_hash, 'admin', 'demo.user.admin'),
+    ('user', user_hash, 'user', 'demo.user.lead'),
     ('max.agent', agent_hash, 'agent', 'Max Agent');
 
   insert into public."property-leads" (
@@ -392,7 +392,7 @@ begin
   values
     (
       'https://immoweb.example/objekte/demo-1001',
-      '2-Zimmer Altbauwohnung mit Balkon',
+      'demo.property.altbau',
       'DEMO-1001',
       current_date - 18,
       'Zu vergeben',
@@ -401,13 +401,13 @@ begin
       '+43 660 1111001',
       'Kauf',
       '5020',
-      'Salzburg',
+      'demo.city.salzburg',
       'Max Agent',
-      'Demo-Lead: Erstkontakt offen, Expose vorbereitet.'
+      'demo.note.1'
     ),
     (
       'https://immoweb.example/objekte/demo-1002',
-      'Reihenhaus mit Garten und Garage',
+      'demo.property.reihenhaus',
       'DEMO-1002',
       current_date - 14,
       'Von GP kontaktiert',
@@ -416,28 +416,28 @@ begin
       '+43 660 1111002',
       'Kauf',
       '5081',
-      'Anif',
+      'demo.city.anif',
       'Max Agent',
       'Verkaeufer telefonisch erreicht, Unterlagen angefordert.'
     ),
     (
       'https://immoweb.example/objekte/demo-1003',
-      'Baugrundstueck in Seennaehe',
+      'demo.property.baugrund',
       'DEMO-1003',
       current_date - 11,
       'Aufgenommen',
       365000,
       'kontakt+1003@open-akquise.demo',
       '+43 660 1111003',
-      'Grundstueck',
+      'Grundstück',
       '5301',
-      'Eugendorf',
-      'Teamleitung',
+      'demo.city.eugendorf',
+      'demo.user.lead',
       'Objekt aufgenommen, Foto-Termin erfolgt.'
     ),
     (
       'https://immoweb.example/objekte/demo-1004',
-      'Penthouse mit Dachterrasse',
+      'demo.property.penthouse',
       'DEMO-1004',
       current_date - 9,
       'Vermarktung',
@@ -446,28 +446,28 @@ begin
       '+43 660 1111004',
       'Kauf',
       '5020',
-      'Salzburg',
+      'demo.city.salzburg',
       'Max Agent',
       'Inserat live, Besichtigungen laufen.'
     ),
     (
       'https://immoweb.example/objekte/demo-1005',
-      'Einfamilienhaus mit Einliegerwohnung',
+      'demo.property.einfamilienhaus',
       'DEMO-1005',
       current_date - 6,
-      'Abschluss/Verkauf',
+      'Abschluss/Verkunft',
       915000,
       'kontakt+1005@open-akquise.demo',
       '+43 660 1111005',
       'Kauf',
       '5201',
-      'Seekirchen',
-      'Teamleitung',
+      'demo.city.seekirchen',
+      'demo.user.lead',
       'Notartermin abgeschlossen, Provision verbucht.'
     ),
     (
       'https://immoweb.example/objekte/demo-1006',
-      'Sanierungsobjekt in zentraler Lage',
+      'demo.property.sanierung',
       'DEMO-1006',
       current_date - 4,
       'Follow-up',
@@ -476,7 +476,7 @@ begin
       '+43 660 1111006',
       'Kauf',
       '5400',
-      'Hallein',
+      'demo.city.hallein',
       'Max Agent',
       'Rueckfrage zu Finanzierung offen, Wiedervorlage gesetzt.'
     );
@@ -511,13 +511,13 @@ begin
 
   insert into public.crm_articles (title, description, price, unit)
   values
-    ('Maklerprovision Verkauf', 'Standardprovision fuer Verkaufsobjekte.', 2500, 'Pauschale'),
-    ('Premium Foto Paket', 'Foto- und Drohnenpaket fuer Expose.', 390, 'Paket'),
-    ('Marketing Boost', 'Gezielte Portalschaltung fuer 30 Tage.', 690, 'Paket');
+    ('crm.article.provision.title', 'crm.article.provision.desc', 2500, 'crm.unit.pauschale'),
+    ('crm.article.photo.title', 'crm.article.photo.desc', 390, 'crm.unit.paket'),
+    ('crm.article.marketing.title', 'crm.article.marketing.desc', 690, 'crm.unit.paket');
 
-  select id into article_service_id from public.crm_articles where title = 'Maklerprovision Verkauf' limit 1;
-  select id into article_photo_id from public.crm_articles where title = 'Premium Foto Paket' limit 1;
-  select id into article_marketing_id from public.crm_articles where title = 'Marketing Boost' limit 1;
+  select id into article_service_id from public.crm_articles where title = 'crm.article.provision.title' limit 1;
+  select id into article_photo_id from public.crm_articles where title = 'crm.article.photo.title' limit 1;
+  select id into article_marketing_id from public.crm_articles where title = 'crm.article.marketing.title' limit 1;
 
   insert into public.crm_customers (name, email, phone, company, address)
   values
@@ -585,21 +585,21 @@ begin
     total_price
   )
   values
-    (invoice_001_id, article_service_id, 'Maklerprovision Verkauf', 'Objekt DEMO-1005', 1, 2500, 2500),
-    (invoice_001_id, article_photo_id, 'Premium Foto Paket', 'Drohne + Innenaufnahmen', 1, 390, 390),
-    (invoice_002_id, article_service_id, 'Maklerprovision Verkauf', 'Objekt DEMO-1004', 1, 2500, 2500),
-    (invoice_002_id, article_marketing_id, 'Marketing Boost', 'Portalschaltung 30 Tage', 1, 690, 690);
+    (invoice_001_id, article_service_id, 'crm.article.provision.title', 'crm.article.provision.desc', 1, 2500, 2500),
+    (invoice_001_id, article_photo_id, 'crm.article.photo.title', 'crm.article.photo.desc', 1, 390, 390),
+    (invoice_002_id, article_service_id, 'crm.article.provision.title', 'crm.article.provision.desc', 1, 2500, 2500),
+    (invoice_002_id, article_marketing_id, 'crm.article.marketing.title', 'crm.article.marketing.desc', 1, 690, 690);
 
   insert into public.agent_chats (question, answer, created_at)
   values
     (
-      'Wie ist der Stand beim Penthouse DEMO-1004?',
-      'DEMO-1004 ist in Vermarktung. Zwei Besichtigungen sind bereits erfolgt und wir erwarten zeitnah Rueckmeldungen.',
+      'demo.chat.q1',
+      'demo.chat.a1',
       now() - interval '2 hours'
     ),
     (
-      'Welche Leads brauchen heute Follow-up?',
-      'Prioritaet haben DEMO-1002 und DEMO-1006. Bei beiden liegen offene Rueckfragen vor, bitte heute nachfassen.',
+      'demo.chat.q2',
+      'demo.chat.a2',
       now() - interval '45 minutes'
     );
 end;

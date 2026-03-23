@@ -16,20 +16,20 @@ interface Chat {
 const DEMO_CHATS: Chat[] = [
     {
         id: -1,
-        question: 'Bitte formuliere eine Erstnachricht fuer Eigentumer in Wien, 2-3 Zimmer.',
-        answer: 'Gerne. Vorschlag: "Guten Tag, ich betreue aktuell mehrere Suchkunden fuer 2-3 Zimmer Wohnungen in Wien. Falls Sie einen Verkauf planen, koennen wir gerne unverbindlich den Marktwert und eine passende Vermarktungsstrategie besprechen."',
+        question: 'demo.chat.q3',
+        answer: 'demo.chat.a3',
         created_at: '2026-03-12T08:30:00.000Z'
     },
     {
         id: -2,
-        question: 'Wie antworte ich auf: "Wir wollen aktuell nur den Preis testen"?',
-        answer: 'Kurz und professionell: "Das ist absolut nachvollziehbar. Gerne unterstuetze ich Sie mit einer realistischen Preiseinschaetzung auf Basis aktueller Vergleichsobjekte, damit Sie eine fundierte Entscheidung ohne Verkaufsdruck treffen koennen."',
+        question: 'demo.chat.q4',
+        answer: 'demo.chat.a4',
         created_at: '2026-03-11T14:10:00.000Z'
     },
     {
         id: -3,
-        question: 'Erstelle eine Follow-up Nachricht fuer einen Kontakt ohne Rueckmeldung seit 10 Tagen.',
-        answer: 'Vorschlag: "Kurzes Follow-up zu meiner letzten Nachricht: Falls das Thema Verkauf weiterhin relevant ist, sende ich Ihnen gerne eine kompakte Marktanalyse fuer Ihre Lage. Wenn es aktuell nicht passt, geben Sie mir einfach kurz Bescheid."',
+        question: 'demo.chat.q5',
+        answer: 'demo.chat.a5',
         created_at: '2026-03-10T10:45:00.000Z'
     }
 ];
@@ -243,7 +243,7 @@ export default function ChatPage() {
                                     </div>
                                 </div>
                                 <div className="flex-1">
-                                    <p className="font-medium text-foreground">{chat.question}</p>
+                                    <p className="font-medium text-foreground">{t(chat.question)}</p>
                                     <p className="text-xs text-muted-foreground mt-1">
                                         {new Date(chat.created_at).toLocaleString('de-AT', { dateStyle: 'medium', timeStyle: 'short' })}
                                     </p>
@@ -256,7 +256,7 @@ export default function ChatPage() {
                                     </div>
                                 </div>
                                 <div className="flex-1 prose prose-sm dark:prose-invert max-w-none">
-                                    <p className="text-foreground leading-relaxed whitespace-pre-wrap">{chat.answer}</p>
+                                    <p className="text-foreground leading-relaxed whitespace-pre-wrap">{t(chat.answer)}</p>
                                 </div>
                                 <button
                                     onClick={() => handleCopy(chat.answer, chat.id)}

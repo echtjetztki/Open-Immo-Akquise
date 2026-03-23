@@ -288,7 +288,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                 className={`input-field w-full py-2.5 text-base font-semibold ${!isAdmin ? 'bg-muted/30 opacity-70 cursor-not-allowed' : ''}`}
-                                placeholder={t('property.listing_title_placeholder')}
+                                placeholder={t("property.listing_title_placeholder")}
                                 disabled={!isAdmin}
                             />
                         </div>
@@ -572,7 +572,7 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                             </div>
                                             {report.note && (
                                                 <p className="text-sm text-foreground/80 font-medium leading-relaxed mb-3">
-                                                    {report.note}
+                                                    {t(report.note || "")}
                                                 </p>
                                             )}
                                             <div className="flex items-center gap-2 pt-2 border-t border-gray-50">
@@ -618,12 +618,12 @@ export function PropertyModal({ property, isOpen, onClose, onSave, isAdmin = fal
                                                 <span>{t('property.message_num')} #{fetchProperty.replies!.length - idx}</span>
                                                 <span>{new Date(reply.created_at).toLocaleString('de-AT')}</span>
                                             </div>
-                                            <p className="whitespace-pre-wrap">{reply.reply_message}</p>
+                                            <p className="whitespace-pre-wrap">{t(reply.reply_message || "")}</p>
                                         </div>
                                     ))
                                 ) : fetchProperty.reply_message ? (
                                     <div className="p-3 rounded-xl bg-primary/5 border border-primary/10 text-sm italic text-foreground/70 whitespace-pre-wrap">
-                                        {fetchProperty.reply_message}
+                                        {t(fetchProperty.reply_message || "")}
                                     </div>
                                 ) : (
                                     <div className="p-4 rounded-xl bg-gray-50/50 border border-dashed border-gray-200 text-center">

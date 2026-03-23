@@ -416,16 +416,16 @@ export function PropertyTable({
                                             </span>
                                         </div>
                                         {property.title && (
-                                            <div className="font-bold text-foreground text-xs leading-snug whitespace-normal break-words line-clamp-3 max-w-[62ch] hover:text-primary transition-colors cursor-default" title={property.title}>
-                                                {property.title}
+                                            <div className="font-bold text-foreground text-xs leading-snug whitespace-normal break-words line-clamp-3 max-w-[62ch] hover:text-primary transition-colors cursor-default" title={t(property.title || "")}>
+                                                {t(property.title || "")}
                                             </div>
                                         )}
                                         {!isAgentView && (property.plz || property.ort) && (
                                             <div
                                                 className="text-[10px] font-semibold text-muted-foreground truncate"
-                                                title={[property.plz, property.ort].filter(Boolean).join(' ')}
+                                                title={[property.plz, t(property.ort || '')].filter(Boolean).join(' ')}
                                             >
-                                                {[property.plz, property.ort].filter(Boolean).join(' ')}
+                                                {[property.plz, t(property.ort || '')].filter(Boolean).join(' ')}
                                             </div>
                                         )}
                                         {property.link && (
@@ -447,7 +447,7 @@ export function PropertyTable({
                                     {property.plz && property.ort ? (
                                         <div className="flex flex-col min-w-0">
                                             <span className="font-black text-primary/80 leading-none mb-0.5">{property.plz}</span>
-                                            <span className="font-bold opacity-80 leading-tight line-clamp-2" title={property.ort}>{property.ort}</span>
+                                            <span className="font-bold opacity-80 leading-tight line-clamp-2" title={t(property.ort || '')}>{t(property.ort || '')}</span>
                                         </div>
                                     ) : (
                                         <span className="italic opacity-30 text-[9px]">-</span>
@@ -519,7 +519,7 @@ export function PropertyTable({
                                             {getBetreuerIcon(property.betreut_von || '☹️')}
                                         </div>
                                         <span className="font-black text-primary/80 text-[10px] uppercase tracking-tight leading-none text-center whitespace-normal break-words max-w-[80px]">
-                                            {property.betreut_von && property.betreut_von !== '☹️' ? property.betreut_von : '-'}
+                                            {property.betreut_von && property.betreut_von !== '☹️' ? t(property.betreut_von) : '-'}
                                         </span>
                                     </div>
                                 </td>
@@ -588,7 +588,7 @@ export function PropertyTable({
                             <div className="flex-1 flex flex-col gap-2">
                                 <StatusBadge status={property.status} />
                                 {property.title && (
-                                    <h3 className="font-bold text-base leading-snug text-foreground whitespace-normal break-words line-clamp-3">{property.title}</h3>
+                                    <h3 className="font-bold text-base leading-snug text-foreground whitespace-normal break-words line-clamp-3">{t(property.title || "")}</h3>
                                 )}
                             </div>
                             <div className="flex gap-2 shrink-0">
@@ -683,7 +683,7 @@ export function PropertyTable({
                                 </span>
                                 {showBetreuerColumn && (
                                     <span className="font-medium text-sm text-secondary-foreground">
-                                        {getBetreuerIcon(property.betreut_von || '☹️')} {property.betreut_von || '☹️'}
+                                        {getBetreuerIcon(property.betreut_von || '☹️')} {t(property.betreut_von || '☹️')}
                                     </span>
                                 )}
                                 <span className="text-xs text-muted-foreground">{property.uebergeben_am ? new Date(property.uebergeben_am).toLocaleDateString('de-AT') : '-'}</span>
