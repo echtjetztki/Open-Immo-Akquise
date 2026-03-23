@@ -69,8 +69,6 @@ Du möchtest das System nicht selbst hosten? Wir übernehmen das komplette techn
 - ✅ **Infrastruktur:** Einrichtung von Hosting (Vercel/DSGVO-VPS) und Supabase-Datenbank.
 - ✅ **Branding:** Anpassung an dein Corporate Design (Logo, Farben).
 - ✅ **Domain-Anbindung:** Aufschaltung deiner Wunsch-Domain (z.B. `dashboard.deine-agentur.de`).
-- ➕ **Optional:** Mobile App Paket (Android/iOS) für die App Stores.
-
 👉 **[Hier Full-Service-Setup buchen](https://buy.stripe.com/9B63cv5nZ8n73UZ6GfeQM04)** | Mail: [support@echtjetztki.at](mailto:support@echtjetztki.at)
 
 ---
@@ -87,16 +85,11 @@ Wir setzen auf modernste Technologien für maximale Geschwindigkeit und Sicherhe
 
 ---
 
-## 📱 Mobile App
+## 📱 App Version
+Diese Version im Repository ist die **Standard-Version** zum Testen und sofortigen Einsatz im Web.
 
-<a href="https://play.google.com/store/apps/details?id=com.openakquise.dashboard" target="_blank">
-  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" width="200" alt="Jetzt bei Google Play">
-</a>
-
-Die kostenlose **Open-Akquise App** verbindet sich direkt mit deinem Dashboard – optimiert für unterwegs.
-
-**Premium oder eigene App auf Anfrage für Android/iOS** – mit eigener Domain, Branding und erweiterten Funktionen.
-👉 [Jetzt anfragen](mailto:support@echtjetztki.at)
+Eine installierbare **Premium App-Version** (iOS & Android) mit Offline-Funktionen und erweiterten nativen Features ist verfügbar.
+*(Platzhalter: Hier warten wir noch auf die Freigabe der App-Stores)*
 
 ---
 

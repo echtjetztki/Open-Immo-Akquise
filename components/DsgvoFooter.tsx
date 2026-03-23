@@ -109,6 +109,19 @@ export function DsgvoFooter() {
                                         App Trennen
                                     </button>
                                 )}
+                                <div className="flex items-center gap-2 border border-primary/10 bg-background/50 backdrop-blur-sm px-3 py-1.5 rounded-xl h-12 shadow-sm">
+                                    <button className="flex items-center gap-1.5 opacity-100 font-bold transition-opacity" title="Deutsch">
+                                        <span className="text-lg leading-none">🇩🇪</span> <span className="text-xs uppercase">DE</span>
+                                    </button>
+                                    <span className="text-muted-foreground/30">|</span>
+                                    <button 
+                                        onClick={() => {
+                                            alert('English language support is being prepared! / Englische Sprachversion wird vorbereitet!');
+                                        }}
+                                        className="flex items-center gap-1.5 opacity-50 hover:opacity-100 transition-opacity" title="English">
+                                        <span className="text-lg leading-none">🇬🇧</span> <span className="text-xs uppercase">EN</span>
+                                    </button>
+                                </div>
                             </div>
                 </div>
             </footer>
