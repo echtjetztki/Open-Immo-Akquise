@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/language-context';
 import { 
     Users, 
@@ -38,6 +38,24 @@ function ReferralForm() {
         notes: '',
         agent_id: agentId || null
     });
+    const [isInternal, setIsInternal] = useState(false);
+
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                const res = await fetch('/api/user/me');
+                if (res.ok) {
+                    const user = await res.json();
+                    if (user.role === 'admin' || user.role === 'agent') {
+                        setIsInternal(true);
+                    }
+                }
+            } catch (e) {
+                // Ignore error, assume public
+            }
+        };
+        checkSession();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -181,25 +199,31 @@ function ReferralForm() {
                                 </div>
                             </div>
                             
-                            <div>
-                                <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 ml-1">{t('ref.commission_choice')}</label>
-                                <div className="grid grid-cols-3 gap-3">
-                                    {['5', '10', '15'].map(pct => (
-                                        <button 
-                                            key={pct}
-                                            type="button"
-                                            onClick={() => setFormData({...formData, commission_pct: pct})}
-                                            className={`py-3 rounded-xl border-2 font-black transition-all ${
-                                                formData.commission_pct === pct 
-                                                ? 'bg-secondary text-white border-secondary' 
-                                                : 'bg-white text-muted-foreground border-secondary/10 hover:border-secondary/30'
-                                            }`}
-                                        >
-                                            {pct}%
-                                        </button>
-                                    ))}
+                            {isInternal ? (
+                                <div className="animate-fade-in group">
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 ml-1">
+                                        {t('ref.commission_choice')} <span className="text-[10px] text-primary lowercase">(Nur Intern sichtbar)</span>
+                                    </label>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {['5', '10', '15'].map(pct => (
+                                            <button 
+                                                key={pct}
+                                                type="button"
+                                                onClick={() => setFormData({...formData, commission_pct: pct})}
+                                                className={`py-3 rounded-xl border-2 font-black transition-all ${
+                                                    formData.commission_pct === pct 
+                                                    ? 'bg-primary text-white border-primary' 
+                                                    : 'bg-white text-muted-foreground border-primary/10 hover:border-primary/30'
+                                                }`}
+                                            >
+                                                {pct}%
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <input type="hidden" value="10" />
+                            )}
                         </div>
 
                         <div className="pt-4">

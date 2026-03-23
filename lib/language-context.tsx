@@ -183,7 +183,7 @@ const translations: Record<string, Record<Language, string>> = {
     'action.close': { de: 'Schließen', en: 'Close', bg: 'Затвори' },
     'action.refresh': { de: 'Aktualisieren', en: 'Refresh', bg: 'Обнови' },
     'action.loading': { de: 'Lädt...', en: 'Loading...', bg: 'Зареждане...' },
-    'action.search': { de: 'Suchen...', en: 'Search...', bg: 'Търсене...' },
+    'action.search': { de: 'Suche...', en: 'Search...', bg: 'Търсене...' },
     'action.filter': { de: 'Filter', en: 'Filter', bg: 'Филтър' },
     'action.copy': { de: 'Kopieren', en: 'Copy', bg: 'Копирай' },
     'action.open': { de: 'Öffnen', en: 'Open', bg: 'Отвори' },

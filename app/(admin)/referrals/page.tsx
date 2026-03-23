@@ -84,6 +84,21 @@ export default function ReferralsPage() {
         }
     };
 
+    const handleUpdateCommission = async (id: string, newPct: string) => {
+        try {
+            const res = await fetch(`/api/referrals/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ commission_pct: parseInt(newPct) })
+            });
+            if (res.ok) {
+                setReferrals(prev => prev.map(r => r.id === id ? { ...r, commission_pct: parseInt(newPct) } : r));
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
     const handleDelete = async (id: string) => {
         if (!confirm(t('table.delete_confirm'))) return;
         try {
@@ -134,26 +149,36 @@ export default function ReferralsPage() {
                         {user?.role === 'admin' ? 'Alle Empfehlungen im Überblick' : t('ref.entry_desc')}
                     </p>
                 </div>
-                <button 
-                    onClick={copyReferralLink}
-                    title={t('ref.link_copy')}
-                    className="btn-primary flex items-center gap-2 px-6 py-3 shadow-lg shadow-primary/20"
-                >
-                    <Share2 className="w-4 h-4" />
-                    {copying ? t('ref.link_copied') : t('ref.link_copy')}
-                </button>
+                <div className="flex gap-3">
+                    <button 
+                        onClick={() => window.location.href = '/referral-entry'}
+                        className="btn-secondary flex items-center gap-2 px-4 py-3"
+                        title="Neue Empfehlung manuell"
+                    >
+                        <TrendingUp className="w-4 h-4" />
+                        Neu
+                    </button>
+                    <button 
+                        onClick={copyReferralLink}
+                        title={t('ref.link_copy')}
+                        className="btn-primary flex items-center gap-2 px-6 py-3 shadow-lg shadow-primary/20"
+                    >
+                        <Share2 className="w-4 h-4" />
+                        {copying ? t('ref.link_copied') : t('ref.link_copy')}
+                    </button>
+                </div>
             </div>
 
             <div className="flex items-center gap-4 bg-white/50 p-4 rounded-2xl border border-primary/10">
-                <div className="relative flex-1 max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <div className="relative flex-1 max-w-md group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
                     <input 
                         type="text" 
                         title={t('action.search')}
                         placeholder={t('action.search')}
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        className="input-field w-full pl-10"
+                        className="input-field w-full pl-12"
                     />
                 </div>
                 <button onClick={fetchReferrals} className="btn-secondary p-2.5" title={t('action.refresh')}>
@@ -208,7 +233,20 @@ export default function ReferralsPage() {
                                 <div className="pt-4 border-t border-primary/5">
                                     <div className="flex justify-between items-center mb-1">
                                         <span className="text-[10px] uppercase font-bold text-muted-foreground">{t('ref.recommender')}</span>
-                                        <span className="text-[10px] uppercase font-bold text-primary">{r.commission_pct}% {t('ref.commission')}</span>
+                                        <div className="flex items-center gap-1 group/comm">
+                                            <select 
+                                                value={r.commission_pct} 
+                                                title={t('ref.commission')}
+                                                onChange={e => handleUpdateCommission(r.id, e.target.value)}
+                                                className="text-[10px] font-black uppercase text-primary bg-transparent border-none p-0 focus:ring-0 cursor-pointer hover:underline"
+                                            >
+                                                <option value="5">5%</option>
+                                                <option value="10">10%</option>
+                                                <option value="15">15%</option>
+                                                <option value="20">20%</option>
+                                            </select>
+                                            <span className="text-[10px] uppercase font-bold text-primary">{t('ref.commission')}</span>
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <TrendingUp className="w-4 h-4 text-secondary" />
