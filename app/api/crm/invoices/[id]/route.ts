@@ -50,7 +50,11 @@ export async function PATCH(
         for (const field of allowedFields) {
             if (body[field] !== undefined) {
                 updates.push(`"${field}" = $${idx}`);
-                values.push(body[field]);
+                let val = body[field];
+                if ((field === 'due_date' || field === 'paid_at') && val === '') {
+                    val = null;
+                }
+                values.push(val);
                 idx++;
             }
         }

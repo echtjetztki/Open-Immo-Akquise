@@ -616,6 +616,11 @@ const translations: Record<string, Record<Language, string>> = {
     'crm.unit.paket': { de: 'Paket', en: 'Package', bg: 'Пакет' },
     'crm.unit.stueck': { de: 'Stück', en: 'Piece', bg: 'Брой' },
 
+    'crm.save_success': { de: 'Dokument erfolgreich gespeichert', en: 'Document saved successfully', bg: 'Документът е запазен успешно' },
+    'crm.save_error': { de: 'Fehler beim Speichern', en: 'Error saving', bg: 'Грешка при запазване' },
+    'crm.customer_name_required': { de: 'Kundenname ist erforderlich', en: 'Customer name is required', bg: 'Името на клиента е задължително' },
+    'crm.items_empty_alert': { de: 'Bitte fügen Sie mindestens einen Artikel hinzu', en: 'Please add at least one item', bg: 'Моля, добавете поне един артикул' },
+    'action.saving': { de: 'Speichert...', en: 'Saving...', bg: 'Запазване...' },
     'locale': { de: 'de-DE', en: 'en-US', bg: 'bg-BG' },
     // ============ AGENT ============
     'agent.select_supervisor': { de: 'Betreuer auswählen', en: 'Select supervisor', bg: 'Изберете ръководител' },

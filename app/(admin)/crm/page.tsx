@@ -109,6 +109,7 @@ export default function CRMDashboard() {
     const [articles, setArticles] = useState<any[]>([]);
     const [invoices, setInvoices] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
 
     const [newArticle, setNewArticle] = useState({ title: '', description: '', price: 0, unit: 'Stück' });
     const [showArticleForm, setShowArticleForm] = useState(false);
@@ -132,6 +133,9 @@ export default function CRMDashboard() {
 
     const handleEditInvoice = (inv: any) => {
         setEditingInvoiceId(inv.id);
+        const dueDate = inv.due_date ? new Date(inv.due_date) : null;
+        const dueDateStr = (dueDate && !isNaN(dueDate.getTime())) ? dueDate.toISOString().split('T')[0] : '';
+        
         setNewInvoice({
             customer_name: inv.customer_name || '',
             customer_email: inv.customer_email || '',
@@ -140,7 +144,7 @@ export default function CRMDashboard() {
             status: inv.status || 'Entwurf',
             payment_method: inv.payment_method || '',
             notes: inv.notes || '',
-            due_date: inv.due_date ? new Date(inv.due_date).toISOString().split('T')[0] : '',
+            due_date: dueDateStr,
             items: (inv.items || []).map((item: any) => ({
                 article_id: item.article_id,
                 title: item.title,
@@ -249,6 +253,16 @@ export default function CRMDashboard() {
 
     const handleCreateInvoice = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!newInvoice.customer_name) {
+            alert(t('crm.customer_name_required') || 'Kundenname erforderlich');
+            return;
+        }
+        if (newInvoice.items.length === 0) {
+            alert(t('crm.items_empty_alert') || 'Bitte fügen Sie mindestens einen Artikel hinzu');
+            return;
+        }
+
+        setIsSaving(true);
         try {
             const method = editingInvoiceId ? 'PATCH' : 'POST';
             const url = editingInvoiceId ? `/api/crm/invoices/${editingInvoiceId}` : '/api/crm/invoices';
@@ -261,7 +275,9 @@ export default function CRMDashboard() {
                     total_amount: invoiceTotal
                 })
             });
+            const data = await res.json();
             if (res.ok) {
+                alert(t('crm.save_success') || 'Erfolgreich gespeichert');
                 setNewInvoice({
                     customer_name: '', customer_email: '', customer_address: '',
                     doc_type: 'Rechnung', status: 'Entwurf', payment_method: '', notes: '', due_date: '',
@@ -270,9 +286,14 @@ export default function CRMDashboard() {
                 setEditingInvoiceId(null);
                 setShowInvoiceForm(false);
                 fetchData();
+            } else {
+                alert(t('crm.save_error') + ': ' + (data.error || t('crm.unknown_error')));
             }
         } catch (error) {
             console.error('Failed to save invoice', error);
+            alert(t('crm.network_error'));
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -862,10 +883,10 @@ export default function CRMDashboard() {
                             </select>
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <div className="relative group">
+                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                                 <input type="text" placeholder={t("action.search")} title={t("action.search")} value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                                    className="input-field py-2 pl-9 text-sm w-48" />
+                                    className="input-field py-2 pl-11 text-sm w-48 transition-all" />
                             </div>
                             <button onClick={() => fetchData()} className="btn-secondary p-2" title={t("action.refresh")}>
                                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -1003,8 +1024,9 @@ export default function CRMDashboard() {
                                             {t('crm.cancel')}
                                         </button>
                                     )}
-                                    <button type="submit" disabled={newInvoice.items.length === 0} className="btn-primary flex items-center gap-2">
-                                        <Save className="w-4 h-4" /> {editingInvoiceId ? t('action.save') : t('crm.save_document')}
+                                    <button type="submit" disabled={isSaving || newInvoice.items.length === 0} className="btn-primary flex items-center gap-2">
+                                        {isSaving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                        {isSaving ? (t('action.saving') || 'Speichert...') : (editingInvoiceId ? (t('action.save') || 'Speichern') : (t('crm.save_document') || 'Dokument speichern'))}
                                     </button>
                                 </div>
                             </form>
@@ -1135,18 +1157,23 @@ export default function CRMDashboard() {
                                         )}
 
                                         {/* PDF, E-Mail & {t('crm.share')} */}
-                                        <div className="grid grid-cols-4 gap-2">
+                                        <div className="grid grid-cols-5 gap-2">
                                             <button onClick={() => handleDownloadPDF(inv)} className="btn-secondary flex items-center justify-center gap-1.5 py-2 text-xs" title={t('crm.download_pdf')}>
                                                 <Download className="w-3.5 h-3.5" /> PDF
                                             </button>
                                             
+                                            <button onClick={() => handleSendEmail(inv.id)} disabled={sendingEmail === inv.id} 
+                                                className="flex items-center justify-center gap-1.5 py-2 text-xs rounded-xl bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-colors disabled:opacity-50" title={t('crm.send_email')}>
+                                                <Mail className={`w-3.5 h-3.5 ${sendingEmail === inv.id ? 'animate-pulse' : ''}`} /> Mail
+                                            </button>
+
                                             <button onClick={() => handleShare(inv)} className="flex items-center justify-center gap-1.5 py-2 text-xs rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 transition-colors" title="WhatsApp">
                                                 <Send className="w-3.5 h-3.5" /> WA
                                             </button>
                                             
                                             {!isReadOnlyDemo && (
                                                 <button onClick={() => handleEditInvoice(inv)} className="btn-secondary flex items-center justify-center gap-1.5 py-2 text-xs" title={t('action.edit')}>
-                                                    <Save className="w-3.5 h-3.5" /> {t('action.edit')}
+                                                    <Save className="w-3.5 h-3.5" />
                                                 </button>
                                             )}
 

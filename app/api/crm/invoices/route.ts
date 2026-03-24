@@ -55,7 +55,7 @@ export async function POST(request: Request) {
             body.customer_address || null,
             parseFloat(body.total_amount),
             body.issue_date || new Date().toISOString().split('T')[0],
-            body.due_date || null,
+            body.due_date && body.due_date.trim() !== '' ? new Date(body.due_date) : null,
             body.status || 'Entwurf',
             body.payment_method || null,
             body.notes || null,
