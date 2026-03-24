@@ -97,6 +97,9 @@ export default function PaymentLandingPage() {
             case 'Bezahlt':
                 return <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold ring-1 ring-emerald-600/20"><CheckCircle2 className="w-3.5 h-3.5" /> BEZAHLT</span>;
             case 'Offen':
+                if (paymentStatus === 'success') {
+                    return <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold ring-1 ring-emerald-600/20"><CheckCircle2 className="w-3.5 h-3.5" /> BEZAHLT</span>;
+                }
                 return <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-bold ring-1 ring-orange-600/20"><Clock className="w-3.5 h-3.5" /> OFFEN</span>;
             case 'Inkasso':
                 return <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold ring-1 ring-red-600/20">INKASSO</span>;
@@ -255,7 +258,7 @@ export default function PaymentLandingPage() {
                                           <span>Zwischensumme</span>
                                           <span>{formatter.format(Number(invoice.total_amount))}</span>
                                         </div>
-                                        <div className="flex justify-between items-center pt-3 border-t border-slate-200">
+                                        <div className="flex justify-between items-center pt-3 border-t border-slate-200 gap-4">
                                             <span className="text-sm font-black text-slate-900 uppercase">Gesamtsumme</span>
                                             <span className="text-xl font-black text-primary">{formatter.format(Number(invoice.total_amount))}</span>
                                         </div>

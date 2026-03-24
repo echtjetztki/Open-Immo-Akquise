@@ -947,8 +947,8 @@ export default function CRMDashboard() {
                                     </div>
                                 </div>
 
-                                {/* Faelligkeitsdatum und Zahlungsart */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {/* Fälligkeitsdatum, Zahlungsart und Status */}
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div>
                                         <label className="block text-xs font-medium mb-1">{t('crm.due_date')}</label>
                                         <input type="date" title={t('crm.due_date')} value={newInvoice.due_date} onChange={e => setNewInvoice({ ...newInvoice, due_date: e.target.value })} className="input-field py-2 text-sm w-full" />
@@ -961,6 +961,16 @@ export default function CRMDashboard() {
                                             <option value="paypal">{t('crm.payment_paypal')}</option>
                                             <option value="vorkasse">{t('crm.payment_prepay')}</option>
                                             <option value="bar">{t('crm.payment_cash')}</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium mb-1">{t('table.filter_status') || 'Status'}</label>
+                                        <select title="Status" value={newInvoice.status} onChange={e => setNewInvoice({ ...newInvoice, status: e.target.value })} className="input-field py-2 text-sm w-full bg-background capitalize">
+                                            <option value="Entwurf" className="text-slate-500">{t('crm.status_entwurf')}</option>
+                                            <option value="Offen" className="text-orange-600">{t('crm.status_offen')}</option>
+                                            <option value="Bezahlt" className="text-emerald-600">{t('crm.status_bezahlt')}</option>
+                                            <option value="Inkasso" className="text-red-600">{t('crm.status_inkasso')}</option>
+                                            <option value="Storniert" className="text-gray-500">{t('crm.status_storniert')}</option>
                                         </select>
                                     </div>
                                     <div>
@@ -1072,10 +1082,25 @@ export default function CRMDashboard() {
                                                     {inv.customer_name}
                                                 </h3>
                                             </div>
-                                            <div className={`px-2.5 py-1 ${statusCfg.bg} ${statusCfg.color} text-[10px] font-bold uppercase tracking-wider rounded-md border ${statusCfg.border} flex items-center gap-1`}>
-                                                <StatusIcon className="w-3 h-3" />
-                                                {t('crm.status_' + inv.status.toLowerCase())}
-                                            </div>
+                                            {!isReadOnlyDemo ? (
+                                                <select 
+                                                    value={inv.status} 
+                                                    onChange={(e) => handleUpdateStatus(inv.id, e.target.value)}
+                                                    className={`text-[10px] px-2 py-1 rounded-md border font-bold uppercase tracking-wider focus:outline-none transition-all ${statusCfg.bg} ${statusCfg.color} ${statusCfg.border}`}
+                                                    title="Status"
+                                                >
+                                                    <option value="Entwurf" className="bg-white text-slate-500">{t('crm.status_entwurf')}</option>
+                                                    <option value="Offen" className="bg-white text-orange-600">{t('crm.status_offen')}</option>
+                                                    <option value="Bezahlt" className="bg-white text-emerald-600">{t('crm.status_bezahlt')}</option>
+                                                    <option value="Inkasso" className="bg-white text-red-600">{t('crm.status_inkasso')}</option>
+                                                    <option value="Storniert" className="bg-white text-gray-500">{t('crm.status_storniert')}</option>
+                                                </select>
+                                             ) : (
+                                                <div className={`px-2.5 py-1 ${statusCfg.bg} ${statusCfg.color} text-[10px] font-bold uppercase tracking-wider rounded-md border ${statusCfg.border} flex items-center gap-1`}>
+                                                    <StatusIcon className="w-3 h-3" />
+                                                    {t('crm.status_' + inv.status.toLowerCase())}
+                                                </div>
+                                             )}
                                         </div>
 
                                         {/* Info */}
@@ -1113,21 +1138,9 @@ export default function CRMDashboard() {
 
                                     {/* Aktionen */}
                                     <div className="p-3 border-t border-primary/10 bg-background/50 space-y-2 mt-auto">
-                                        {/* Status-Verwaltung Dropdown */}
+                                        {/* Zahlungs-Zusatzaktionen */}
                                         {!isReadOnlyDemo && (
-                                            <div className="flex items-center justify-between gap-2">
-                                                <select 
-                                                    value={inv.status} 
-                                                    onChange={(e) => handleUpdateStatus(inv.id, e.target.value)}
-                                                    className="flex-1 text-[10px] px-2 py-1.5 rounded-lg bg-white border border-primary/20 font-bold focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all capitalize"
-                                                    title={t('crm.status_label') || 'Status'}
-                                                >
-                                                    <option value="Entwurf">{t('crm.status_entwurf')}</option>
-                                                    <option value="Offen">{t('crm.status_offen')}</option>
-                                                    <option value="Bezahlt">{t('crm.status_bezahlt')}</option>
-                                                    <option value="Inkasso">{t('crm.status_inkasso')}</option>
-                                                    <option value="Storniert">{t('crm.status_storniert')}</option>
-                                                </select>
+                                            <div className="flex items-center justify-end gap-2">
                                                 <button onClick={() => handleCopyPaymentLandingPageLink(inv.id)} title={t('crm.copy_landing_page')} className="p-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-colors">
                                                     <ExternalLink className="w-3.5 h-3.5" />
                                                 </button>
