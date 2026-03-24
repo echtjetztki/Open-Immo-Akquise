@@ -896,7 +896,7 @@ export default function CRMDashboard() {
                                     <div className="flex items-end gap-3 flex-wrap">
                                         <div className="flex-1 min-w-[200px]">
                                             <label className="block text-xs font-medium mb-1">{t('crm.article')}</label>
-                                            <select value={selectedArticleId} onChange={e => setSelectedArticleId(e.target.value)} className="input-field py-2 text-sm w-full bg-background">
+                                            <select id="article-select" title={t('crm.article')} value={selectedArticleId} onChange={e => setSelectedArticleId(e.target.value)} className="input-field py-2 text-sm w-full bg-background">
                                                 <option value="">{t('crm.select_please')}</option>
                                                 {articles.map(a => (
                                                     <option key={a.id} value={a.id}>{t(a.title)} ({Number(a.price).toLocaleString(t('locale') || 'de-DE')} €)</option>
@@ -905,7 +905,7 @@ export default function CRMDashboard() {
                                         </div>
                                         <div className="w-24">
                                             <label className="block text-xs font-medium mb-1">{t('crm.quantity')}</label>
-                                            <input type="number" min="1" value={selectedQuantity} onChange={e => setSelectedQuantity(parseInt(e.target.value) || 1)} className="input-field py-2 text-sm w-full" />
+                                            <input id="quantity-input" type="number" title={t('crm.quantity')} min="1" value={selectedQuantity} onChange={e => setSelectedQuantity(parseInt(e.target.value) || 1)} className="input-field py-2 text-sm w-full" />
                                         </div>
                                         <button type="button" onClick={handleAddInvoiceItem} disabled={!selectedArticleId} className="btn-secondary py-2 h-[38px] flex items-center gap-2 px-4">
                                             <PlusCircle className="w-4 h-4" /> {t('crm.add')}
@@ -932,7 +932,7 @@ export default function CRMDashboard() {
                                                             <td className="py-2.5 text-right text-muted-foreground">{item.unit_price.toLocaleString(t('locale') || 'de-DE',  { minimumFractionDigits: 2 })} €</td>
                                                             <td className="py-2.5 text-right font-medium">{item.total_price.toLocaleString(t('locale') || 'de-DE',  { minimumFractionDigits: 2 })} €</td>
                                                             <td className="py-2.5 text-right">
-                                                                <button type="button" onClick={() => handleRemoveInvoiceItem(idx)} className="text-error hover:bg-error/10 p-1.5 rounded-lg">
+                                                                <button type="button" onClick={() => handleRemoveInvoiceItem(idx)} className="text-error hover:bg-error/10 p-1.5 rounded-lg" title={t('action.delete')}>
                                                                     <Trash2 className="w-3.5 h-3.5" />
                                                                 </button>
                                                             </td>

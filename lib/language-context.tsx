@@ -622,6 +622,7 @@ const translations: Record<string, Record<Language, string>> = {
     'agent.select_valid': { de: 'Bitte einen gültigen Betreuer auswählen', en: 'Please select a valid supervisor', bg: 'Моля, изберете валиден ръководител' },
 
     // ============ PROPERTY TABLE ============
+    'table.all': { de: 'Alle', en: 'All', bg: 'Всички' },
     'table.all_statuses': { de: 'Alle Status', en: 'All statuses', bg: 'Всички статуси' },
     'table.all_locations': { de: 'Alle Standorte', en: 'All locations', bg: 'Всички локации' },
     'table.all_periods': { de: 'Alle Zeiträume', en: 'All periods', bg: 'Всички периоди' },
