@@ -108,6 +108,8 @@ Die eigenständige Pro-App mit Offline-Funktionen, Push-Benachrichtigungen und n
 | ✅ | **Rechtschreibung & Grammatik** | Durchgehende Korrektur aller Umlaute und Sonderzeichen im gesamten Codebase |
 | ✅ | **Pro-App (Android)** | Eigenständige native Premium-App im Google Play Store (19,90 €/Monat) |
 | ✅ | **Standard-App (Android)** | Kostenlose Basis-App im Google Play Store |
+| ✅ | **PayPal-Integration** | Integration von PayPal als zweites Payment-Gateway neben Stripe |
+| ✅ | **Zahlungs-Landingpage** | Öffentliche Landingpage für Kunden zur direkten Bezahlung via PayPal & Stripe |
 | 🔜 | **Pro-App (iOS)** | Native iOS-App im Apple App Store – in Vorbereitung |
 | 🔜 | **Erweiterte KI-Analyse** | Automatische Bewertung und Scoring von Immobilien-Leads |
 | 🔜 | **n8n Workflow-Templates** | Vorgefertigte Automatisierungen für Lead-Import und Benachrichtigungen |
@@ -229,6 +231,8 @@ The standalone Pro app with offline capabilities, push notifications, and native
 | ✅ | **Spelling & Grammar** | Comprehensive correction of all umlauts and special characters across the entire codebase |
 | ✅ | **Pro App (Android)** | Standalone native Premium app on Google Play Store (19.90 €/month) |
 | ✅ | **Standard App (Android)** | Free basic app on Google Play Store |
+| ✅ | **PayPal Integration** | Integration of PayPal as a second payment gateway alongside Stripe |
+| ✅ | **Payment Landing Page** | Public landing page for customers to pay directly via PayPal & Stripe |
 | 🔜 | **Pro App (iOS)** | Native iOS app on Apple App Store – coming soon |
 | 🔜 | **Advanced AI Analysis** | Automatic evaluation and scoring of real estate leads |
 | 🔜 | **n8n Workflow Templates** | Pre-built automations for lead import and notifications |
