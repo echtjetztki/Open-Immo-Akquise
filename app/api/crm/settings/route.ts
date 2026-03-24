@@ -59,6 +59,7 @@ export async function POST(request: Request) {
             'smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_secure',
             'smtp_from_email', 'smtp_from_name',
             'ses_region', 'ses_access_key', 'ses_secret_key', 'ses_from_email',
+            'invoice_agb', 'invoice_datenschutz', 'invoice_widerruf',
         ];
 
         for (const [key, value] of Object.entries(body)) {

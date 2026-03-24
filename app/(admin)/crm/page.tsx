@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { PUBLIC_DEMO_READ_ONLY } from '@/lib/public-demo-mode';
 import { useLanguage } from '@/lib/language-context';
 import {
@@ -88,6 +88,9 @@ export default function CRMDashboard() {
         ses_access_key: '',
         ses_secret_key: '',
         ses_from_email: '',
+        invoice_agb: 'Es gelten unsere Allgemeinen Geschäftsbedingungen. Der Kaufvertrag kommt mit Zugang der Auftragsbestätigung zustande. Lieferungen erfolgen auf Rechnung. Der Rechnungsbetrag ist innerhalb des angegebenen Zahlungsziels fällig.',
+        invoice_datenschutz: 'Wir verarbeiten Ihre personenbezogenen Daten ausschließlich zur Vertragsabwicklung gemäß Art. 6 Abs. 1 lit. b DSGVO. Eine Weitergabe an Dritte erfolgt nur, soweit dies zur Vertragsdurchführung erforderlich ist.',
+        invoice_widerruf: 'Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses. Um Ihr Widerrufsrecht auszuüben, müssen Sie uns mittels einer eindeutigen Erklärung informieren.',
     });
     const [savingSettings, setSavingSettings] = useState(false);
     const [sendingEmail, setSendingEmail] = useState<number | null>(null);
@@ -407,10 +410,10 @@ export default function CRMDashboard() {
             if (invoice.customer_email) doc.text(invoice.customer_email, 14, 72);
 
             const startY = 85;
-            (doc as any).autoTable({
+            const tableResult = autoTable(doc, {
                 startY,
                 head: [[t('crm.pdf.table_pos'), t('crm.pdf.table_qty'), t('crm.pdf.table_unit'), t('crm.pdf.table_total')]],
-                body: invoice.items && invoice.items.length > 0 
+                body: invoice.items && invoice.items.length > 0
                     ? invoice.items.map((item: any) => [
                         item.description || item.title || '---',
                         (item.quantity || 1).toString(),
@@ -421,10 +424,10 @@ export default function CRMDashboard() {
                         [t('crm.pdf.table_total_pos'), '1', `${invoice.total_amount || 0} EUR`, `${invoice.total_amount || 0} EUR`]
                     ],
                 theme: 'striped',
-                headStyles: { fillColor: [0, 74, 124] } // Primary color
+                headStyles: { fillColor: [0, 74, 124] }
             });
 
-            const finalY = (doc as any).lastAutoTable.finalY || startY + 20;
+            const finalY = (tableResult as any)?.finalY || (doc as any).lastAutoTable?.finalY || startY + 20;
             doc.setFontSize(14);
             doc.text(`${t('crm.pdf.total_amount')} ${Number(invoice.total_amount || 0).toLocaleString(t('locale') || 'de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR`, 14, finalY + 15);
 
@@ -446,10 +449,33 @@ export default function CRMDashboard() {
                 doc.text(`${t('crm.pdf.notes')} ${invoice.notes}`, 14, payY + 20);
             }
 
+            // Rechtliche Texte anhängen
+            let legalY = payY + 35;
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const addLegalSection = (title: string, text: string) => {
+                if (!text) return;
+                if (legalY > pageHeight - 40) {
+                    doc.addPage();
+                    legalY = 20;
+                }
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'bold');
+                doc.text(title, 14, legalY);
+                doc.setFont('helvetica', 'normal');
+                const lines = doc.splitTextToSize(text, 180);
+                doc.text(lines, 14, legalY + 5);
+                legalY += 5 + (lines.length * 4) + 6;
+            };
+
+            if (settings.invoice_agb) addLegalSection(t('crm.agb_title'), settings.invoice_agb);
+            if (settings.invoice_datenschutz) addLegalSection(t('crm.privacy_title'), settings.invoice_datenschutz);
+            if (settings.invoice_widerruf) addLegalSection(t('crm.revocation_title'), settings.invoice_widerruf);
+
             return doc.output('blob');
         } catch (err) {
             console.error('PDF Generation failed:', err);
-            return new Blob();
+            alert('PDF-Erstellung fehlgeschlagen: ' + (err instanceof Error ? err.message : String(err)));
+            return new Blob(['PDF-Fehler'], { type: 'text/plain' });
         }
     };
 
@@ -799,6 +825,32 @@ export default function CRMDashboard() {
                                         </div>
                                     </div>
                                 )}
+                            </div>
+
+                            {/* Rechtliche Texte für Rechnungen */}
+                            <div className="md:col-span-2 mt-4 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <FileText className="w-5 h-5 text-amber-600" />
+                                    <h3 className="font-bold text-amber-600">{t('crm.legal_texts')}</h3>
+                                </div>
+                                <p className="text-xs text-muted-foreground mb-4">{t('crm.legal_texts_desc')}</p>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label htmlFor="invoiceAgb" className="block text-xs font-bold uppercase tracking-wider text-primary mb-1">{t('crm.agb_title')}</label>
+                                        <p className="text-[10px] text-muted-foreground mb-1">{t('crm.agb_hint')}</p>
+                                        <textarea id="invoiceAgb" title={t('crm.agb_title')} rows={3} value={settings.invoice_agb} onChange={e => setSettings({ ...settings, invoice_agb: e.target.value })} className="input-field py-2 text-sm w-full resize-y" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="invoiceDatenschutz" className="block text-xs font-bold uppercase tracking-wider text-primary mb-1">{t('crm.privacy_title')}</label>
+                                        <p className="text-[10px] text-muted-foreground mb-1">{t('crm.privacy_hint')}</p>
+                                        <textarea id="invoiceDatenschutz" title={t('crm.privacy_title')} rows={3} value={settings.invoice_datenschutz} onChange={e => setSettings({ ...settings, invoice_datenschutz: e.target.value })} className="input-field py-2 text-sm w-full resize-y" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="invoiceWiderruf" className="block text-xs font-bold uppercase tracking-wider text-primary mb-1">{t('crm.revocation_title')}</label>
+                                        <p className="text-[10px] text-muted-foreground mb-1">{t('crm.revocation_hint')}</p>
+                                        <textarea id="invoiceWiderruf" title={t('crm.revocation_title')} rows={3} value={settings.invoice_widerruf} onChange={e => setSettings({ ...settings, invoice_widerruf: e.target.value })} className="input-field py-2 text-sm w-full resize-y" />
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="md:col-span-2 flex justify-end mt-4">
