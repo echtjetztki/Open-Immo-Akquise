@@ -52,6 +52,7 @@ next-env.d.ts
 
 # Mobile / Android / iOS
 android/
+android-premium/
 ios/
 capacitor.config.ts
 ionic.config.json
