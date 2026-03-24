@@ -73,6 +73,9 @@ export default function CRMDashboard() {
         bic: '',
         stripe_publishable_key: '',
         stripe_secret_key: '',
+        paypal_client_id: '',
+        paypal_secret: '',
+        paypal_mode: 'sandbox',
         email_provider: 'none',
         smtp_host: '',
         smtp_port: '587',
@@ -294,6 +297,13 @@ export default function CRMDashboard() {
         }
     };
 
+    const handleCopyPaymentLandingPageLink = async (invoiceId: number) => {
+        const origin = window.location.origin;
+        const url = `${origin}/payment/${invoiceId}`;
+        await navigator.clipboard.writeText(url);
+        alert(t('crm.link_copied') + '\n\n' + url);
+    };
+
     const handleSetVorkasse = async (id: number) => {
         try {
             const res = await fetch(`/api/crm/invoices/${id}`, {
@@ -363,9 +373,13 @@ export default function CRMDashboard() {
         doc.setFontSize(10);
         if (invoice.payment_method === 'stripe' && invoice.stripe_payment_link) {
             doc.text(`${t('crm.pdf.payment_via_stripe')} ${invoice.stripe_payment_link}`, 14, payY);
-        } else if (settings.iban) {
-            doc.text(`${t('crm.pdf.bank_details')} ${settings.iban} ${settings.bic ? t('crm.pdf.bic') + settings.bic : ''}`, 14, payY);
-            doc.text(t('crm.pdf.transfer_request'), 14, payY + 6);
+        } else {
+            const origin = window.location.origin;
+            doc.text(`Online bezahlen: ${origin}/payment/${invoice.id}`, 14, payY);
+            if (settings.iban) {
+                doc.text(`${t('crm.pdf.bank_details')} ${settings.iban} ${settings.bic ? t('crm.pdf.bic') + settings.bic : ''}`, 14, payY + 8);
+                doc.text(t('crm.pdf.transfer_request'), 14, payY + 14);
+            }
         }
 
         if (invoice.notes) {
@@ -614,6 +628,31 @@ export default function CRMDashboard() {
                                     <div>
                                         <label htmlFor="stripeSk" className="block text-xs font-medium mb-1">{t('crm.secret_key')}</label>
                                         <input id="stripeSk" title={t('crm.secret_key')} placeholder="sk_test_..." type="password" value={settings.stripe_secret_key} onChange={e => setSettings({ ...settings, stripe_secret_key: e.target.value })} className="input-field py-2 text-sm w-full font-mono" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* PayPal Section */}
+                            <div className="md:col-span-2 mt-4 p-4 rounded-xl bg-blue-600/5 border border-blue-600/20">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="w-5 h-5 flex items-center justify-center text-blue-600 font-bold italic font-serif text-lg">P</div>
+                                    <h3 className="font-bold text-blue-600">{t('crm.paypal_config')}</h3>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="md:col-span-2">
+                                        <label htmlFor="paypalMode" className="block text-xs font-medium mb-1">{t('crm.paypal_mode')}</label>
+                                        <select id="paypalMode" title={t('crm.paypal_mode')} value={settings.paypal_mode} onChange={e => setSettings({ ...settings, paypal_mode: e.target.value })} className="input-field py-2 text-sm w-full md:w-48 bg-background">
+                                            <option value="sandbox">Sandbox (Test)</option>
+                                            <option value="live">Live (Echtzeit)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label htmlFor="paypalClientId" className="block text-xs font-medium mb-1">{t('crm.paypal_client_id')}</label>
+                                        <input id="paypalClientId" title={t('crm.paypal_client_id')} placeholder="Aa_..." type="password" value={settings.paypal_client_id} onChange={e => setSettings({ ...settings, paypal_client_id: e.target.value })} className="input-field py-2 text-sm w-full font-mono" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="paypalSecret" className="block text-xs font-medium mb-1">{t('crm.paypal_secret')}</label>
+                                        <input id="paypalSecret" title={t('crm.paypal_secret')} placeholder="EM_..." type="password" value={settings.paypal_secret} onChange={e => setSettings({ ...settings, paypal_secret: e.target.value })} className="input-field py-2 text-sm w-full font-mono" />
                                     </div>
                                 </div>
                             </div>
@@ -1000,6 +1039,9 @@ export default function CRMDashboard() {
                                                     <button onClick={() => handleUpdateStatus(inv.id, 'Bezahlt')} className="text-[10px] px-2 py-1 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 font-medium">{t('crm.paid')}</button>
                                                 )}
                                                 <button onClick={() => handleUpdateStatus(inv.id, 'Storniert')} className="text-[10px] px-2 py-1 rounded-md bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100 font-medium">{t('crm.mark_cancelled')}</button>
+                                                <button onClick={() => handleCopyPaymentLandingPageLink(inv.id)} title={t('crm.copy_landing_page')} className="text-[10px] px-2 py-1 rounded-md bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 font-bold flex items-center gap-1">
+                                                    <ExternalLink className="w-3 h-3" /> {t('crm.copy_landing_page')}
+                                                </button>
                                             </div>
                                         )}
 

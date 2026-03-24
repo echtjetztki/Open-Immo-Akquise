@@ -569,6 +569,13 @@ const translations: Record<string, Record<Language, string>> = {
     'crm.doctype_rechnung': { de: 'Rechnung', en: 'Invoice', bg: 'Фактура' },
     'crm.doctype_angebot': { de: 'Angebot', en: 'Offer', bg: 'Оферта' },
     'crm.doctype_expose': { de: 'Exposé', en: 'Exposé', bg: 'Експозе' },
+    'crm.paypal_config': { de: 'PayPal Konfiguration', en: 'PayPal Configuration', bg: 'PayPal конфигурация' },
+    'crm.paypal_client_id': { de: 'PayPal Client ID', en: 'PayPal Client ID', bg: 'PayPal Client ID' },
+    'crm.paypal_secret': { de: 'PayPal Secret', en: 'PayPal Secret', bg: 'PayPal таен ключ' },
+    'crm.paypal_mode': { de: 'PayPal Modus', en: 'PayPal Mode', bg: 'PayPal режим' },
+    'crm.copy_landing_page': { de: 'Zahlungs-Landingpage kopieren', en: 'Copy Payment Landing Page', bg: 'Копирай платежната страница' },
+    'crm.landing_page_copied': { de: 'Zahlungs-Link kopiert!', en: 'Payment link copied!', bg: 'Платежният линк е копиран!' },
+
     'Maklerprovision Verkauf': { de: 'Maklerprovision Verkauf', en: 'Brokerage Commission Sale', bg: 'Комисиона за продажба' },
     'Standardprovision fuer Verkaufsobjekte.': { de: 'Standardprovision für Verkaufsobjekte', en: 'Standard commission for sales properties', bg: 'Стандартна комисиона за обекти за продажба' },
     'Premium Foto Paket': { de: 'Premium Foto Paket', en: 'Premium Photo Package', bg: 'Премиум фото пакет' },

@@ -35,6 +35,8 @@ const PUBLIC_PATHS = [
     '/agent', 
     '/empfehlung', 
     '/api/referrals/public',
+    '/payment',
+    '/api/payment',
     '/.well-known'
 ];
 

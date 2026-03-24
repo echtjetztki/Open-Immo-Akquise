@@ -54,6 +54,7 @@ export async function POST(request: Request) {
             'companyName', 'ownerName', 'address', 'city', 'phone', 'email',
             'iban', 'bic',
             'stripe_publishable_key', 'stripe_secret_key',
+            'paypal_client_id', 'paypal_secret', 'paypal_mode', // 'sandbox' | 'live'
             'email_provider', // 'smtp' | 'ses' | 'none'
             'smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_secure',
             'smtp_from_email', 'smtp_from_name',
