@@ -9,7 +9,7 @@ import {
     PlusCircle, Box, FileText, Download, Send, Save, User,
     Search, Trash2, Mail, CreditCard, Banknote,
     AlertTriangle, CheckCircle2, Clock, XCircle, FileSpreadsheet,
-    Home, ExternalLink, Copy, RefreshCw, Link2
+    Home, ExternalLink, Copy, RefreshCw, Link2, Pencil
 } from 'lucide-react';
 
 const STATUS_CONFIG: Record<string, { color: string; bg: string; border: string; icon: any }> = {
@@ -370,75 +370,87 @@ export default function CRMDashboard() {
     };
 
     const generatePDFBlob = (invoice: any) => {
-        const doc = new jsPDF();
-        const docTypeLabel = t('crm.doctype_' + (invoice.doc_type || 'rechnung').toLowerCase());
+        try {
+            const doc = new jsPDF();
+            const docTypeLabel = t('crm.doctype_' + (invoice.doc_type || 'rechnung').toLowerCase());
 
-        doc.setFontSize(22);
-        doc.text(docTypeLabel.toUpperCase(), 14, 20);
+            doc.setFontSize(22);
+            doc.text(docTypeLabel.toUpperCase(), 14, 20);
 
-        doc.setFontSize(10);
-        doc.text(`${t('crm.pdf.no')} ${invoice.invoice_number}`, 14, 30);
-        doc.text(`${t('crm.pdf.date')} ${new Date(invoice.issue_date).toLocaleDateString(t('locale') || 'de-DE')}`, 14, 36);
-        if (invoice.due_date) {
-            doc.text(`${t('crm.pdf.due_date')} ${new Date(invoice.due_date).toLocaleDateString(t('locale') || 'de-DE')}`, 14, 42);
-        }
-
-        doc.setFontSize(12);
-        doc.text(settings.companyName || t('crm.pdf.default_company'), 130, 20);
-        doc.setFontSize(10);
-        doc.text(settings.address || '', 130, 26);
-        doc.text(settings.city || '', 130, 32);
-        if (settings.phone) doc.text(settings.phone, 130, 38);
-        if (settings.email) doc.text(settings.email, 130, 44);
-
-        doc.setFontSize(12);
-        doc.text(t('crm.pdf.recipient'), 14, 54);
-        doc.setFontSize(10);
-        doc.text(invoice.customer_name || t('crm.pdf.unknown_recipient'), 14, 60);
-        if (invoice.customer_address) doc.text(invoice.customer_address, 14, 66);
-        if (invoice.customer_email) doc.text(invoice.customer_email, 14, 72);
-
-        const startY = 85;
-        (doc as any).autoTable({
-            startY,
-            head: [[t('crm.pdf.table_pos'), t('crm.pdf.table_qty'), t('crm.pdf.table_unit'), t('crm.pdf.table_total')]],
-            body: invoice.items && invoice.items.length > 0 
-                ? invoice.items.map((item: any) => [
-                    item.description,
-                    item.quantity.toString(),
-                    `${Number(item.unit_price).toLocaleString(t('locale') || 'de-DE', { minimumFractionDigits: 2 })} EUR`,
-                    `${Number(item.total_price).toLocaleString(t('locale') || 'de-DE', { minimumFractionDigits: 2 })} EUR`
-                ])
-                : [
-                    [t('crm.pdf.table_total_pos'), '1', `${invoice.total_amount} EUR`, `${invoice.total_amount} EUR`]
-                ],
-            theme: 'striped',
-            headStyles: { fillColor: [45, 212, 191] }
-        });
-
-        const finalY = (doc as any).lastAutoTable.finalY || startY + 20;
-        doc.setFontSize(14);
-        doc.text(`${t('crm.pdf.total_amount')} ${Number(invoice.total_amount).toLocaleString(t('locale') || 'de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR`, 14, finalY + 15);
-
-        // Zahlungsinformationen
-        const payY = finalY + 30;
-        doc.setFontSize(10);
-        if (invoice.payment_method === 'stripe' && invoice.stripe_payment_link) {
-            doc.text(`${t('crm.pdf.payment_via_stripe')} ${invoice.stripe_payment_link}`, 14, payY);
-        } else {
-            const origin = window.location.origin;
-            doc.text(`Online bezahlen: ${origin}/payment/${invoice.id}`, 14, payY);
-            if (settings.iban) {
-                doc.text(`${t('crm.pdf.bank_details')} ${settings.iban} ${settings.bic ? t('crm.pdf.bic') + settings.bic : ''}`, 14, payY + 8);
-                doc.text(t('crm.pdf.transfer_request'), 14, payY + 14);
+            doc.setFontSize(10);
+            const issueDate = invoice.issue_date ? new Date(invoice.issue_date) : new Date();
+            const issueDateStr = isNaN(issueDate.getTime()) ? new Date().toLocaleDateString(t('locale') || 'de-DE') : issueDate.toLocaleDateString(t('locale') || 'de-DE');
+            
+            doc.text(`${t('crm.pdf.no')} ${invoice.invoice_number || '---'}`, 14, 30);
+            doc.text(`${t('crm.pdf.date')} ${issueDateStr}`, 14, 36);
+            
+            if (invoice.due_date) {
+                const dueDate = new Date(invoice.due_date);
+                if (!isNaN(dueDate.getTime())) {
+                    doc.text(`${t('crm.pdf.due_date')} ${dueDate.toLocaleDateString(t('locale') || 'de-DE')}`, 14, 42);
+                }
             }
-        }
 
-        if (invoice.notes) {
-            doc.text(`${t('crm.pdf.notes')} ${invoice.notes}`, 14, payY + 18);
-        }
+            doc.setFontSize(12);
+            doc.text(settings.companyName || t('crm.pdf.default_company'), 130, 20);
+            doc.setFontSize(10);
+            doc.text(settings.address || '', 130, 26);
+            doc.text(settings.city || '', 130, 32);
+            if (settings.phone) doc.text(settings.phone, 130, 38);
+            if (settings.email) doc.text(settings.email, 130, 44);
 
-        return doc.output('blob');
+            doc.setFontSize(12);
+            doc.text(t('crm.pdf.recipient'), 14, 54);
+            doc.setFontSize(10);
+            doc.text(invoice.customer_name || t('crm.pdf.unknown_recipient'), 14, 60);
+            if (invoice.customer_address) doc.text(invoice.customer_address, 14, 66);
+            if (invoice.customer_email) doc.text(invoice.customer_email, 14, 72);
+
+            const startY = 85;
+            (doc as any).autoTable({
+                startY,
+                head: [[t('crm.pdf.table_pos'), t('crm.pdf.table_qty'), t('crm.pdf.table_unit'), t('crm.pdf.table_total')]],
+                body: invoice.items && invoice.items.length > 0 
+                    ? invoice.items.map((item: any) => [
+                        item.description || item.title || '---',
+                        (item.quantity || 1).toString(),
+                        `${Number(item.unit_price || 0).toLocaleString(t('locale') || 'de-DE', { minimumFractionDigits: 2 })} EUR`,
+                        `${Number(item.total_price || 0).toLocaleString(t('locale') || 'de-DE', { minimumFractionDigits: 2 })} EUR`
+                    ])
+                    : [
+                        [t('crm.pdf.table_total_pos'), '1', `${invoice.total_amount || 0} EUR`, `${invoice.total_amount || 0} EUR`]
+                    ],
+                theme: 'striped',
+                headStyles: { fillColor: [0, 74, 124] } // Primary color
+            });
+
+            const finalY = (doc as any).lastAutoTable.finalY || startY + 20;
+            doc.setFontSize(14);
+            doc.text(`${t('crm.pdf.total_amount')} ${Number(invoice.total_amount || 0).toLocaleString(t('locale') || 'de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR`, 14, finalY + 15);
+
+            // Zahlungsinformationen
+            const payY = finalY + 30;
+            doc.setFontSize(10);
+            if (invoice.payment_method === 'stripe' && invoice.stripe_payment_link) {
+                doc.text(`${t('crm.pdf.payment_via_stripe')} ${invoice.stripe_payment_link}`, 14, payY);
+            } else {
+                const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                doc.text(`Online bezahlen: ${origin}/payment/${invoice.id}`, 14, payY);
+                if (settings.iban) {
+                    doc.text(`${t('crm.pdf.bank_details')} ${settings.iban} ${settings.bic ? t('crm.pdf.bic') + settings.bic : ''}`, 14, payY + 8);
+                    doc.text(t('crm.pdf.transfer_request'), 14, payY + 14);
+                }
+            }
+
+            if (invoice.notes) {
+                doc.text(`${t('crm.pdf.notes')} ${invoice.notes}`, 14, payY + 20);
+            }
+
+            return doc.output('blob');
+        } catch (err) {
+            console.error('PDF Generation failed:', err);
+            return new Blob();
+        }
     };
 
     const handleDownloadPDF = (invoice: any) => {
@@ -1101,24 +1113,23 @@ export default function CRMDashboard() {
 
                                     {/* Aktionen */}
                                     <div className="p-3 border-t border-primary/10 bg-background/50 space-y-2 mt-auto">
-                                        {/* Status-Buttons */}
-                                        {!isReadOnlyDemo && inv.status !== 'Bezahlt' && inv.status !== 'Storniert' && (
-                                            <div className="flex gap-1 flex-wrap">
-                                                {inv.doc_type === 'Rechnung' && inv.status === 'Entwurf' && (
-                                                    <button onClick={() => handleUpdateStatus(inv.id, 'Offen')} className="text-[10px] px-2 py-1 rounded-md bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-100 font-medium">{t('crm.send')}</button>
-                                                )}
-                                                {inv.status === 'Offen' && (
-                                                    <>
-                                                        <button onClick={() => handleUpdateStatus(inv.id, 'Bezahlt')} className="text-[10px] px-2 py-1 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 font-medium">{t('crm.paid')}</button>
-                                                        <button onClick={() => handleUpdateStatus(inv.id, 'Inkasso')} className="text-[10px] px-2 py-1 rounded-md bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 font-medium">{t('crm.collection')}</button>
-                                                    </>
-                                                )}
-                                                {inv.status === 'Inkasso' && (
-                                                    <button onClick={() => handleUpdateStatus(inv.id, 'Bezahlt')} className="text-[10px] px-2 py-1 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 font-medium">{t('crm.paid')}</button>
-                                                )}
-                                                <button onClick={() => handleUpdateStatus(inv.id, 'Storniert')} className="text-[10px] px-2 py-1 rounded-md bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100 font-medium">{t('crm.mark_cancelled')}</button>
-                                                <button onClick={() => handleCopyPaymentLandingPageLink(inv.id)} title={t('crm.copy_landing_page')} className="text-[10px] px-2 py-1 rounded-md bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 font-bold flex items-center gap-1">
-                                                    <ExternalLink className="w-3 h-3" /> {t('crm.copy_landing_page')}
+                                        {/* Status-Verwaltung Dropdown */}
+                                        {!isReadOnlyDemo && (
+                                            <div className="flex items-center justify-between gap-2">
+                                                <select 
+                                                    value={inv.status} 
+                                                    onChange={(e) => handleUpdateStatus(inv.id, e.target.value)}
+                                                    className="flex-1 text-[10px] px-2 py-1.5 rounded-lg bg-white border border-primary/20 font-bold focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all capitalize"
+                                                    title={t('crm.status_label') || 'Status'}
+                                                >
+                                                    <option value="Entwurf">{t('crm.status_entwurf')}</option>
+                                                    <option value="Offen">{t('crm.status_offen')}</option>
+                                                    <option value="Bezahlt">{t('crm.status_bezahlt')}</option>
+                                                    <option value="Inkasso">{t('crm.status_inkasso')}</option>
+                                                    <option value="Storniert">{t('crm.status_storniert')}</option>
+                                                </select>
+                                                <button onClick={() => handleCopyPaymentLandingPageLink(inv.id)} title={t('crm.copy_landing_page')} className="p-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-colors">
+                                                    <ExternalLink className="w-3.5 h-3.5" />
                                                 </button>
                                             </div>
                                         )}
@@ -1172,13 +1183,13 @@ export default function CRMDashboard() {
                                             </button>
                                             
                                             {!isReadOnlyDemo && (
-                                                <button onClick={() => handleEditInvoice(inv)} className="btn-secondary flex items-center justify-center gap-1.5 py-2 text-xs" title={t('action.edit')}>
-                                                    <Save className="w-3.5 h-3.5" />
+                                                <button onClick={() => handleEditInvoice(inv)} className="btn-secondary flex items-center justify-center py-2 text-xs" title={t('action.edit')}>
+                                                    <Pencil className="w-3.5 h-3.5" />
                                                 </button>
                                             )}
 
                                             {!isReadOnlyDemo && (
-                                                <button onClick={() => handleDeleteInvoice(inv.id)} className="flex items-center justify-center gap-1.5 py-2 text-xs rounded-xl border border-red-200 text-red-500 hover:bg-red-50 transition-colors" title={t('crm.delete')}>
+                                                <button onClick={() => handleDeleteInvoice(inv.id)} className="flex items-center justify-center py-2 text-xs rounded-xl border border-red-200 text-red-500 hover:bg-red-50 transition-colors" title={t('crm.delete')}>
                                                     <Trash2 className="w-3.5 h-3.5" />
                                                 </button>
                                             )}
