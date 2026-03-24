@@ -331,6 +331,21 @@ select:focus {
   animation: fadeInUp 0.4s ease-out;
 }
 
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.35s ease-out;
+}
+
 /* Mobile/WebView performance guards (iOS Safari in-app browsers) */
 @media (max-width: 768px), (hover: none) and (pointer: coarse) {
   body {

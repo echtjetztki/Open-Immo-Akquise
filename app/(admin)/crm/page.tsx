@@ -29,6 +29,8 @@ const DOC_TYPE_CONFIG: Record<string, { label: string; prefix: string; icon: any
 export default function CRMDashboard() {
     const { t } = useLanguage();
     const isReadOnlyDemo = PUBLIC_DEMO_READ_ONLY;
+    const [toast, setToast] = useState<{message: string; type: 'success'|'error'|'info'; link?: string} | null>(null);
+    const showToast = (message: string, type: 'success'|'error'|'info' = 'info', link?: string) => { setToast({message, type, link}); setTimeout(() => setToast(null), 6000); };
     const [activeTab, setActiveTab] = useState<'invoices' | 'articles' | 'paylink' | 'settings'>('invoices');
 
     // PayLink Generator State
@@ -39,7 +41,7 @@ export default function CRMDashboard() {
     const [payLinkHistory, setPayLinkHistory] = useState<Array<{url: string; amount: number; desc: string; created: string}>>([]);
 
     const handleCreateQuickPayLink = async () => {
-        if (!payLinkAmount || parseFloat(payLinkAmount) <= 0) { alert(t('crm.enter_amount')); return; }
+        if (!payLinkAmount || parseFloat(payLinkAmount) <= 0) { showToast(t('crm.enter_amount'), 'error'); return; }
         setPayLinkCreating(true);
         try {
             const res = await fetch('/api/crm/stripe/quick-paylink', {
@@ -52,11 +54,11 @@ export default function CRMDashboard() {
                 await navigator.clipboard.writeText(data.payment_url);
                 setPayLinkHistory(prev => [{ url: data.payment_url, amount: data.amount, desc: payLinkDesc || t('crm.payment'), created: new Date().toLocaleString(t('locale') || 'de-DE') }, ...prev]);
                 setPayLinkAmount(''); setPayLinkDesc(''); setPayLinkEmail('');
-                alert(t('crm.paylink_created_copied'));
+                showToast(t('crm.paylink_created_copied'), 'success', data.payment_url);
             } else {
-                alert(t('crm.error_prefix') + (data.error || t('crm.unknown_error')));
+                showToast(t('crm.error_prefix') + (data.error || t('crm.unknown_error')), 'error');
             }
-        } catch { alert(t('crm.network_error')); } finally { setPayLinkCreating(false); }
+        } catch { showToast(t('crm.network_error'), 'error'); } finally { setPayLinkCreating(false); }
     };
     const [docTypeFilter, setDocTypeFilter] = useState<string>('all');
     const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -104,9 +106,9 @@ export default function CRMDashboard() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(settings)
             });
-            if (res.ok) alert(t('crm.settings_saved'));
-            else alert(t('crm.settings_save_error'));
-        } catch { alert(t('crm.network_error')); } finally { setSavingSettings(false); }
+            if (res.ok) showToast(t('crm.settings_saved'), 'success');
+            else showToast(t('crm.settings_save_error'), 'error');
+        } catch { showToast(t('crm.network_error'), 'error'); } finally { setSavingSettings(false); }
     };
 
     const [articles, setArticles] = useState<any[]>([]);
@@ -173,12 +175,12 @@ export default function CRMDashboard() {
             });
             const data = await res.json();
             if (data.success) {
-                alert(t('crm.email_sent') + ' ' + data.provider + '!');
+                showToast(t('crm.email_sent') + ' ' + data.provider + '!', 'success');
                 fetchData();
             } else {
-                alert(t('crm.email_error') + ' ' + data.error);
+                showToast(t('crm.email_error') + ' ' + data.error, 'error');
             }
-        } catch { alert(t('crm.email_network_error')); }
+        } catch { showToast(t('crm.email_network_error'), 'error'); }
         finally { setSendingEmail(null); }
     };
 
@@ -257,11 +259,11 @@ export default function CRMDashboard() {
     const handleCreateInvoice = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newInvoice.customer_name) {
-            alert(t('crm.customer_name_required') || 'Kundenname erforderlich');
+            showToast(t('crm.customer_name_required') || 'Kundenname erforderlich', 'error');
             return;
         }
         if (newInvoice.items.length === 0) {
-            alert(t('crm.items_empty_alert') || 'Bitte fügen Sie mindestens einen Artikel hinzu');
+            showToast(t('crm.items_empty_alert') || 'Bitte fügen Sie mindestens einen Artikel hinzu', 'error');
             return;
         }
 
@@ -280,7 +282,7 @@ export default function CRMDashboard() {
             });
             const data = await res.json();
             if (res.ok) {
-                alert(t('crm.save_success') || 'Erfolgreich gespeichert');
+                showToast(t('crm.save_success') || 'Erfolgreich gespeichert', 'success');
                 setNewInvoice({
                     customer_name: '', customer_email: '', customer_address: '',
                     doc_type: 'Rechnung', status: 'Entwurf', payment_method: '', notes: '', due_date: '',
@@ -290,11 +292,11 @@ export default function CRMDashboard() {
                 setShowInvoiceForm(false);
                 fetchData();
             } else {
-                alert(t('crm.save_error') + ': ' + (data.error || t('crm.unknown_error')));
+                showToast(t('crm.save_error') + ': ' + (data.error || t('crm.unknown_error')), 'error');
             }
         } catch (error) {
             console.error('Failed to save invoice', error);
-            alert(t('crm.network_error'));
+            showToast(t('crm.network_error'), 'error');
         } finally {
             setIsSaving(false);
         }
@@ -339,14 +341,14 @@ export default function CRMDashboard() {
             if (res.ok && data.payment_url) {
                 // Link kopieren
                 await navigator.clipboard.writeText(data.payment_url);
-                alert(t('crm.stripe_link_created') + '\n\n' + data.payment_url);
+                showToast(t('crm.stripe_link_created'), 'success', data.payment_url);
                 fetchData();
             } else {
-                alert(t('crm.error_prefix') + (data.error || t('crm.unknown_error')));
+                showToast(t('crm.error_prefix') + (data.error || t('crm.unknown_error')), 'error');
             }
         } catch (error) {
             console.error('Stripe link error', error);
-            alert(t('crm.stripe_link_error'));
+            showToast(t('crm.stripe_link_error'), 'error');
         } finally {
             setCreatingPaymentLink(null);
         }
@@ -356,7 +358,7 @@ export default function CRMDashboard() {
         const origin = window.location.origin;
         const url = `${origin}/payment/${invoiceId}`;
         await navigator.clipboard.writeText(url);
-        alert(t('crm.link_copied') + '\n\n' + url);
+        showToast(t('crm.link_copied'), 'success', url);
     };
 
     const handleSetVorkasse = async (id: number) => {
@@ -474,7 +476,7 @@ export default function CRMDashboard() {
             return doc.output('blob');
         } catch (err) {
             console.error('PDF Generation failed:', err);
-            alert('PDF-Erstellung fehlgeschlagen: ' + (err instanceof Error ? err.message : String(err)));
+            showToast('PDF-Erstellung fehlgeschlagen: ' + (err instanceof Error ? err.message : String(err)), 'error');
             return new Blob(['PDF-Fehler'], { type: 'text/plain' });
         }
     };
@@ -659,7 +661,7 @@ export default function CRMDashboard() {
                                         <div className="text-[10px] text-muted-foreground mt-0.5">{pl.created}</div>
                                     </div>
                                     <div className="flex gap-2 flex-shrink-0">
-                                        <button onClick={() => { navigator.clipboard.writeText(pl.url); alert(t('crm.link_copied')); }}
+                                        <button onClick={() => { navigator.clipboard.writeText(pl.url); showToast(t('crm.link_copied'), 'success'); }}
                                             className="flex items-center gap-1.5 px-4 py-2 text-xs rounded-lg bg-violet-100 text-violet-700 border border-violet-300 hover:bg-violet-200 font-bold" title="Link kopieren">
                                             <Copy className="w-3.5 h-3.5" /> {t('crm.copy')}
                                         </button>
@@ -1204,7 +1206,7 @@ export default function CRMDashboard() {
                                             <div className="space-y-1.5">
                                                 {inv.stripe_payment_link ? (
                                                     <div className="flex gap-1">
-                                                        <button onClick={() => { navigator.clipboard.writeText(inv.stripe_payment_link); alert(t('crm.paylink_copied')); }}
+                                                        <button onClick={() => { navigator.clipboard.writeText(inv.stripe_payment_link); showToast(t('crm.paylink_copied'), 'success'); }}
                                                             className="flex-1 flex items-center justify-center gap-1.5 text-[10px] py-2 rounded-md bg-violet-100 text-violet-700 border border-violet-300 hover:bg-violet-200 font-bold" title={t('crm.copy_paylink')}>
                                                             <Copy className="w-3 h-3" /> {t('crm.copy_paylink')}
                                                         </button>
@@ -1264,6 +1266,41 @@ export default function CRMDashboard() {
                             );
                         })}
                     </div>
+                </div>
+            )}
+            {toast && (
+                <div className={`fixed bottom-6 right-6 z-[9999] max-w-md w-full animate-slide-up shadow-2xl rounded-2xl p-4 flex items-start gap-3 ${
+                    toast.type === 'success' ? 'bg-emerald-50 border border-emerald-200' :
+                    toast.type === 'error' ? 'bg-red-50 border border-red-200' :
+                    'bg-blue-50 border border-blue-200'
+                }`}>
+                    <div className={`mt-0.5 ${
+                        toast.type === 'success' ? 'text-emerald-500' :
+                        toast.type === 'error' ? 'text-red-500' :
+                        'text-blue-500'
+                    }`}>
+                        {toast.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> :
+                         toast.type === 'error' ? <AlertTriangle className="w-5 h-5" /> :
+                         <Link2 className="w-5 h-5" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className={`text-sm font-semibold ${
+                            toast.type === 'success' ? 'text-emerald-800' :
+                            toast.type === 'error' ? 'text-red-800' :
+                            'text-blue-800'
+                        }`}>{toast.message}</p>
+                        {toast.link && (
+                            <div className="mt-2 flex items-center gap-2">
+                                <code className="text-xs bg-white/80 rounded-lg px-2 py-1 truncate block flex-1 border">{toast.link}</code>
+                                <button onClick={() => { navigator.clipboard.writeText(toast.link!); showToast(t('crm.link_copied'), 'success'); }} className="shrink-0 p-1.5 rounded-lg bg-white hover:bg-gray-100 border transition-colors">
+                                    <Copy className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                    <button onClick={() => setToast(null)} className="shrink-0 p-1 rounded-lg hover:bg-black/5 transition-colors">
+                        <XCircle className="w-4 h-4 text-gray-400" />
+                    </button>
                 </div>
             )}
         </div>

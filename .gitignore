@@ -46,6 +46,9 @@ vercel.json
 # claude
 .claude/
 
+# memory (lokale Notizen, nicht committen)
+memory/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
