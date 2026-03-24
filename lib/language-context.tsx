@@ -524,6 +524,7 @@ const translations: Record<string, Record<Language, string>> = {
     'crm.payment_method': { de: 'Zahlungsart', en: 'Payment Method', bg: 'Начин на плащане' },
     'crm.payment_not_set': { de: 'Nicht festgelegt', en: 'Not specified', bg: 'Не е определено' },
     'crm.payment_stripe': { de: 'Stripe (Online)', en: 'Stripe (Online)', bg: 'Stripe (Онлайн)' },
+    'crm.payment_paypal': { de: 'PayPal', en: 'PayPal', bg: 'PayPal' },
     'crm.payment_prepay': { de: 'Vorkasse (Überweisung)', en: 'Prepayment (Bank transfer)', bg: 'Авансово плащане (Банков превод)' },
     'crm.payment_cash': { de: 'Bar', en: 'Cash', bg: 'В брой' },
     'crm.notes': { de: 'Notizen', en: 'Notes', bg: 'Бележки' },
@@ -614,6 +615,7 @@ const translations: Record<string, Record<Language, string>> = {
     'crm.unit.pauschale': { de: 'Pauschale', en: 'Flat rate', bg: 'Фиксирана сума' },
     'crm.unit.paket': { de: 'Paket', en: 'Package', bg: 'Пакет' },
     'crm.unit.stueck': { de: 'Stück', en: 'Piece', bg: 'Брой' },
+
     'locale': { de: 'de-DE', en: 'en-US', bg: 'bg-BG' },
     // ============ AGENT ============
     'agent.select_supervisor': { de: 'Betreuer auswählen', en: 'Select supervisor', bg: 'Изберете ръководител' },

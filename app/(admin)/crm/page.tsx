@@ -126,8 +126,35 @@ export default function CRMDashboard() {
     });
     const [showInvoiceForm, setShowInvoiceForm] = useState(false);
 
+    const [editingInvoiceId, setEditingInvoiceId] = useState<number | null>(null);
     const [selectedArticleId, setSelectedArticleId] = useState('');
     const [selectedQuantity, setSelectedQuantity] = useState(1);
+
+    const handleEditInvoice = (inv: any) => {
+        setEditingInvoiceId(inv.id);
+        setNewInvoice({
+            customer_name: inv.customer_name || '',
+            customer_email: inv.customer_email || '',
+            customer_address: inv.customer_address || '',
+            doc_type: inv.doc_type || 'Rechnung',
+            status: inv.status || 'Entwurf',
+            payment_method: inv.payment_method || '',
+            notes: inv.notes || '',
+            due_date: inv.due_date ? new Date(inv.due_date).toISOString().split('T')[0] : '',
+            items: (inv.items || []).map((item: any) => ({
+                article_id: item.article_id,
+                title: item.title,
+                description: item.description,
+                quantity: item.quantity,
+                unit_price: item.unit_price,
+                total_price: item.total_price
+            }))
+        });
+        setShowInvoiceForm(true);
+        // Scroll to form
+        const formEl = document.getElementById('invoice-form');
+        if (formEl) formEl.scrollIntoView({ behavior: 'smooth' });
+    };
 
     const handleSendEmail = async (invoiceId: number) => {
         setSendingEmail(invoiceId);
@@ -223,8 +250,11 @@ export default function CRMDashboard() {
     const handleCreateInvoice = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await fetch('/api/crm/invoices', {
-                method: 'POST',
+            const method = editingInvoiceId ? 'PATCH' : 'POST';
+            const url = editingInvoiceId ? `/api/crm/invoices/${editingInvoiceId}` : '/api/crm/invoices';
+            
+            const res = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...newInvoice,
@@ -237,11 +267,12 @@ export default function CRMDashboard() {
                     doc_type: 'Rechnung', status: 'Entwurf', payment_method: '', notes: '', due_date: '',
                     items: []
                 });
+                setEditingInvoiceId(null);
                 setShowInvoiceForm(false);
                 fetchData();
             }
         } catch (error) {
-            console.error('Failed to create invoice', error);
+            console.error('Failed to save invoice', error);
         }
     };
 
@@ -403,7 +434,19 @@ export default function CRMDashboard() {
         document.body.removeChild(link);
     };
 
-    const handleShare = async (invoice: any) => {
+    const handleShare = (invoice: any) => {
+        const origin = window.location.origin;
+        const url = `${origin}/payment/${invoice.id}`;
+        const prefixLabel = invoice.doc_type === 'Rechnung' ? t('crm.doctype_rechnung') :
+                            invoice.doc_type === 'Angebot' ? t('crm.doctype_angebot') :
+                            invoice.doc_type === 'Exposé' ? t('crm.doctype_expose') : t('crm.tab_documents');
+        
+        const text = `Hallo, anbei der Link zum ${prefixLabel} ${invoice.invoice_number} von ${settings.companyName || 'uns'}: ${url}`;
+        const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+        window.open(waUrl, '_blank');
+    };
+
+    const handleShareNative = async (invoice: any) => {
         const blob = generatePDFBlob(invoice);
         const prefixLabel = invoice.doc_type === 'Rechnung' ? t('crm.doctype_rechnung') :
                             invoice.doc_type === 'Angebot' ? t('crm.doctype_angebot') :
@@ -422,6 +465,8 @@ export default function CRMDashboard() {
             handleDownloadPDF(invoice);
         }
     };
+
+
 
     // Gefilterte Rechnungen
     const filteredInvoices = invoices.filter(inv => {
@@ -826,7 +871,7 @@ export default function CRMDashboard() {
                                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                             </button>
                             {!isReadOnlyDemo && (
-                                <button onClick={() => setShowInvoiceForm(!showInvoiceForm)} className="btn-primary flex items-center gap-2">
+                                <button onClick={() => { setEditingInvoiceId(null); setNewInvoice({ customer_name: '', customer_email: '', customer_address: '', doc_type: 'Rechnung', status: 'Entwurf', payment_method: '', notes: '', due_date: '', items: [] }); setShowInvoiceForm(!showInvoiceForm); }} className="btn-primary flex items-center gap-2">
                                     <PlusCircle className="w-4 h-4" /> {t('crm.new_document')}
                                 </button>
                             )}
@@ -835,8 +880,8 @@ export default function CRMDashboard() {
 
                     {/* {t('crm.new_document')} Formular */}
                     {!isReadOnlyDemo && showInvoiceForm && (
-                        <div className="glass-card p-6 border-l-4 border-l-secondary space-y-6">
-                            <h3 className="text-lg font-semibold text-secondary">{t('crm.new_document')}</h3>
+                        <div id="invoice-form" className="glass-card p-6 border-l-4 border-l-secondary space-y-6">
+                            <h3 className="text-lg font-semibold text-secondary">{editingInvoiceId ? t('action.edit') : t('crm.new_document')}</h3>
                             <form onSubmit={handleCreateInvoice} className="space-y-6">
                                 {/* Dokumenttyp */}
                                 <div className="flex items-center gap-3">
@@ -880,6 +925,7 @@ export default function CRMDashboard() {
                                         <select title={t('crm.payment_method')} value={newInvoice.payment_method} onChange={e => setNewInvoice({ ...newInvoice, payment_method: e.target.value })} className="input-field py-2 text-sm w-full bg-background">
                                             <option value="">{t('crm.payment_not_set')}</option>
                                             <option value="stripe">{t('crm.payment_stripe')}</option>
+                                            <option value="paypal">{t('crm.payment_paypal')}</option>
                                             <option value="vorkasse">{t('crm.payment_prepay')}</option>
                                             <option value="bar">{t('crm.payment_cash')}</option>
                                         </select>
@@ -952,9 +998,13 @@ export default function CRMDashboard() {
                                 </div>
 
                                 <div className="flex justify-end gap-3">
-                                    <button type="button" onClick={() => setShowInvoiceForm(false)} className="btn-secondary">{t('crm.cancel')}</button>
+                                    {editingInvoiceId && (
+                                        <button type="button" onClick={() => { setEditingInvoiceId(null); setShowInvoiceForm(false); }} className="btn-secondary">
+                                            {t('crm.cancel')}
+                                        </button>
+                                    )}
                                     <button type="submit" disabled={newInvoice.items.length === 0} className="btn-primary flex items-center gap-2">
-                                        <Save className="w-4 h-4" /> {t('crm.save_document')}
+                                        <Save className="w-4 h-4" /> {editingInvoiceId ? t('action.save') : t('crm.save_document')}
                                     </button>
                                 </div>
                             </form>
@@ -1013,8 +1063,14 @@ export default function CRMDashboard() {
                                         {/* Zahlungsmethode */}
                                         {inv.payment_method && (
                                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                                {inv.payment_method === 'stripe' ? <CreditCard className="w-3.5 h-3.5 text-violet-500" /> : <Banknote className="w-3.5 h-3.5 text-emerald-500" />}
-                                                <span>{inv.payment_method === "stripe" ? t("crm.payment_stripe") : inv.payment_method === "vorkasse" ? t("crm.payment_prepay") : inv.payment_method === "bar" ? t("crm.payment_cash") : inv.payment_method}</span>
+                                                {inv.payment_method === 'stripe' ? <CreditCard className="w-3.5 h-3.5 text-violet-500" /> : 
+                                                 inv.payment_method === 'paypal' ? <div className="w-3.5 h-3.5 text-blue-500 font-bold">P</div> :
+                                                 <Banknote className="w-3.5 h-3.5 text-emerald-500" />}
+                                                <span>{inv.payment_method === "stripe" ? t("crm.payment_stripe") : 
+                                                       inv.payment_method === "paypal" ? t("crm.payment_paypal") :
+                                                       inv.payment_method === "vorkasse" ? t("crm.payment_prepay") : 
+                                                       inv.payment_method === "bar" ? t("crm.payment_cash") : 
+                                                       inv.payment_method}</span>
                                                 {inv.paid_at && <span className="text-emerald-600 font-medium ml-auto">{t('crm.paid_on')} {new Date(inv.paid_at).toLocaleDateString(t('locale') || 'de-DE')}</span>}
                                             </div>
                                         )}
@@ -1083,19 +1139,17 @@ export default function CRMDashboard() {
                                             <button onClick={() => handleDownloadPDF(inv)} className="btn-secondary flex items-center justify-center gap-1.5 py-2 text-xs" title={t('crm.download_pdf')}>
                                                 <Download className="w-3.5 h-3.5" /> PDF
                                             </button>
-                                            {inv.customer_email && !isReadOnlyDemo ? (
-                                                <button onClick={() => handleSendEmail(inv.id)} disabled={sendingEmail === inv.id}
-                                                    className="flex items-center justify-center gap-1.5 py-2 text-xs rounded-xl bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-colors disabled:opacity-50" title={t('crm.send_email')}>
-                                                    <Mail className="w-3.5 h-3.5" /> {sendingEmail === inv.id ? '...' : 'Mail'}
-                                                </button>
-                                            ) : (
-                                                <button onClick={() => handleShare(inv)} className="btn-primary flex items-center justify-center gap-1.5 py-2 text-xs" title={t('crm.share')}>
-                                                    <Send className="w-3.5 h-3.5" /> {t('crm.share')}
+                                            
+                                            <button onClick={() => handleShare(inv)} className="flex items-center justify-center gap-1.5 py-2 text-xs rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 transition-colors" title="WhatsApp">
+                                                <Send className="w-3.5 h-3.5" /> WA
+                                            </button>
+                                            
+                                            {!isReadOnlyDemo && (
+                                                <button onClick={() => handleEditInvoice(inv)} className="btn-secondary flex items-center justify-center gap-1.5 py-2 text-xs" title={t('action.edit')}>
+                                                    <Save className="w-3.5 h-3.5" /> {t('action.edit')}
                                                 </button>
                                             )}
-                                            <button onClick={() => handleShare(inv)} className="btn-secondary flex items-center justify-center gap-1.5 py-2 text-xs" title={t('crm.share_app')}>
-                                                <Send className="w-3.5 h-3.5" />
-                                            </button>
+
                                             {!isReadOnlyDemo && (
                                                 <button onClick={() => handleDeleteInvoice(inv.id)} className="flex items-center justify-center gap-1.5 py-2 text-xs rounded-xl border border-red-200 text-red-500 hover:bg-red-50 transition-colors" title={t('crm.delete')}>
                                                     <Trash2 className="w-3.5 h-3.5" />

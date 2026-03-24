@@ -5,7 +5,9 @@ import { blockDemoWrites, requireSessionUser } from '@/lib/access';
 export async function GET() {
     try {
         const result = await query(`
-            SELECT * FROM "crm_invoices" 
+            SELECT i.*, 
+                (SELECT json_agg(it.*) FROM "crm_invoice_items" it WHERE it.invoice_id = i.id) as items
+            FROM "crm_invoices" i
             ORDER BY 
                 CASE status 
                     WHEN 'Inkasso' THEN 1
