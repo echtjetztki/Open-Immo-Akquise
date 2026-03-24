@@ -40,6 +40,11 @@ yarn-error.log*
 
 # vercel
 .vercel/
+.vercel_intern/
+vercel.json
+
+# claude
+.claude/
 
 # typescript
 *.tsbuildinfo
