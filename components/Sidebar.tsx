@@ -55,9 +55,9 @@ export function Sidebar() {
     const adminItems = [
         { name: t('nav.team_dashboard'), href: '/', icon: LayoutGrid },
         { name: t('nav.crm_invoices'), href: '/crm', icon: Users2 },
-        { name: 'Kunden', href: '/customers', icon: BookUser },
-        { name: 'Artikel', href: '/articles', icon: Package },
-        { name: 'Rechnungen', href: '/invoices', icon: FileText },
+        { name: t('nav.customers'), href: '/customers', icon: BookUser },
+        { name: t('nav.articles'), href: '/articles', icon: Package },
+        { name: t('nav.invoices'), href: '/invoices', icon: FileText },
         { name: t('nav.user_management'), href: '/users', icon: UserCircle2 },
         { name: t('nav.settings'), href: '/settings', icon: TrendingUp },
         { name: t('nav.ai_chat'), href: '/chat', icon: MessageCircle },
