@@ -80,6 +80,12 @@ const sanitizePayload = (value: unknown): SessionPayload | null => {
     return payload;
 };
 
+const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
+    const copy = new Uint8Array(bytes.length);
+    copy.set(bytes);
+    return copy.buffer;
+};
+
 export async function encodeSessionValue(payload: SessionPayload): Promise<string> {
     const sanitized = sanitizePayload(payload);
     if (!sanitized) throw new Error('invalid_session_payload');
@@ -87,7 +93,7 @@ export async function encodeSessionValue(payload: SessionPayload): Promise<strin
     const key = await getEncryptionKey();
     const iv = crypto.getRandomValues(new Uint8Array(12));
     const encrypted = await crypto.subtle.encrypt(
-        { name: 'AES-GCM', iv },
+        { name: 'AES-GCM', iv: toArrayBuffer(iv) },
         key,
         encoder.encode(JSON.stringify(sanitized))
     );
@@ -109,14 +115,14 @@ export async function decodeSessionValue(raw: string | null | undefined): Promis
         if (envelope.v !== SESSION_VERSION || !envelope.iv || !envelope.p) return null;
 
         const key = await getEncryptionKey();
-        const iv = fromBase64Url(envelope.iv);
-        const ciphertext = fromBase64Url(envelope.p);
-        if (!iv || !ciphertext) return null;
+        const ivBytes = fromBase64Url(envelope.iv);
+        const ciphertextBytes = fromBase64Url(envelope.p);
+        if (!ivBytes || !ciphertextBytes) return null;
 
         const decrypted = await crypto.subtle.decrypt(
-            { name: 'AES-GCM', iv },
+            { name: 'AES-GCM', iv: toArrayBuffer(ivBytes) },
             key,
-            ciphertext
+            toArrayBuffer(ciphertextBytes)
         );
 
         const parsed = JSON.parse(decoder.decode(decrypted));
