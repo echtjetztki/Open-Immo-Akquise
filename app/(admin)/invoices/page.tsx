@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useLanguage } from '@/lib/language-context';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import {
@@ -30,6 +31,7 @@ const DOC_TYPES = ['Rechnung', 'Angebot', 'Lieferschein'];
 const ALL_STATUSES = ['Entwurf', 'Gesendet', 'Bezahlt', 'Storniert', 'Klage', 'Inkasso'];
 
 export default function InvoicesPage() {
+    const { t } = useLanguage();
     const [invoices, setInvoices] = useState<Invoice[]>([]);
     const [articles, setArticles] = useState<Article[]>([]);
     const [customers, setCustomers] = useState<Customer[]>([]);
@@ -174,7 +176,7 @@ export default function InvoicesPage() {
                 setInvoices(prev => prev.map(inv =>
                     inv.id === invoiceId ? { ...inv, status: newStatus } : inv
                 ));
-                showActionMsg(`Status auf "${newStatus}" geaendert`);
+                showActionMsg(`${t('inv.status_changed')}: ${t('inv.status.' + newStatus) || newStatus}`);
             }
         } catch (e) { console.error(e); }
     };
@@ -199,19 +201,19 @@ export default function InvoicesPage() {
                 })
             });
             if (res.ok) {
-                showActionMsg(`${newDocType} erstellt aus ${invoice.invoice_number}`);
+                showActionMsg(`${t('inv.doc_type.' + newDocType)} ${invoice.invoice_number}`);
                 fetchData();
             }
         } catch (e) { console.error(e); }
     };
 
     const handleDelete = async (id: number) => {
-        if (!confirm('Dokument wirklich loeschen?')) return;
+        if (!confirm(t('inv.confirm_delete'))) return;
         try {
             const res = await fetch(`/api/crm/invoices/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 setInvoices(prev => prev.filter(inv => inv.id !== id));
-                showActionMsg('Dokument geloescht');
+                showActionMsg(t('inv.deleted'));
             }
         } catch (e) { console.error(e); }
     };
@@ -234,7 +236,7 @@ export default function InvoicesPage() {
                 if (payRes.ok && payData.paymentLink) {
                     paymentLink = payData.paymentLink;
                 } else if (!payRes.ok) {
-                    showActionMsg(`Zahlungslink-Fehler: ${payData.error}`);
+                    showActionMsg(`${t('inv.email_failed')}: ${payData.error}`);
                     setEmailSending(false);
                     return;
                 }
@@ -246,24 +248,24 @@ export default function InvoicesPage() {
                 body: JSON.stringify({
                     invoiceId: invoice.id,
                     to: invoice.customer_email,
-                    subject: emailSubject || `${invoice.doc_type || 'Rechnung'} ${invoice.invoice_number}`,
+                    subject: emailSubject || `${t('inv.doc_type.' + (invoice.doc_type || 'Rechnung'))} ${invoice.invoice_number}`,
                     message: emailMessage,
                     paymentLink
                 })
             });
             const data = await res.json();
             if (res.ok) {
-                showActionMsg(data.message || 'E-Mail gesendet!');
+                showActionMsg(data.message || t('inv.email_sent'));
                 setEmailModal(null);
                 setEmailMessage('');
                 setEmailSubject('');
                 setPaymentProvider('none');
                 fetchData();
             } else {
-                showActionMsg(`Fehler: ${data.error}`);
+                showActionMsg(`${t('inv.error')}: ${data.error}`);
             }
         } catch (e) {
-            showActionMsg('E-Mail-Versand fehlgeschlagen');
+            showActionMsg(t('inv.email_failed'));
         } finally {
             setEmailSending(false);
         }
@@ -289,7 +291,7 @@ export default function InvoicesPage() {
             `EUR${amount}`,  // Amount
             '',              // Purpose
             invoice.invoice_number, // Reference
-            `${invoice.doc_type || 'Rechnung'} ${invoice.invoice_number}`, // Text
+            `${t('inv.doc_type.' + (invoice.doc_type || 'Rechnung'))} ${invoice.invoice_number}`, // Text
             ''               // Info
         ].join('\n');
     };
@@ -307,7 +309,7 @@ export default function InvoicesPage() {
         // ─── Header: Company info (right side) ───
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
-        doc.text(settings.companyName || 'Ihr Unternehmen', 130, 18);
+        doc.text(settings.companyName || t('inv.pdf.your_company'), 130, 18);
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(9);
         let ry = 24;
@@ -316,7 +318,7 @@ export default function InvoicesPage() {
         if (settings.city) { doc.text(settings.city, 130, ry); ry += 5; }
         if (settings.phone) { doc.text(`Tel: ${settings.phone}`, 130, ry); ry += 5; }
         if (settings.email) { doc.text(settings.email, 130, ry); ry += 5; }
-        if (settings.taxId) { doc.text(`USt-IdNr: ${settings.taxId}`, 130, ry); ry += 5; }
+        if (settings.taxId) { doc.text(`USt-IdNr.: ${settings.taxId}`, 130, ry); ry += 5; }
 
         // ─── Receiver (left side) ───
         doc.setFontSize(8);
@@ -326,7 +328,7 @@ export default function InvoicesPage() {
 
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
-        doc.text(invoice.customer_name || 'Unbekannt', 14, 50);
+        doc.text(invoice.customer_name || t('inv.pdf.unknown'), 14, 50);
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
         let cy = 56;
@@ -337,19 +339,19 @@ export default function InvoicesPage() {
         doc.setFontSize(18);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(0, 74, 124);
-        doc.text(docType.toUpperCase(), 14, 78);
+        doc.text(t('inv.doc_type.' + docType).toUpperCase(), 14, 78);
         doc.setTextColor(0, 0, 0);
 
         // ─── Meta info ───
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
-        const docLabel = docType === 'Rechnung' ? 'Rechnungsnr.' : docType === 'Angebot' ? 'Angebotsnr.' : 'Lieferscheinnr.';
+        const docLabel = docType === 'Rechnung' ? t('inv.pdf.invoice_nr') : docType === 'Angebot' ? t('inv.pdf.quote_nr') : t('inv.pdf.delivery_nr');
         doc.text(`${docLabel}:`, 130, 74);
         doc.text(invoice.invoice_number, 165, 74);
-        doc.text('Datum:', 130, 80);
+        doc.text(t('inv.pdf.date'), 130, 80);
         doc.text(issueDate, 165, 80);
         if (docType === 'Rechnung') {
-            doc.text('Faellig bis:', 130, 86);
+            doc.text(t('inv.pdf.due_date'), 130, 86);
             doc.text(dueDate, 165, 86);
         }
 
@@ -357,23 +359,23 @@ export default function InvoicesPage() {
         doc.setFontSize(10);
         let introY = 96;
         if (docType === 'Rechnung') {
-            doc.text('Sehr geehrte Damen und Herren,', 14, introY);
-            doc.text('wir erlauben uns, Ihnen folgende Positionen in Rechnung zu stellen:', 14, introY + 6);
+            doc.text(t('inv.pdf.salutation'), 14, introY);
+            doc.text(t('inv.pdf.invoice_intro'), 14, introY + 6);
             introY += 14;
         } else if (docType === 'Angebot') {
-            doc.text('Sehr geehrte Damen und Herren,', 14, introY);
-            doc.text('gerne unterbreiten wir Ihnen folgendes Angebot:', 14, introY + 6);
+            doc.text(t('inv.pdf.salutation'), 14, introY);
+            doc.text(t('inv.pdf.quote_intro'), 14, introY + 6);
             introY += 14;
         } else {
-            doc.text('Lieferung an oben genannte Adresse:', 14, introY);
+            doc.text(t('inv.pdf.delivery_intro'), 14, introY);
             introY += 8;
         }
 
         // ─── Items table ───
         (doc as any).autoTable({
             startY: introY,
-            head: [['Pos.', 'Beschreibung', 'Menge', 'Einzelpreis', 'Gesamt']],
-            body: [['1', 'Leistung / Produkt', '1', `${amountStr} EUR`, `${amountStr} EUR`]],
+            head: [[t('inv.pdf.pos'), t('inv.pdf.description'), t('inv.pdf.qty'), t('inv.pdf.unit_price'), t('inv.pdf.total')]],
+            body: [['1', t('inv.pdf.service'), '1', `${amountStr} EUR`, `${amountStr} EUR`]],
             theme: 'striped',
             headStyles: { fillColor: [0, 74, 124], fontSize: 9 },
             bodyStyles: { fontSize: 9 },
@@ -386,12 +388,12 @@ export default function InvoicesPage() {
         const netAmount = (amount / 1.19);
         const taxAmount = amount - netAmount;
         doc.setFontSize(9);
-        doc.text('Nettobetrag:', 130, y); doc.text(`${netAmount.toLocaleString('de-DE', { minimumFractionDigits: 2 })} EUR`, 175, y, { align: 'right' }); y += 5;
-        doc.text('zzgl. 19% MwSt:', 130, y); doc.text(`${taxAmount.toLocaleString('de-DE', { minimumFractionDigits: 2 })} EUR`, 175, y, { align: 'right' }); y += 6;
+        doc.text(t('inv.pdf.net_amount'), 130, y); doc.text(`${netAmount.toLocaleString('de-DE', { minimumFractionDigits: 2 })} EUR`, 175, y, { align: 'right' }); y += 5;
+        doc.text(t('inv.pdf.vat'), 130, y); doc.text(`${taxAmount.toLocaleString('de-DE', { minimumFractionDigits: 2 })} EUR`, 175, y, { align: 'right' }); y += 6;
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(0, 74, 124);
-        doc.text('Gesamtbetrag:', 130, y); doc.text(`${amountStr} EUR`, 175, y, { align: 'right' });
+        doc.text(t('inv.pdf.total_amount'), 130, y); doc.text(`${amountStr} EUR`, 175, y, { align: 'right' });
         doc.setTextColor(0, 0, 0);
         doc.setFont('helvetica', 'normal');
         y += 12;
@@ -400,22 +402,22 @@ export default function InvoicesPage() {
         if (docType === 'Rechnung') {
             doc.setFontSize(10);
             doc.setFont('helvetica', 'bold');
-            doc.text('Zahlungsarten:', 14, y);
+            doc.text(t('inv.pdf.payment_methods'), 14, y);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(9);
             y += 7;
 
             if (methods.includes('vorkasse') && settings.iban) {
                 doc.setFont('helvetica', 'bold');
-                doc.text('Vorkasse / Bankueberweisung:', 14, y);
+                doc.text(t('inv.pdf.bank_transfer'), 14, y);
                 doc.setFont('helvetica', 'normal');
                 y += 5;
-                doc.text(`Empfaenger: ${settings.ownerName || settings.companyName || ''}`, 14, y); y += 4;
-                if (settings.bankName) { doc.text(`Bank: ${settings.bankName}`, 14, y); y += 4; }
+                doc.text(`${t('inv.pdf.recipient')}: ${settings.ownerName || settings.companyName || ''}`, 14, y); y += 4;
+                if (settings.bankName) { doc.text(`${t('inv.pdf.bank')}: ${settings.bankName}`, 14, y); y += 4; }
                 doc.text(`IBAN: ${settings.iban}`, 14, y); y += 4;
                 if (settings.bic) { doc.text(`BIC: ${settings.bic}`, 14, y); y += 4; }
-                doc.text(`Verwendungszweck: ${invoice.invoice_number}`, 14, y); y += 4;
-                doc.text(`Zahlungsziel: ${dueDays} Tage (bis ${dueDate})`, 14, y); y += 6;
+                doc.text(`${t('inv.pdf.reference')}: ${invoice.invoice_number}`, 14, y); y += 4;
+                doc.text(`${t('inv.pdf.payment_term_days')}: ${dueDays} ${t('inv.pdf.days')} (${t('inv.pdf.until')} ${dueDate})`, 14, y); y += 6;
 
                 // QR Code for bank transfer (EPC)
                 try {
@@ -424,8 +426,8 @@ export default function InvoicesPage() {
                     const qrDataUrl = await QRCode.toDataURL(qrData, { width: 120, margin: 1, errorCorrectionLevel: 'M' });
                     doc.addImage(qrDataUrl, 'PNG', 155, y - 28, 30, 30);
                     doc.setFontSize(7);
-                    doc.text('QR-Code scannen', 157, y + 4);
-                    doc.text('zum Bezahlen', 159, y + 7);
+                    doc.text(t('inv.pdf.scan_qr'), 157, y + 4);
+                    doc.text(t('inv.pdf.to_pay'), 159, y + 7);
                     doc.setFontSize(9);
                 } catch { /* QR generation failed silently */ }
                 y += 4;
@@ -433,10 +435,10 @@ export default function InvoicesPage() {
 
             if (methods.includes('stripe')) {
                 doc.setFont('helvetica', 'bold');
-                doc.text('Online-Zahlung (Kreditkarte / SEPA):', 14, y);
+                doc.text(t('inv.pdf.online_payment'), 14, y);
                 doc.setFont('helvetica', 'normal');
                 y += 5;
-                doc.text('Bezahlen Sie bequem online ueber den Zahlungslink in der E-Mail.', 14, y);
+                doc.text(t('inv.pdf.online_payment_text'), 14, y);
                 y += 8;
             }
 
@@ -445,7 +447,7 @@ export default function InvoicesPage() {
                 doc.text('PayPal:', 14, y);
                 doc.setFont('helvetica', 'normal');
                 y += 5;
-                doc.text('Bezahlen Sie per PayPal ueber den Zahlungslink in der E-Mail.', 14, y);
+                doc.text(t('inv.pdf.paypal_text'), 14, y);
                 y += 8;
             }
         }
@@ -454,24 +456,24 @@ export default function InvoicesPage() {
         if (docType === 'Rechnung') {
             y += 4;
             doc.setFontSize(9);
-            doc.text('Bitte ueberweisen Sie den Gesamtbetrag unter Angabe der Rechnungsnummer.', 14, y); y += 5;
-            doc.text('Vielen Dank fuer Ihr Vertrauen!', 14, y); y += 10;
+            doc.text(t('inv.pdf.invoice_closing'), 14, y); y += 5;
+            doc.text(t('inv.pdf.thank_you'), 14, y); y += 10;
         } else if (docType === 'Angebot') {
             y += 4;
             doc.setFontSize(9);
-            doc.text('Dieses Angebot ist 30 Tage gueltig. Bei Fragen stehen wir Ihnen gerne zur Verfuegung.', 14, y); y += 5;
-            doc.text('Wir freuen uns auf Ihre Rueckmeldung!', 14, y); y += 10;
+            doc.text(t('inv.pdf.quote_validity'), 14, y); y += 5;
+            doc.text(t('inv.pdf.quote_closing'), 14, y); y += 10;
         }
 
-        doc.text('Mit freundlichen Gruessen', 14, y); y += 5;
+        doc.text(t('inv.pdf.regards'), 14, y); y += 5;
         doc.text(settings.ownerName || settings.companyName || '', 14, y); y += 10;
 
         // ─── Legal texts (AGB, Datenschutz, Widerruf) ───
         if (docType === 'Rechnung') {
             const legalTexts: { title: string; text: string }[] = [];
-            if (settings.agbText) legalTexts.push({ title: 'Allgemeine Geschaeftsbedingungen', text: settings.agbText });
-            if (settings.datenschutzText) legalTexts.push({ title: 'Datenschutzhinweis', text: settings.datenschutzText });
-            if (settings.widerrufText) legalTexts.push({ title: 'Widerrufsbelehrung', text: settings.widerrufText });
+            if (settings.agbText) legalTexts.push({ title: t('inv.pdf.agb_title'), text: settings.agbText });
+            if (settings.datenschutzText) legalTexts.push({ title: t('inv.pdf.privacy_title'), text: settings.datenschutzText });
+            if (settings.widerrufText) legalTexts.push({ title: t('inv.pdf.withdrawal_title'), text: settings.widerrufText });
 
             if (legalTexts.length > 0) {
                 // Check if we need a new page
@@ -519,7 +521,7 @@ export default function InvoicesPage() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        const prefix = invoice.doc_type === 'Angebot' ? 'Angebot' : invoice.doc_type === 'Lieferschein' ? 'Lieferschein' : 'Rechnung';
+        const prefix = t('inv.doc_type.' + (invoice.doc_type || 'Rechnung'));
         link.download = `${prefix}_${invoice.invoice_number}.pdf`;
         document.body.appendChild(link);
         link.click();
@@ -588,12 +590,12 @@ export default function InvoicesPage() {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-4">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                        Dokumente
+                        {t('inv.title')}
                     </h1>
-                    <p className="text-muted-foreground mt-1">Rechnungen, Angebote & Lieferscheine</p>
+                    <p className="text-muted-foreground mt-1">{t('inv.subtitle')}</p>
                 </div>
                 <button onClick={() => setShowForm(!showForm)} className="btn-primary flex items-center gap-2">
-                    <PlusCircle className="w-4 h-4" /> Neues Dokument
+                    <PlusCircle className="w-4 h-4" /> {t('inv.new_document')}
                 </button>
             </div>
 
@@ -601,18 +603,18 @@ export default function InvoicesPage() {
             <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
                 <div className="flex items-center gap-3 glass-card p-3 flex-1">
                     <Search className="w-5 h-5 text-muted-foreground" />
-                    <input type="text" placeholder="Suchen..." value={search} onChange={e => setSearch(e.target.value)}
+                    <input type="text" placeholder={t('inv.search')} value={search} onChange={e => setSearch(e.target.value)}
                         className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none text-sm py-1" />
                 </div>
                 <select value={filterDocType} onChange={e => setFilterDocType(e.target.value)}
                     className="py-2.5 px-3 text-sm rounded-xl border border-primary/20 bg-background">
-                    <option value="">Alle Typen</option>
-                    {DOC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                    <option value="">{t('inv.all_types')}</option>
+                    {DOC_TYPES.map(dt => <option key={dt} value={dt}>{t('inv.doc_type.' + dt)}</option>)}
                 </select>
                 <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
                     className="py-2.5 px-3 text-sm rounded-xl border border-primary/20 bg-background">
-                    <option value="">Alle Status</option>
-                    {ALL_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                    <option value="">{t('inv.all_statuses')}</option>
+                    {ALL_STATUSES.map(s => <option key={s} value={s}>{t('inv.status.' + s)}</option>)}
                 </select>
             </div>
 
@@ -620,7 +622,7 @@ export default function InvoicesPage() {
             {showForm && (
                 <div className="glass-card p-6 border-l-4 border-l-secondary space-y-6">
                     <div className="flex justify-between items-center">
-                        <h3 className="text-lg font-semibold text-secondary">Neues Dokument erstellen</h3>
+                        <h3 className="text-lg font-semibold text-secondary">{t('inv.create_document')}</h3>
                         <button onClick={() => setShowForm(false)} className="text-muted-foreground hover:text-foreground">
                             <X className="w-5 h-5" />
                         </button>
@@ -633,7 +635,7 @@ export default function InvoicesPage() {
                                     onClick={() => setNewInvoice(prev => ({ ...prev, doc_type: dt }))}
                                     className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${newInvoice.doc_type === dt
                                         ? 'bg-primary text-white shadow-md' : 'bg-primary/10 text-primary hover:bg-primary/20'}`}>
-                                    {getDocTypeIcon(dt)} {dt}
+                                    {getDocTypeIcon(dt)} {t('inv.doc_type.' + dt)}
                                 </button>
                             ))}
                         </div>
@@ -641,10 +643,10 @@ export default function InvoicesPage() {
                         {/* Customer selection */}
                         {customers.length > 0 && (
                             <div>
-                                <label className="block text-xs font-medium mb-1">Kunde aus Stammdaten</label>
+                                <label className="block text-xs font-medium mb-1">{t('inv.customer_from_db')}</label>
                                 <select value={selectedCustomerId} onChange={e => handleSelectCustomer(e.target.value)}
                                     className="w-full py-2 text-sm bg-white">
-                                    <option value="">-- Manuell eingeben --</option>
+                                    <option value="">{t('inv.manual_entry')}</option>
                                     {customers.map(c => (
                                         <option key={c.id} value={c.id}>{c.name} {c.company ? `(${c.company})` : ''}</option>
                                     ))}
@@ -654,48 +656,48 @@ export default function InvoicesPage() {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-xs font-medium mb-1">Name *</label>
+                                <label className="block text-xs font-medium mb-1">{t('inv.name')}</label>
                                 <input type="text" required value={newInvoice.customer_name}
                                     onChange={e => setNewInvoice({ ...newInvoice, customer_name: e.target.value })}
-                                    className="w-full py-2 text-sm" placeholder="Max Mustermann" />
+                                    className="w-full py-2 text-sm" placeholder={t('inv.name_placeholder')} />
                             </div>
                             <div>
-                                <label className="block text-xs font-medium mb-1">E-Mail</label>
+                                <label className="block text-xs font-medium mb-1">{t('inv.email')}</label>
                                 <input type="email" value={newInvoice.customer_email}
                                     onChange={e => setNewInvoice({ ...newInvoice, customer_email: e.target.value })}
-                                    className="w-full py-2 text-sm" placeholder="max@beispiel.de" />
+                                    className="w-full py-2 text-sm" placeholder={t('inv.email_placeholder')} />
                             </div>
                             <div>
-                                <label className="block text-xs font-medium mb-1">Adresse</label>
+                                <label className="block text-xs font-medium mb-1">{t('inv.address')}</label>
                                 <input type="text" value={newInvoice.customer_address}
                                     onChange={e => setNewInvoice({ ...newInvoice, customer_address: e.target.value })}
-                                    className="w-full py-2 text-sm" placeholder="Strasse 1, PLZ Ort" />
+                                    className="w-full py-2 text-sm" placeholder={t('inv.address_placeholder')} />
                             </div>
                         </div>
 
                         {/* Line items */}
                         <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
-                            <h4 className="text-sm font-semibold mb-3">Positionen</h4>
+                            <h4 className="text-sm font-semibold mb-3">{t('inv.positions')}</h4>
                             <div className="flex items-end gap-3 flex-wrap">
                                 <div className="flex-1 min-w-[200px]">
-                                    <label className="block text-xs font-medium mb-1">Artikel</label>
+                                    <label className="block text-xs font-medium mb-1">{t('inv.article')}</label>
                                     <select value={selectedArticleId} onChange={e => setSelectedArticleId(e.target.value)}
                                         className="w-full py-2 text-sm bg-white">
-                                        <option value="">-- Bitte waehlen --</option>
+                                        <option value="">{t('inv.please_select')}</option>
                                         {articles.map(a => (
                                             <option key={a.id} value={a.id}>{a.title} ({fmt(a.price)} EUR)</option>
                                         ))}
                                     </select>
                                 </div>
                                 <div className="w-24">
-                                    <label className="block text-xs font-medium mb-1">Menge</label>
+                                    <label className="block text-xs font-medium mb-1">{t('inv.quantity')}</label>
                                     <input type="number" min="1" value={selectedQuantity}
                                         onChange={e => setSelectedQuantity(parseInt(e.target.value) || 1)}
                                         className="w-full py-2 text-sm" />
                                 </div>
                                 <button type="button" onClick={handleAddItem} disabled={!selectedArticleId}
                                     className="btn-secondary py-2 h-[38px] flex items-center gap-2 px-4">
-                                    <PlusCircle className="w-4 h-4" /> Hinzufuegen
+                                    <PlusCircle className="w-4 h-4" /> {t('inv.add')}
                                 </button>
                             </div>
 
@@ -704,10 +706,10 @@ export default function InvoicesPage() {
                                     <table className="w-full text-sm">
                                         <thead>
                                             <tr className="text-left text-xs text-muted-foreground border-b border-primary/10">
-                                                <th className="pb-2">Position</th>
-                                                <th className="pb-2 text-center">Menge</th>
-                                                <th className="pb-2 text-right">Einzel</th>
-                                                <th className="pb-2 text-right">Gesamt</th>
+                                                <th className="pb-2">{t('inv.position')}</th>
+                                                <th className="pb-2 text-center">{t('inv.quantity')}</th>
+                                                <th className="pb-2 text-right">{t('inv.unit_price')}</th>
+                                                <th className="pb-2 text-right">{t('inv.total')}</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -729,7 +731,7 @@ export default function InvoicesPage() {
                                         </tbody>
                                         <tfoot>
                                             <tr className="border-t-2 border-primary/20">
-                                                <td colSpan={3} className="py-3 text-right font-bold">Summe:</td>
+                                                <td colSpan={3} className="py-3 text-right font-bold">{t('inv.sum')}</td>
                                                 <td className="py-3 text-right font-bold text-primary text-base">{fmt(invoiceTotal)} EUR</td>
                                                 <td></td>
                                             </tr>
@@ -740,9 +742,9 @@ export default function InvoicesPage() {
                         </div>
 
                         <div className="flex justify-end gap-3">
-                            <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">Abbrechen</button>
+                            <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">{t('inv.cancel')}</button>
                             <button type="submit" disabled={newInvoice.items.length === 0} className="btn-primary flex items-center gap-2">
-                                <Save className="w-4 h-4" /> {newInvoice.doc_type} Speichern
+                                <Save className="w-4 h-4" /> {t('inv.doc_type.' + newInvoice.doc_type)} {t('inv.save')}
                             </button>
                         </div>
                     </form>
@@ -751,12 +753,12 @@ export default function InvoicesPage() {
 
             {/* Invoice Cards */}
             {loading ? (
-                <div className="text-center py-12 text-muted-foreground">Lade Dokumente...</div>
+                <div className="text-center py-12 text-muted-foreground">{t('inv.loading')}</div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filtered.length === 0 ? (
                         <div className="col-span-full text-center py-12 text-muted-foreground glass-card">
-                            {search || filterStatus || filterDocType ? 'Keine Dokumente gefunden.' : 'Noch keine Dokumente erstellt.'}
+                            {search || filterStatus || filterDocType ? t('inv.no_results') : t('inv.no_documents')}
                         </div>
                     ) : filtered.map(inv => (
                         <div key={inv.id} className={`glass-card hover:shadow-xl transition-all duration-300 flex flex-col h-full border-t-4 ${getDocTypeBorder(inv.doc_type)} relative overflow-hidden`}>
@@ -771,9 +773,9 @@ export default function InvoicesPage() {
                                     </div>
                                     <div className="flex flex-col items-end gap-1">
                                         <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md border flex items-center gap-1 ${getStatusColor(inv.status)}`}>
-                                            {getStatusIcon(inv.status)} {inv.status}
+                                            {getStatusIcon(inv.status)} {t('inv.status.' + inv.status)}
                                         </span>
-                                        <span className="text-[10px] text-muted-foreground">{inv.doc_type || 'Rechnung'}</span>
+                                        <span className="text-[10px] text-muted-foreground">{t('inv.doc_type.' + (inv.doc_type || 'Rechnung'))}</span>
                                     </div>
                                 </div>
 
@@ -785,16 +787,16 @@ export default function InvoicesPage() {
                                 )}
 
                                 <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/10">
-                                    <div className="text-xs font-medium text-muted-foreground">Betrag</div>
+                                    <div className="text-xs font-medium text-muted-foreground">{t('inv.amount')}</div>
                                     <div className="font-bold text-lg text-primary">{fmt(inv.total_amount)} EUR</div>
                                 </div>
 
                                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                    <span>Datum: {inv.issue_date ? new Date(inv.issue_date).toLocaleDateString('de-DE') : '-'}</span>
+                                    <span>{t('inv.date')}: {inv.issue_date ? new Date(inv.issue_date).toLocaleDateString('de-DE') : '-'}</span>
                                     {(inv.doc_type || 'Rechnung') === 'Rechnung' && (
                                         <div className="flex gap-1">
                                             {settings.paymentMethods.includes('vorkasse') && (
-                                                <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[9px] font-medium">Vorkasse</span>
+                                                <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[9px] font-medium">{t('inv.prepayment')}</span>
                                             )}
                                             {settings.paymentMethods.includes('stripe') && (
                                                 <span className="px-1.5 py-0.5 bg-[#635bff]/10 text-[#635bff] rounded text-[9px] font-medium">Stripe</span>
@@ -808,10 +810,10 @@ export default function InvoicesPage() {
 
                                 {/* Status Change */}
                                 <div>
-                                    <label className="text-[10px] text-muted-foreground font-medium uppercase">Status aendern:</label>
+                                    <label className="text-[10px] text-muted-foreground font-medium uppercase">{t('inv.change_status')}</label>
                                     <select value={inv.status} onChange={e => handleStatusChange(inv.id, e.target.value)}
                                         className="w-full py-1.5 px-2 text-xs rounded-lg border border-primary/20 bg-background mt-1">
-                                        {ALL_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                                        {ALL_STATUSES.map(s => <option key={s} value={s}>{t('inv.status.' + s)}</option>)}
                                     </select>
                                 </div>
                             </div>
@@ -825,7 +827,7 @@ export default function InvoicesPage() {
                                     </button>
                                     <button onClick={() => {
                                         setEmailModal(inv);
-                                        setEmailSubject(`${inv.doc_type || 'Rechnung'} ${inv.invoice_number}`);
+                                        setEmailSubject(`${t('inv.doc_type.' + (inv.doc_type || 'Rechnung'))} ${inv.invoice_number}`);
                                     }}
                                         disabled={!inv.customer_email}
                                         className="btn-primary flex items-center justify-center gap-1.5 py-1.5 text-xs shadow-md">
@@ -837,7 +839,7 @@ export default function InvoicesPage() {
                                     {DOC_TYPES.filter(dt => dt !== (inv.doc_type || 'Rechnung')).map(dt => (
                                         <button key={dt} onClick={() => handleConvertDoc(inv, dt)}
                                             className="btn-secondary flex items-center justify-center gap-1 py-1.5 text-[10px]">
-                                            {getDocTypeIcon(dt)} {dt === 'Lieferschein' ? 'Liefers.' : dt}
+                                            {getDocTypeIcon(dt)} {dt === 'Lieferschein' ? t('inv.doc_type.Liefers.') : t('inv.doc_type.' + dt)}
                                         </button>
                                     ))}
                                     <button onClick={() => handleDelete(inv.id)}
@@ -859,7 +861,7 @@ export default function InvoicesPage() {
                         <div className="flex items-center justify-between p-5 border-b border-primary/10">
                             <h2 className="text-lg font-bold flex items-center gap-2">
                                 <Mail className="w-5 h-5 text-primary" />
-                                {emailModal.doc_type || 'Rechnung'} per E-Mail senden
+                                {t('inv.doc_type.' + (emailModal.doc_type || 'Rechnung'))} {t('inv.send_via_email')}
                             </h2>
                             <button onClick={() => setEmailModal(null)} className="p-1.5 rounded-lg hover:bg-primary/10">
                                 <X className="w-5 h-5" />
@@ -868,36 +870,36 @@ export default function InvoicesPage() {
                         <div className="p-5 space-y-4">
                             <div className="p-3 rounded-lg bg-primary/5 border border-primary/10 text-sm">
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">An:</span>
+                                    <span className="text-muted-foreground">{t('inv.to')}</span>
                                     <span className="font-medium">{emailModal.customer_email}</span>
                                 </div>
                                 <div className="flex justify-between mt-1">
-                                    <span className="text-muted-foreground">Betrag:</span>
+                                    <span className="text-muted-foreground">{t('inv.amount')}:</span>
                                     <span className="font-bold text-primary">{fmt(emailModal.total_amount)} EUR</span>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-xs font-medium mb-1">Betreff</label>
+                                <label className="block text-xs font-medium mb-1">{t('inv.subject')}</label>
                                 <input type="text" value={emailSubject}
                                     onChange={e => setEmailSubject(e.target.value)}
                                     className="w-full py-2 text-sm" />
                             </div>
 
                             <div>
-                                <label className="block text-xs font-medium mb-1">Nachricht (optional)</label>
+                                <label className="block text-xs font-medium mb-1">{t('inv.message_optional')}</label>
                                 <textarea value={emailMessage} onChange={e => setEmailMessage(e.target.value)}
                                     className="w-full py-2 text-sm min-h-[80px]"
-                                    placeholder="Optionale persoenliche Nachricht..." />
+                                    placeholder={t('inv.message_placeholder')} />
                             </div>
 
                             {/* Payment Provider */}
                             <div>
-                                <label className="block text-xs font-medium mb-2">Zahlungsbutton einfuegen</label>
+                                <label className="block text-xs font-medium mb-2">{t('inv.add_payment_button')}</label>
                                 <div className="flex gap-2">
                                     <button type="button" onClick={() => setPaymentProvider('none')}
                                         className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${paymentProvider === 'none' ? 'bg-primary text-white' : 'bg-primary/10 text-primary'}`}>
-                                        Keiner
+                                        {t('inv.none')}
                                     </button>
                                     <button type="button" onClick={() => setPaymentProvider('stripe')}
                                         className={`px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${paymentProvider === 'stripe' ? 'bg-[#635bff] text-white' : 'bg-[#635bff]/10 text-[#635bff]'}`}>
@@ -911,12 +913,12 @@ export default function InvoicesPage() {
                             </div>
 
                             <div className="flex justify-end gap-3 pt-2">
-                                <button onClick={() => setEmailModal(null)} className="btn-secondary">Abbrechen</button>
+                                <button onClick={() => setEmailModal(null)} className="btn-secondary">{t('inv.cancel')}</button>
                                 <button onClick={() => handleSendEmail(emailModal)}
                                     disabled={emailSending}
                                     className="btn-primary flex items-center gap-2">
                                     {emailSending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                                    {emailSending ? 'Sendet...' : 'Jetzt senden'}
+                                    {emailSending ? t('inv.sending') : t('inv.send_now')}
                                 </button>
                             </div>
                         </div>

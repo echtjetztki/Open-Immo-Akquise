@@ -5,6 +5,7 @@ import {
     PlusCircle, Save, Search, Trash2, Edit3, X,
     Users2, Mail, Phone, Building2, MapPin
 } from 'lucide-react';
+import { useLanguage } from '@/lib/language-context';
 
 interface Customer {
     id: number;
@@ -17,6 +18,7 @@ interface Customer {
 }
 
 export default function CustomersPage() {
+    const { t } = useLanguage();
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
@@ -71,7 +73,7 @@ export default function CustomersPage() {
     };
 
     const handleDelete = async (id: number) => {
-        if (!confirm('Kunde wirklich loeschen?')) return;
+        if (!confirm(t('cust.confirm_delete'))) return;
         try {
             await fetch(`/api/crm/customers/${id}`, { method: 'DELETE' });
             fetchCustomers();
@@ -91,12 +93,12 @@ export default function CustomersPage() {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-4">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                        Kunden
+                        {t('cust.title')}
                     </h1>
-                    <p className="text-muted-foreground mt-1">Kundenstamm verwalten</p>
+                    <p className="text-muted-foreground mt-1">{t('cust.subtitle')}</p>
                 </div>
                 <button onClick={() => { resetForm(); setShowForm(true); }} className="btn-primary flex items-center gap-2">
-                    <PlusCircle className="w-4 h-4" /> Neuer Kunde
+                    <PlusCircle className="w-4 h-4" /> {t('cust.new')}
                 </button>
             </div>
 
@@ -105,7 +107,7 @@ export default function CustomersPage() {
                 <Search className="w-5 h-5 text-muted-foreground" />
                 <input
                     type="text"
-                    placeholder="Kunden suchen..."
+                    placeholder={t('cust.search_placeholder')}
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none text-sm py-1"
@@ -117,7 +119,7 @@ export default function CustomersPage() {
                 <div className="glass-card p-6 border-l-4 border-l-primary">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-semibold text-primary">
-                            {editId ? 'Kunde bearbeiten' : 'Neuen Kunden anlegen'}
+                            {editId ? t('cust.edit_title') : t('cust.create_title')}
                         </h3>
                         <button onClick={resetForm} className="text-muted-foreground hover:text-foreground">
                             <X className="w-5 h-5" />
@@ -125,29 +127,29 @@ export default function CustomersPage() {
                     </div>
                     <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-medium mb-1">Name *</label>
-                            <input type="text" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full py-2 text-sm" placeholder="Max Mustermann" />
+                            <label className="block text-xs font-medium mb-1">{t('cust.label_name')}</label>
+                            <input type="text" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full py-2 text-sm" placeholder={t('cust.placeholder_name')} />
                         </div>
                         <div>
-                            <label className="block text-xs font-medium mb-1">Firma</label>
-                            <input type="text" value={form.company} onChange={e => setForm({ ...form, company: e.target.value })} className="w-full py-2 text-sm" placeholder="Firma GmbH" />
+                            <label className="block text-xs font-medium mb-1">{t('cust.label_company')}</label>
+                            <input type="text" value={form.company} onChange={e => setForm({ ...form, company: e.target.value })} className="w-full py-2 text-sm" placeholder={t('cust.placeholder_company')} />
                         </div>
                         <div>
-                            <label className="block text-xs font-medium mb-1">E-Mail</label>
-                            <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="w-full py-2 text-sm" placeholder="max@beispiel.de" />
+                            <label className="block text-xs font-medium mb-1">{t('cust.label_email')}</label>
+                            <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="w-full py-2 text-sm" placeholder={t('cust.placeholder_email')} />
                         </div>
                         <div>
-                            <label className="block text-xs font-medium mb-1">Telefon</label>
-                            <input type="text" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="w-full py-2 text-sm" placeholder="+49 ..." />
+                            <label className="block text-xs font-medium mb-1">{t('cust.label_phone')}</label>
+                            <input type="text" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="w-full py-2 text-sm" placeholder={t('cust.placeholder_phone')} />
                         </div>
                         <div className="md:col-span-2">
-                            <label className="block text-xs font-medium mb-1">Adresse</label>
-                            <input type="text" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} className="w-full py-2 text-sm" placeholder="Strasse, PLZ Ort" />
+                            <label className="block text-xs font-medium mb-1">{t('cust.label_address')}</label>
+                            <input type="text" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} className="w-full py-2 text-sm" placeholder={t('cust.placeholder_address')} />
                         </div>
                         <div className="md:col-span-2 flex justify-end gap-3 mt-2">
-                            <button type="button" onClick={resetForm} className="btn-secondary">Abbrechen</button>
+                            <button type="button" onClick={resetForm} className="btn-secondary">{t('cust.btn_cancel')}</button>
                             <button type="submit" className="btn-primary flex items-center gap-2">
-                                <Save className="w-4 h-4" /> {editId ? 'Speichern' : 'Anlegen'}
+                                <Save className="w-4 h-4" /> {editId ? t('cust.btn_save') : t('cust.btn_create')}
                             </button>
                         </div>
                     </form>
@@ -156,10 +158,10 @@ export default function CustomersPage() {
 
             {/* Customer List */}
             {loading ? (
-                <div className="text-center py-12 text-muted-foreground">Lade Kunden...</div>
+                <div className="text-center py-12 text-muted-foreground">{t('cust.loading')}</div>
             ) : filtered.length === 0 ? (
                 <div className="glass-card text-center py-12 text-muted-foreground">
-                    {search ? 'Keine Kunden gefunden.' : 'Noch keine Kunden angelegt.'}
+                    {search ? t('cust.no_results') : t('cust.empty')}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -175,10 +177,10 @@ export default function CustomersPage() {
                                     )}
                                 </div>
                                 <div className="flex gap-1">
-                                    <button onClick={() => handleEdit(c)} className="p-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors" title="Bearbeiten">
+                                    <button onClick={() => handleEdit(c)} className="p-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors" title={t('cust.btn_edit')}>
                                         <Edit3 className="w-4 h-4" />
                                     </button>
-                                    <button onClick={() => handleDelete(c.id)} className="p-1.5 rounded-lg hover:bg-error/10 text-muted-foreground hover:text-error transition-colors" title="Loeschen">
+                                    <button onClick={() => handleDelete(c.id)} className="p-1.5 rounded-lg hover:bg-error/10 text-muted-foreground hover:text-error transition-colors" title={t('cust.btn_delete')}>
                                         <Trash2 className="w-4 h-4" />
                                     </button>
                                 </div>
