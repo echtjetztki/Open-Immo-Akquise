@@ -29,12 +29,16 @@ const isTeamleiterPath = (path: string) =>
 const isAgentAreaPath = (path: string) =>
     path === '/agent' || path.startsWith('/agent/');
 
+import { hasActiveLicenseForRequest } from '@/lib/license';
+
 // Öffentliche Routen (kein Login nötig)
 const PUBLIC_PATHS = [
     '/login', 
     '/agent', 
     '/empfehlung', 
     '/api/referrals/public',
+    '/api/license/verify-basic',
+    '/api/health',
     '/payment',
     '/api/payment',
     '/.well-known'
@@ -90,6 +94,12 @@ export async function proxy(request: NextRequest) {
             if (isLoggedInAsTeamleiter) return redirectTo('/user');
         }
         return allowRequest();
+    }
+
+    // Lizenzprüfung für alle nicht-öffentlichen Seiten
+    const hasLicense = await hasActiveLicenseForRequest(request);
+    if (!hasLicense) {
+        return redirectTo('/login');
     }
 
     // Alle anderen Seiten sind geschützt

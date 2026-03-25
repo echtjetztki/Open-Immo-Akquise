@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Database, CheckCircle, XCircle, RefreshCw, Clock, Info, Key, Zap, Webhook, Bot, ArrowRightLeft } from 'lucide-react';
+import { Database, CheckCircle, XCircle, RefreshCw, Clock, Info, Key, Zap, Webhook, Bot, ArrowRightLeft, ShoppingBag } from 'lucide-react';
 import { PUBLIC_DEMO_READ_ONLY, PUBLIC_DEMO_READ_ONLY_MESSAGE } from '@/lib/public-demo-mode';
 import { useLanguage } from '@/lib/language-context';
 
@@ -93,6 +93,32 @@ export default function SettingsPage() {
     const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
     const [supabaseTesting, setSupabaseTesting] = useState(false);
     const [supabaseResult, setSupabaseResult] = useState<DBTestResult | null>(null);
+    const [licenseInfo, setLicenseInfo] = useState<{
+        active: boolean;
+        host: string;
+        path: string;
+        installations: number;
+        max_installations: number | null;
+        installations_list: { id: number; host: string; path: string; last_verified_at: string }[];
+    } | null>(null);
+    const [loadingLicense, setLoadingLicense] = useState(true);
+
+    useEffect(() => {
+        const fetchLicenseInfo = async () => {
+            try {
+                const res = await fetch('/api/settings/license-status');
+                if (res.ok) {
+                    const data = await res.json();
+                    setLicenseInfo(data);
+                }
+            } catch {
+                console.error('Could not fetch license info');
+            } finally {
+                setLoadingLicense(false);
+            }
+        };
+        fetchLicenseInfo();
+    }, []);
 
     useEffect(() => {
         let cancelled = false;
@@ -362,6 +388,70 @@ export default function SettingsPage() {
                     {PUBLIC_DEMO_READ_ONLY_MESSAGE} {t('settings.demo_disabled')}
                 </div>
             )}
+
+            {/* Lizenz-Sektion */}
+            <div className="glass-card p-6 space-y-6">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="p-3 rounded-xl bg-primary/10">
+                            <Key className="w-6 h-6 text-primary" />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-bold">Lizenz-Management</h2>
+                            <p className="text-sm text-muted-foreground">
+                                Aktive Installationen und Begrenzungen verwalten
+                            </p>
+                        </div>
+                    </div>
+                    {licenseInfo?.active && (
+                        <div className="flex items-center gap-2 text-success font-bold px-3 py-1 bg-success/10 rounded-full text-xs box-shadow-none">
+                            <CheckCircle className="w-3.5 h-3.5" />
+                            Aktiv
+                        </div>
+                    )}
+                </div>
+
+                {loadingLicense ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground animate-pulse">
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        Lade Lizenzinformationen...
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
+                            <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-1">Host & Pfad</p>
+                            <div className="font-mono text-xs break-all truncate" title={`${licenseInfo?.host}${licenseInfo?.path}`}>
+                                {licenseInfo?.host}{licenseInfo?.path}
+                            </div>
+                        </div>
+                        <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
+                            <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-1">Installationen</p>
+                            <div className="flex items-center gap-2">
+                                <span className={`text-lg font-black ${licenseInfo?.max_installations && licenseInfo?.installations >= licenseInfo.max_installations ? 'text-error' : 'text-primary'}`}>
+                                    {licenseInfo?.installations ?? 0}
+                                </span>
+                                <span className="text-muted-foreground text-xs">/ {licenseInfo?.max_installations ?? '∞'} Seats</span>
+                            </div>
+                        </div>
+                         <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 flex flex-col justify-center">
+                            <a href="https://echtjetztki.at/open-immo/" target="_blank" rel="noopener noreferrer" className="btn-secondary py-2 px-3 text-[10px] uppercase font-black tracking-widest flex items-center justify-center gap-2 w-full">
+                                <ShoppingBag className="w-3 h-3" />
+                                Mehr Seats anfordern
+                            </a>
+                        </div>
+                    </div>
+                )}
+
+                <div className="p-4 rounded-xl bg-accent-yellow/5 border border-accent-yellow/20">
+                     <div className="flex items-start gap-3">
+                        <Info className="w-4 h-4 text-accent-yellow flex-shrink-0 mt-0.5" />
+                        <div className="text-xs leading-relaxed text-muted-foreground">
+                            Eine Installation ist an die Kombination aus <strong className="text-foreground">Domain (Host)</strong> und <strong className="text-foreground">Ordner-Pfad</strong> gebunden. 
+                            Beim Erreichen des Limits werden weitere Installationen blockiert. Kontaktieren Sie den Support für eine Erweiterung Ihrer Lizenz.
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {/* Datenbank Section */}
             <div className="glass-card p-6 space-y-6">
