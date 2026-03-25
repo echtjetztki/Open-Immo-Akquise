@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutGrid, PlusCircle, TrendingUp, UserCircle2, Menu, X, BarChart3, MessageCircle, LogOut, Users2 } from 'lucide-react';
+import { LayoutGrid, PlusCircle, TrendingUp, UserCircle2, Menu, X, BarChart3, MessageCircle, LogOut, Users2, BookUser, Package, FileText } from 'lucide-react';
 import { clsx } from 'clsx';
 import { PUBLIC_DEMO_READ_ONLY } from '@/lib/public-demo-mode';
 import { useLanguage } from '@/lib/language-context';
@@ -55,6 +55,9 @@ export function Sidebar() {
     const adminItems = [
         { name: t('nav.team_dashboard'), href: '/', icon: LayoutGrid },
         { name: t('nav.crm_invoices'), href: '/crm', icon: Users2 },
+        { name: 'Kunden', href: '/customers', icon: BookUser },
+        { name: 'Artikel', href: '/articles', icon: Package },
+        { name: 'Rechnungen', href: '/invoices', icon: FileText },
         { name: t('nav.user_management'), href: '/users', icon: UserCircle2 },
         { name: t('nav.settings'), href: '/settings', icon: TrendingUp },
         { name: t('nav.ai_chat'), href: '/chat', icon: MessageCircle },
