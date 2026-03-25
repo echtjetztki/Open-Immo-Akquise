@@ -1,7 +1,7 @@
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-const SESSION_VERSION = 1;
+const SESSION_VERSION = 2; // Incremented version for encryption
 
 export type SessionRole = 'admin' | 'user' | 'agent';
 
@@ -12,18 +12,13 @@ export type SessionPayload = {
     role?: SessionRole;
 };
 
-type SignedSessionEnvelope = {
+/**
+ * Encrypted Session Envelope
+ */
+type EncryptedSessionEnvelope = {
     v: number;
+    iv: string;
     p: string;
-    s: string;
-};
-
-const normalizeBase64Url = (value: string) => value.replace(/-/g, '+').replace(/_/g, '/');
-
-const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
-    const copy = new Uint8Array(bytes.length);
-    copy.set(bytes);
-    return copy.buffer;
 };
 
 const toBase64Url = (bytes: Uint8Array) => {
@@ -39,67 +34,35 @@ const toBase64Url = (bytes: Uint8Array) => {
 };
 
 const fromBase64Url = (value: string): Uint8Array | null => {
-    const normalized = normalizeBase64Url(value);
+    const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
     const padding = '='.repeat((4 - (normalized.length % 4)) % 4);
     const base64 = normalized + padding;
-
     try {
         if (typeof Buffer !== 'undefined') {
             return new Uint8Array(Buffer.from(base64, 'base64'));
         }
-
         const binary = atob(base64);
         const bytes = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) {
-            bytes[i] = binary.charCodeAt(i);
-        }
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
         return bytes;
-    } catch {
-        return null;
-    }
+    } catch { return null; }
 };
 
 const getSessionSecret = () =>
-    (
-        process.env.SESSION_SECRET ||
-        process.env.SUPABASE_DATABASE_URL ||
-        process.env.SUPABASE_DB_URL ||
-        ''
-    ).trim();
+    (process.env.SESSION_SECRET || process.env.SUPABASE_DATABASE_URL || 'fallback-secret-key-at-least-32-chars-long-!!!').trim();
 
-const importSigningKey = async () => {
+/**
+ * Derives a cryptographic key from the session secret
+ */
+const getEncryptionKey = async () => {
     const secret = getSessionSecret();
-    if (!secret) return null;
-
+    const hash = await crypto.subtle.digest('SHA-256', encoder.encode(secret));
     return crypto.subtle.importKey(
         'raw',
-        encoder.encode(secret),
-        { name: 'HMAC', hash: 'SHA-256' },
+        hash,
+        { name: 'AES-GCM' },
         false,
-        ['sign', 'verify']
-    );
-};
-
-const signPayload = async (payloadBase64Url: string): Promise<string | null> => {
-    const key = await importSigningKey();
-    if (!key) return null;
-
-    const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(payloadBase64Url));
-    return toBase64Url(new Uint8Array(signature));
-};
-
-const verifyPayload = async (payloadBase64Url: string, signatureBase64Url: string): Promise<boolean> => {
-    const key = await importSigningKey();
-    if (!key) return false;
-
-    const signatureBytes = fromBase64Url(signatureBase64Url);
-    if (!signatureBytes) return false;
-
-    return crypto.subtle.verify(
-        'HMAC',
-        key,
-        toArrayBuffer(signatureBytes),
-        encoder.encode(payloadBase64Url)
+        ['encrypt', 'decrypt']
     );
 };
 
@@ -107,89 +70,59 @@ const isSessionRole = (role: unknown): role is SessionRole =>
     role === 'admin' || role === 'user' || role === 'agent';
 
 const sanitizePayload = (value: unknown): SessionPayload | null => {
-    if (!value || typeof value !== 'object') {
-        return null;
-    }
-
+    if (!value || typeof value !== 'object') return null;
     const candidate = value as SessionPayload;
-    if (!isSessionRole(candidate.role)) {
-        return null;
-    }
-
+    if (!isSessionRole(candidate.role)) return null;
     const payload: SessionPayload = { role: candidate.role };
-
-    if (typeof candidate.userId === 'number' && Number.isFinite(candidate.userId)) {
-        payload.userId = candidate.userId;
-    }
-    if (typeof candidate.username === 'string') {
-        payload.username = candidate.username;
-    }
-    if (typeof candidate.displayName === 'string') {
-        payload.displayName = candidate.displayName;
-    }
-
+    if (typeof candidate.userId === 'number') payload.userId = candidate.userId;
+    if (typeof candidate.username === 'string') payload.username = candidate.username;
+    if (typeof candidate.displayName === 'string') payload.displayName = candidate.displayName;
     return payload;
 };
 
 export async function encodeSessionValue(payload: SessionPayload): Promise<string> {
     const sanitized = sanitizePayload(payload);
-    if (!sanitized) {
-        throw new Error('invalid_session_payload');
-    }
+    if (!sanitized) throw new Error('invalid_session_payload');
 
-    const payloadBase64Url = toBase64Url(encoder.encode(JSON.stringify(sanitized)));
-    const signature = await signPayload(payloadBase64Url);
-    if (!signature) {
-        throw new Error('session_secret_not_configured');
-    }
+    const key = await getEncryptionKey();
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encrypted = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        encoder.encode(JSON.stringify(sanitized))
+    );
 
-    const envelope: SignedSessionEnvelope = {
+    const envelope: EncryptedSessionEnvelope = {
         v: SESSION_VERSION,
-        p: payloadBase64Url,
-        s: signature,
+        iv: toBase64Url(iv),
+        p: toBase64Url(new Uint8Array(encrypted)),
     };
 
     return JSON.stringify(envelope);
 }
 
-const parseEnvelope = (raw: string): SignedSessionEnvelope | null => {
-    try {
-        const parsed = JSON.parse(raw) as Partial<SignedSessionEnvelope>;
-        if (
-            parsed?.v !== SESSION_VERSION ||
-            typeof parsed?.p !== 'string' ||
-            typeof parsed?.s !== 'string'
-        ) {
-            return null;
-        }
-        return parsed as SignedSessionEnvelope;
-    } catch {
-        return null;
-    }
-};
-
 export async function decodeSessionValue(raw: string | null | undefined): Promise<SessionPayload | null> {
     if (!raw) return null;
 
-    const envelope = parseEnvelope(raw);
-    if (!envelope) {
-        return null;
-    }
-
-    const valid = await verifyPayload(envelope.p, envelope.s);
-    if (!valid) {
-        return null;
-    }
-
-    const payloadBytes = fromBase64Url(envelope.p);
-    if (!payloadBytes) {
-        return null;
-    }
-
     try {
-        const parsed = JSON.parse(decoder.decode(payloadBytes));
+        const envelope = JSON.parse(raw) as Partial<EncryptedSessionEnvelope>;
+        if (envelope.v !== SESSION_VERSION || !envelope.iv || !envelope.p) return null;
+
+        const key = await getEncryptionKey();
+        const iv = fromBase64Url(envelope.iv);
+        const ciphertext = fromBase64Url(envelope.p);
+        if (!iv || !ciphertext) return null;
+
+        const decrypted = await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv },
+            key,
+            ciphertext
+        );
+
+        const parsed = JSON.parse(decoder.decode(decrypted));
         return sanitizePayload(parsed);
-    } catch {
+    } catch (e) {
+        console.error('Session decryption failed:', e);
         return null;
     }
 }
