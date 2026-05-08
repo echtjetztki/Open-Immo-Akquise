@@ -56,11 +56,13 @@ next-env.d.ts
 # Mobile / Android / iOS
 android/
 android-premium/
+android-standard/
 ios/
 capacitor.config.ts
 ionic.config.json
 package-lock.json
 capacitor-cordova-android-plugins/
+capacitor-plugins/
 capacitor.settings.gradle
 gradle/
 gradlew
@@ -70,6 +72,22 @@ google-services.json
 GoogleService-Info.plist
 *.jks
 *.keystore
+
+# Mobile-App-Repo (separate Codebase — github.com/echtjetztki/Open-Immo-Akquise-APP)
+# Falls Web- und Android-Repo nebeneinander liegen oder versehentlich nested werden
+Aquise-app-android/
+open-immo-akquise-app/
+Open-Immo-Akquise-APP/
+
+# iOS spezifisch
+*.ipa
+*.app/
+DerivedData/
+*.mobileprovision
+*.p12
+Pods/
+Podfile.lock
+xcuserdata/
 
 # Temporary local workdirs
 .tmp_wiki_publish/
