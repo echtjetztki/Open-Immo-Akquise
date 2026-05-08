@@ -11,7 +11,7 @@ Das **User Dashboard** ist eine vereinfachte Ansicht für Mitarbeiter, die nur f
 
 ## Zugriff
 
-**URL:** [https://open-akquise.vercel.app/user](https://open-akquise.vercel.app/user)
+**URL:** [https://open-immo-akquise.vercel.app/user](https://open-immo-akquise.vercel.app/user)
 
 ## Funktionen
 

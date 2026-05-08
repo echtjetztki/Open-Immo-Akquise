@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Open-Akquise Admin',
   webDir: 'public',
   server: {
-    url: 'https://open-akquise.vercel.app',
+    url: 'https://open-immo-akquise.vercel.app',
     cleartext: true
   },
   appendUserAgent: "OpenAkquiseAdmin",

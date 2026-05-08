@@ -53,7 +53,7 @@ Damit das Dashboard funktioniert, musst du die Datenbank-Tabelle in Supabase akt
 
 ## 🔄 Nach dem Update:
 
-1. Öffne das Dashboard: https://open-akquise.vercel.app
+1. Öffne das Dashboard: https://open-immo-akquise.vercel.app
 2. Gehe zur **Eingabe-Seite**
 3. Erstelle eine neue Property mit dem **Kaufpreis**-Feld
 4. Alle Provisionen werden automatisch berechnet und angezeigt! ✅
